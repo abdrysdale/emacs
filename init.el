@@ -8,9 +8,9 @@
 (require 'server)
 (server-start)
 
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;====================;;
 ;; Garbage Collection ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;====================;;
 
 ;; File: elisp.info,  Node: Garbage Collection, Up: GNU Emacs Internals
 
@@ -61,9 +61,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;====================;;
 ;; Package Management ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;====================;;
 
 ;; Straight
 (defvar bootstrap-version)
@@ -106,6 +106,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Git Time Machine ;;
 (use-package git-timemachine)
 (setq git-timemachine-abbreviation-length 6)
+(global-set-key (kbd "C-c g t") #'git-timemachine)
 
 ;; File modes ;;
 ;; No config needed - just needed for the file types.
@@ -115,9 +116,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package json-mode)
 (use-package markdown-mode)
 
-;;;;;;;;;;;;
+;;========;;
 ;; System ;;
-;;;;;;;;;;;;
+;;========;;
 
 ;; Prevent stale elisp bytecode from shadowing more up-to-date source files
 (setq load-prefer-newer t)
@@ -136,9 +137,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Sets the default directory
 (setq default-directory "~")
 
-;;;;;;;;
+;;====;;
 ;; UI ;;
-;;;;;;;;
+;;====;;
 
 ;; Fireplace ;;
 (use-package fireplace)
@@ -148,6 +149,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package dashboard
   :config
   (require 'page-break-lines))
+
+;; Which-Key ;;
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.1))
 
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -235,9 +243,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c f") 'highlight-compare-with-file)
 (global-set-key (kbd "C-c c b") 'highlight-compare-buffers)
 
-;;;;;;;;;;;;;;;;;;;
+;;===============;;
 ;; Basic Editing ;;
-;;;;;;;;;;;;;;;;;;;
+;;===============;;
 
 (save-place-mode 1)
 (setq save-interprogram-paste-before-kill t)
@@ -246,9 +254,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 
-;;;;;;;;;;;;;;;;;;;;;;
+;;==================;;
 ;; Advanced Editing ;;
-;;;;;;;;;;;;;;;;;;;;;;
+;;==================;;
 
 ;; Tweaking Icomplete
 (require 'icomplete)
@@ -300,9 +308,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c d c") 'ispell-comments-and-strings)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Programming Language ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;=======================;;
+;; Programming Languages ;;
+;;=======================;;
 
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -316,7 +324,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;;;; Lean ;;;
+;; Lean ;;
 (use-package lean4-mode
   :straight (lean4-mode
 	     :type git
@@ -340,7 +348,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package latex-pretty-symbols)
 (add-hook 'latex-mode-hook #'prettify-symbols-mode)
 
-;;;; Emacs Speaks Statistics ;;;;
+;; Emacs Speaks Statistics ;;
 (use-package ess)
 ;; (well also Python but that's not important right now)
 (setq ess-ask-for-ess-directory t) ;; I actually like this feature!
@@ -350,16 +358,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'ess-r-mode)
 (define-key ess-r-mode-map (kbd "M-?") nil) ;; unbinds M-?
 
-;;;;;;;;;;;;;;;;
+;;============;;
 ;; Navigation ;;
-;;;;;;;;;;;;;;;;
+;;============;;
 
 ;; Outline
 (with-eval-after-load "outline"
   (define-key outline-minor-mode-map (kbd "C-c o")
               (lookup-key outline-minor-mode-map (kbd "C-c @"))))
 
-(outline-minor-mode)
+(setq-default outline-minor-mode t)
 
 ;; Search
 (setq isearch-repeat-on-direction-change t
@@ -425,9 +433,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq midnight-mode t)
 (midnight-delay-set 'midnight-delay "02:00am")
 
-;;;;;;;;;;;
+;;=======;;
 ;; Dired ;;
-;;;;;;;;;;;
+;;=======;;
 
 (setq dired-listing-switches "-alh")
 
@@ -455,9 +463,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c d w") 'wdired-change-to-wdired-mode)
 (global-set-key (kbd "C-c d ,") 'dired-other-window)
 
-;;;;;;;;;;;;;;;;;
+;;=============;;
 ;; Development ;;
-;;;;;;;;;;;;;;;;;
+;;=============;;
 
 ;; Python
 (require 'flymake)
@@ -476,9 +484,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics)
 
 
-;;;;;;;;;;;
+;;=======;;
 ;; Tools ;;
-;;;;;;;;;;;
+;;=======;;
 
 ;; Shell/Eshell
 (require 'em-banner)
@@ -529,9 +537,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph" nil 3600)
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
 
-;;;;;;;;;;
+;;======;;
 ;; Ebib ;;
-;;;;;;;;;;
+;;======;;
 
 (use-package ebib)
 (global-set-key (kbd "C-c m r") #'ebib)
@@ -569,9 +577,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (kill-new (buffer-string))
       (message "DOI copied!"))))
 
-;;;;;;;;;;;;;
+;;=========;;
 ;; Windows ;;
-;;;;;;;;;;;;;
+;;=========;;
 
 (global-set-key (kbd "C-M-w") 'scroll-other-window-down)
 
@@ -663,9 +671,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq switch-to-buffer-in-dedicated-window "pop"
       switch-to-buffer-obey-display-actions t)
 
-;;;;;;;;;;;;;;
+;;==========;;
 ;; Org Mode ;;
-;;;;;;;;;;;;;;
+;;==========;;
 
 (variable-pitch-mode 0)
 (auto-fill-mode 0)
@@ -723,127 +731,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :after org)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-;;;;;;;;;;;;;;;;;;
+;;==============;;
 ;; Abbreviation ;;
-;;;;;;;;;;;;;;;;;;
+;;==============;;
 
-;; Org mode
-(progn
-  (when (boundp 'org-mode-abbrev-table)
-    (clear-abbrev-table org-mode-abbrev-table))
-  (define-abbrev-table 'org-mode-abbrev-table
-    '(
-      ("zbs" "#+begin_src" nil 0)
-      ("zes" "#+end_src" nil 0)
-      ("zbx" "#+begin_example" nil 0) ;; Begin eXample
-      ("zex" "#+end_example" nil 0)
-      ("zse" "#+begin_src emacs-lisp\n\n#+end_src" nil 0)
-      ("zxe" "#+begin_example emacs-lisp\n\n#+end_example" nil 0)
-      ("zsr" "#+begin_src R\n\n#+end_src" nil 0)
-      ("zxr" "#+begin_example R\n\n#+end_example" nil 0)
-      ("zsp" "#+begin_src python\n\n#+end_src" nil 0)
-      ("zxp" "#+begin_example python\n\n#+end_example" nil 0)
-      ("zsc" "#+begin_src perl\n\n#+end_src" nil 0)  ;; Perl is the cammel language (hence C)
-      ("zxc" "#+begin_example perl\n\n#+end_example" nil 0)
-      ("bahai" "bahá’í" nil 0)
-      )))
+(load "~/abbrevs.el")
 
-;; EShell
-(progn
-  (when (boundp 'eshell-mode-abbrev-table)
-    (clear-abbrev-table eshell-mode-abbrev-table))
-  (define-abbrev-table 'eshell-mode-abbrev-table
-    '(
-      ("ct" "ctags -e -R -f TAGS ." nil 0)
-      ("ctl" "ctags -e -R -f TAGS --languages=" nil 0)
-      )))
-
-;; Elisp
-(progn
-  (when (boundp 'elisp-mode-abbrev-table)
-    (clear-abbrev-table elisp-mode-abbrev-table))
-  (define-abbrev-table 'elisp-mode-abbrev-table
-    '(
-      ("gsk" "(global-set-key (kbd \"" nil 0)
-      ("usp" "(use-package " nil 0)
-      ("dlk" "(me/leader-keys \"" nil 0)
-      )))
-
-;; Python
-(progn
-    (when (boundp 'python-mode-abbrev-table)
-      (clear-abbrev-table python-mode-abbrev-table))
-    (define-abbrev-table 'python-mode-abbrev-table
-      '(
-        ("zis" "import sys" nil 0)
-        ("zio" "import os" nil 0)
-        ("zit" "from typing import Optional" nil 0)
-        ("zim" "import multiprocessing as mp" nil 0)
-        ("zil" "import logging\n\nlogger = logging.getLogger(__name__)" nil 0)
-        ("zmain" "if __name__ == \"__main__\":\n")
-        ("zs" "(self, " nil 0)
-        )))
-
-;; R
-(progn
-    (when (boundp 'ess-r-mode-abbrev-table)
-      (clear-abbrev-table ess-r-mode-abbrev-table))
-    (define-abbrev-table 'ess-r-mode-abbrev-table
-      '(
-        ("iis" "<-" nil 0)
-        ("ggp" "plot <- ggplot" nil 0)
-        ("ggs" "ggsave" nil 0)
-        ("fun" "function" nil 0)
-        ("dafa" "data.frame" nil 0)
-        )))
-
-;; Fortran
-(progn
-    (when (boundp 'fortran-mode-abbrev-table)
-      (clear-abbrev-table fortran-mode-abbrev-table))
-    (define-abbrev-table 'fortran-mode-abbrev-table
-      '(
-        ("iii" "integer, intent(in) :: " nil 0)
-        ("rii" "real(dp), intent(in) :: " nil 0)
-        ("iio" "integer, intent(out) :: " nil 0)
-        ("rio" "real(dp), intent(out) :: " nil 0)
-        ("iib" "integer, intent(inout) :: " nil 0)
-        ("rib" "real(dp), intent(inout) :: " nil 0)
-        ("int" "integer" nil 0)
-        ("rdp" "real(dp)" nil 0)
-        ("alc" "allocatable" nil 0)
-        ("fun" "function" nil 0)
-        )))
-
-;; LaTeX
-(progn
-    (when (boundp 'latex-mode-abbrev-table)
-      (clear-abbrev-table latex-mode-abbrev-table))
-    (define-abbrev-table 'latex-mode-abbrev-table
-      '(
-        ("zbeq" "\begin{equation}\n\end{equation}" nil 0)
-        ("zali" "\begin{align}\n\end{align}" nil 0)
-        ("zben" "\begin{enumerate}\n\end{enumerate}" nil 0)
-        ("zla" "\label" nil 0)
-        ("zca" "\caption" nil 0)
-        ("zi" "^{(i)}" nil 0)
-        ("zj" "^{(j)}" nil 0)
-        ("zk" "^{(k)}" nil 0)
-        ("zn" "^{(n)}" nil 0)
-        ("zm" "^{(m)}" nil 0)
-        ("zrr" "\in \mathcal{R}" nil 0)
-        ("zrn" "\in \mathcal{R}^n" nil 0)
-        ("zfig" 
-         "\begin{figure}[h]\n\centering\n\includegraphics[width=0.5\linewidth]{}\n\end{figure}"
-         nil 0)
-        ("bf" "\textbf{" nil 0)
-        )))
-
-(add-to-list 'text-mode-hook 'abbrev-mode)
+(setq-default abbrev-mode t)
 (setq save-abbrevs nil)
 (setq abbrev-suggest-hint-threshold 0)
 (setq abbrev-suggest t)
-(abbrev-mode)
 
 ;; Key binding for unexpanding abbrevs
 (global-set-key (kbd "C-x a u") 'unexpand-abbrev)
@@ -851,111 +748,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq dabbrev-limit nil)  ;; No limit on searching back
 (setq dabbrev-check-all-buffers t)
 
-;; Boilerplate
-(defun boilerplate/py-sql-connecurrent ()
-    (interactive)
-    (insert "
-def execute_sql_concurrently(
-        db_path: str,
-        query: Optional[str] = None,
-        dataframe: Optional[pd.DataFrame] = None,
-        commit: Optional[bool] = False,
-        fetchone: Optional[bool] = False,
-        max_tries: Optional[int] = -1,
-        timeout: Optional[int] = 10,
-) -> tuple:
-    \"\"\"Executes an SQL command concurrently
-
-    Args:
-        db_path (str) : Path to SQLite3 database.
-        query (str, optional) : Query to execute.
-        dataframe (pd.DataFrame, optional) : If present, will write a datafrom to sql.
-        df_table (str, optional) : Table to write to if dataframe is present.
-        commit (bool, optional) : If True, will perform a commit after the query.
-        fetchone (bool, optional) : If True, will return only the first result.
-                Defaults to False.
-        max_tries (int, optional) : Maximum number of retries for SQL connection
-                If <0, will perpetually retry. Defaults to -1.
-        timeout (int, optional) : Timeout for SQLite connection in seconds.
-                Defaults to 10
-
-    Returns:
-        result (list) : Result from the SQL query.
-    \"\"\"
-
-    db_opt_sucessful = False
-    tries = -1
-
-    while not db_opt_sucessful:
-        tries += 1
-        try:
-            con = sqlite3.connect(db_path, timeout=timeout)
-            if query is not None:
-                cursor = con.cursor()
-                cursor.execute(query)
-
-                if fetchone:
-                    result = cursor.fetchone()[0]
-                else:
-                    result = cursor.fetchall()
-
-                if commit:
-                    con.commit()
-
-            if dataframe is not None:
-                if df_table is None:
-                    logger.critical(
-                        \"If using the dataframe keyword argument \"
-                        \"you must also supply the df_table keyword argument\"
-                    )
-                    raise ValueError(\"df_table must be supplied if supplying a dataframe.\")
-
-                result = dataframe.to_sql(df_table, con, **kwargs)
-            con.close()
-            db_opt_sucessful = True
-
-        except sqlite3.OperationalError:
-            if tries >= max_tries and max_tries >= 0:
-                logger.critical(
-                    \"Maximum SQLite3 tries exceed \"
-                    f\"({tries}/{max_tries})\"
-                )
-                raise
-
-    return result"))
-
-(defun boilerplate/py-argparser ()
-  (interactive)
-  (insert "
-parser = argparse.ArgumentParser(
-        description=''
-     )
-
-args = parser.parse_args()"))
-
-(defun boilerplate/py-parser-add-arg ()
-  (interactive)
-  (insert "
-parser.add_argument(
-        '--arg',
-        default=None,
-        type=int,
-        help='',
-    )"))
-
-(defun boilerplate/py-parser-add-log ()
-  (interactive)
-  (insert "
-parser.add_argument(
-        '--log',
-        default='warning',
-        type=str,
-        help='Log level, can be debug, info, warning, error or critical.',
-    )
-
-args = parser.parse_args()
-log_level = getattr(logging, args.log.upper())
-logging.basicConfig(level=log_level)"))
 
 ;;;;;;;;;;;;;
 ;; STARTUP ;;

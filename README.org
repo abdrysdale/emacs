@@ -1,0 +1,8 @@
+#+title: My Emacs Config
+#+author: Alex Drysdale
+
+* My Emacs Config
+
+This repository contains my minimal (but quite useful) Emacs config.
+
+If this sentence is here then I'm still currently in the process of porting my rather large but messy emacs config.

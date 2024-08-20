@@ -422,6 +422,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "M-[") #'previous-buffer)
 (global-set-key (kbd "M-]") #'next-buffer)
 (global-set-key (kbd "C-c b a") #'append-to-buffer)
+(global-set-key (kbd "C-x k") #'kill-this-buffer)
 
 ;; Scratch buffer
 (setq initial-major-mode #'org-mode)

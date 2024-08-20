@@ -739,7 +739,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Abbreviation ;;
 ;;==============;;
 
-(load "~/abbrevs.el")
+(load (concat user-emacs-directory "abbrevs.el"))
 
 (setq-default abbrev-mode t)
 (setq save-abbrevs nil)

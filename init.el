@@ -136,6 +136,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Sets the default directory
 (setq default-directory "~")
 
+;; Sets the auth source (requires gpg!)
+(setq auth-sources '("~/.authinfo.gpg"))
+
 ;;;;;;;;
 ;; UI ;;
 ;;;;;;;;

@@ -138,7 +138,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq default-directory "~")
 
 ;; Sets the auth source (requires gpg!)
-(setq auth-sources '("~/.authinfo.gpg"))
+(setq auth-sources '("~/.authinfo.gpg")
+      epa-gpg-program "gpg"         ;; Ensures GPG program is GPG
+      epa-pinentry-mode 'loopback)  ;; Needed if GPG requires a password for decrypting keys
 
 ;;====;;
 ;; UI ;;

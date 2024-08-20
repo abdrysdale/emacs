@@ -537,7 +537,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c u u") 'eww)
 (global-set-key (kbd "C-c u t") 'org-toggle-link-display)
 
-;; Newsticker
+;; Newsticker (RSS)
 (global-set-key (kbd "C-c n") #'newsticker-show-news)
 (setq newsticker-frontend #'newsticker-treeview
       newsticker-hide-old-items-in-newsticker-buffer t)
@@ -546,6 +546,24 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("npj ml" "https://www.nature.com/natmachintell.rss" nil 3600)
         ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph" nil 3600)
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
+
+;; IRC
+(rcirc-track-minor-mode 1)
+(load "~/.irc-auth")
+(setq rcirc-server-alist
+      '(("irc.libera.chat"
+         :channels ("#emacs"
+                    "#python"
+                    "#fortran"
+                    "#lisp"
+                    "#commonlisp"
+                    "#math"
+                    "#machinelearning"))))
+(setq rcirc-default-nick "TactfulCitrus"
+      rcirc-default-user-name rcirc-default-nick)
+(setopt rcirc-authinfo
+        `(("Libera.Chat" nickserv ,rcirc-default-nick ,libera-chat-pass)))
+
 
 ;;======;;
 ;; Ebib ;;

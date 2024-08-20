@@ -726,10 +726,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m a") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
 
-;; Bullets
-(use-package org-bullets
-  :after org)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
 ;;;;;;;;;;;;;;;;;;
 ;; Abbreviation ;;

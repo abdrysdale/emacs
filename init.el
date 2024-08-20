@@ -211,11 +211,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defvar me/light-theme 'modus-operandi "Default light theme.")
 
 (defun load-theme-light ()
-  "Loads the light theme which is set by me/light-theme"
+  "Load the light theme which is set by me/light-theme."
   (interactive)
   (load-theme me/light-theme t))
 (defun load-theme-dark ()
-  "Loads the dark theme which is set by me/dark-theme"
+  "Load the dark theme which is set by me/dark-theme."
   (interactive)
   (load-theme me/dark-theme t))
 
@@ -276,14 +276,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :straight nil)
 
 (defun me/mark-next-like-this-or-mark-all-like-this (arg)
-  "Runs mc/mark-next-like-this or mc/mark-all-like-this with a prefix argument."
+  "Run mc/mark-next-like-this or mc/mark-all-like-this with a prefix argument."
   (interactive "P")
   (if arg
       (call-interactively #'mc/mark-all-like-this)
     (call-interactively #'mc/mark-next-like-this)))
 
 (defun me/mark-previous-like-this-or-mark-pop (arg)
-  "Runs mc/mark-previous-like-this or mc/mark-pop with a prefix argument."
+  "Run mc/mark-previous-like-this or mc/mark-pop with a prefix argument."
   (interactive "P")
   (if arg
       (call-interactively #'mc/mark-pop)

@@ -303,6 +303,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c d c") 'ispell-comments-and-strings)
 
 
+;; Multi-file operations
+(global-set-key (kbd "C-c f c") #'fileloop-continue)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming Language ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

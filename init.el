@@ -583,7 +583,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes"))
 (setq ebib-reading-list-file (expand-file-name "~/Documents/notes/reading-list.org"))
 (setq ebib-preload-bib-files
-      '(expand-file-name "~/Documents/notes/refs.bib"))
+      `(,(expand-file-name "~/Documents/notes/refs.bib")))
 
 ;; Tries to download a paper associated with the url
 ;; Supports:

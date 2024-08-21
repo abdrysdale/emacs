@@ -733,8 +733,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (if (string= major-mode "org-agenda-mode")
       (progn (org-agenda-todo "STARTED")
              (org-agenda-clock-in))
-    (progn (org-todo "STARTED")
-           (org-clock-in))))
+    (org-todo "STARTED")
+    (org-clock-in)))
 
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 

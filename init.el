@@ -1,10 +1,12 @@
-;; This is my minimal (ish) Emacs config.
+;;; MyEmacsConfig --- a minimal cross platform config
+;;; Comentry
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
 ;; A lot of this is based on my own personal config and
 ;; the excellent resource of Emacs ONBOARD
 ;; URL: https://github.com/monkeyjunglejuice/emacs.onboard
 
+;;; Code:
 (require 'server)
 (server-start)
 
@@ -82,8 +84,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq package-enable-at-startup nil)
-(setq straight-use-package-by-default t)
+(setq package-enable-at-startup nil
+      straight-use-package-by-default t)
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -386,22 +388,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; imenu
 (defun me/imenu-function ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Function\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-variable ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Variable\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-class ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Class\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-method ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Method\n") ))
     (call-interactively 'imenu)))
 
@@ -452,16 +454,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq dired-kill-when-opening-new-dired-buffer t)
 
 (defun dired-sort-criteria (criteria)
-  "sort-dired by different criteria by Robert Gloeckner "
-  (interactive 
-   (list 
+  "Sort-dired by different criteria by Robert Gloeckner."
+  (interactive
+   (list
     (or (completing-read "criteria [name]: "
              '("size(S)" "extension(X)" "creation-time(ct)"
                "access-time(ut)" "time(t)" "name()"))
     "")))
   (string-match ".*(\\(.*\\))" criteria)
   (dired-sort-other
-   (concat dired-listing-switches 
+   (concat dired-listing-switches
        (match-string 1 criteria))))
 
 (setq global-auto-revert-non-file-buffers t)
@@ -517,7 +519,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Calculator
 (defun calc-or-quick-calc (arg)
-  "Runs calc or quick calc with a prefix argument."
+  "Run calc or quick calc with a prefix argument."
   (interactive "P")
   (if arg
       (call-interactively #'quick-calc)
@@ -653,14 +655,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq window-resize-pixelwise t)
 
 (setq display-buffer-alist
-      `(("\\*\\(?:Buffer List\\|Ibuffer\\)\\*" 
+      `(("\\*\\(?:Buffer List\\|Ibuffer\\)\\*"
          display-buffer-in-side-window
-         (side . top) 
-         (slot . 1) 
+         (side . top)
+         (slot . 1)
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*Tags List\\*" 
+        ("\\*Tags List\\*"
          display-buffer-in-side-window
          (side . right) 
          (slot . 1) 

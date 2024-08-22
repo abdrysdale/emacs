@@ -127,8 +127,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :straight nil)
 (global-wakatime-mode)
 
-<<<<<<< HEAD
-||||||| dfc738c
 ;; Straight
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -230,7 +228,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package toml-mode)
 (use-package json-mode)
 (use-package markdown-mode)
->>>>>>> 69edfa0d7e861f926748fadebcf41fb4b1a59f6a
 
 ;;========;;
 ;; System ;;

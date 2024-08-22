@@ -261,6 +261,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 
+;; In general, I prefer to go forward to the beginning of a word
+;; not the end, but I've provided a shortcut for both a bound
+;; forward to the beginning of the word to M-f
+(global-set-key (kbd "C-M-f") #'forward-word)
+(global-set-key (kbd "M-f") #'forward-to-word)
+
+
 ;;==================;;
 ;; Advanced Editing ;;
 ;;==================;;

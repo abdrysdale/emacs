@@ -363,9 +363,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       TeX-check-TeX nil
       TeX-engine 'default)
 
-(use-package latex-pretty-symbols)
-(add-hook 'latex-mode-hook #'prettify-symbols-mode)
-
 ;; Emacs Speaks Statistics ;;
 (use-package ess)
 ;; (well also Python but that's not important right now)

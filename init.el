@@ -797,8 +797,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   '("~/agenda.org" (expand-file-name "~/Documents/notes/reading-list.org")))
+ '(
+org-agenda-files
+   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
  '(package-selected-packages
    '(coterm powershell markdown-mode csv-mode ebib magit alda-mode)))
 (custom-set-faces

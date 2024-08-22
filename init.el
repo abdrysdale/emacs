@@ -9,8 +9,66 @@
 (server-start)
 
 ;;====================;;
-;; Garbage Collection ;;
+;; Package Management ;;
 ;;====================;;
+
+;; Straight
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(setq package-enable-at-startup nil)
+(setq straight-use-package-by-default t)
+
+(add-to-list 'package-archives
+             '("melpa" . "https://.melpa.org/packages/") t)
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; Natively compile packages at first use or immediately after installation?
+(setq package-native-compile t)
+
+;; Magit ;;
+(use-package magit
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+(setenv "GIT_ASKPASS" "git-gui--askpass")
+(global-set-key (kbd "C-c g g") #'magit)
+
+;; Forge ;;
+(use-package forge
+  :after magit)
+
+;; Git Time Machine ;;
+(use-package git-timemachine)
+(setq git-timemachine-abbreviation-length 6)
+(global-set-key (kbd "C-c g t") #'git-timemachine)
+
+;; File modes ;;
+;; No config needed - just needed for the file types.
+(use-package csv-mode)
+(use-package yaml-mode)
+(use-package toml-mode)
+(use-package json-mode)
+(use-package markdown-mode)
+
+;;==================;;
+;; Usage Statistics ;;
+;;==================;;
 
 ;; File: elisp.info,  Node: Garbage Collection, Up: GNU Emacs Internals
 
@@ -61,60 +119,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 
-;;====================;;
-;; Package Management ;;
-;;====================;;
+;; WakaTime
+(load (concat user-emacs-directory ".waka.el"))
+(use-package wakatime-mode
+  :straight nil)
+(global-wakatime-mode)
 
-;; Straight
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(setq package-enable-at-startup nil)
-(setq straight-use-package-by-default t)
-
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-;; Natively compile packages at first use or immediately after installation?
-(setq package-native-compile t)
-
-;; Magit ;;
-(use-package magit
-  :commands (magit-status magit-get-current-branch)
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-(setenv "GIT_ASKPASS" "git-gui--askpass")
-(global-set-key (kbd "C-c g g") #'magit)
-
-;; Forge ;;
-(use-package forge
-  :after magit)
-
-;; Git Time Machine ;;
-(use-package git-timemachine)
-(setq git-timemachine-abbreviation-length 6)
-(global-set-key (kbd "C-c g t") #'git-timemachine)
-
-;; File modes ;;
-;; No config needed - just needed for the file types.
-(use-package csv-mode)
-(use-package yaml-mode)
-(use-package toml-mode)
-(use-package json-mode)
-(use-package markdown-mode)
 
 ;;========;;
 ;; System ;;

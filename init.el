@@ -1,10 +1,12 @@
-;; This is my minimal (ish) Emacs config.
+;;; MyEmacsConfig --- a minimal cross platform config
+;;; Comentry
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
 ;; A lot of this is based on my own personal config and
 ;; the excellent resource of Emacs ONBOARD
 ;; URL: https://github.com/monkeyjunglejuice/emacs.onboard
 
+;;; Code:
 (require 'server)
 (server-start)
 
@@ -125,6 +127,110 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :straight nil)
 (global-wakatime-mode)
 
+<<<<<<< HEAD
+||||||| dfc738c
+;; Straight
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(setq package-enable-at-startup nil)
+(setq straight-use-package-by-default t)
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; Natively compile packages at first use or immediately after installation?
+(setq package-native-compile t)
+
+;; Magit ;;
+(use-package magit
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+(setenv "GIT_ASKPASS" "git-gui--askpass")
+(global-set-key (kbd "C-c g g") #'magit)
+
+;; Forge ;;
+(use-package forge
+  :after magit)
+
+;; Git Time Machine ;;
+(use-package git-timemachine)
+(setq git-timemachine-abbreviation-length 6)
+(global-set-key (kbd "C-c g t") #'git-timemachine)
+
+;; File modes ;;
+;; No config needed - just needed for the file types.
+(use-package csv-mode)
+(use-package yaml-mode)
+(use-package toml-mode)
+(use-package json-mode)
+(use-package markdown-mode)
+=======
+;; Straight
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(setq package-enable-at-startup nil
+      straight-use-package-by-default t)
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; Natively compile packages at first use or immediately after installation?
+(setq package-native-compile t)
+
+;; Magit ;;
+(use-package magit
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+(setenv "GIT_ASKPASS" "git-gui--askpass")
+(global-set-key (kbd "C-c g g") #'magit)
+
+;; Forge ;;
+(use-package forge
+  :after magit)
+
+;; Git Time Machine ;;
+(use-package git-timemachine)
+(setq git-timemachine-abbreviation-length 6)
+(global-set-key (kbd "C-c g t") #'git-timemachine)
+
+;; File modes ;;
+;; No config needed - just needed for the file types.
+(use-package csv-mode)
+(use-package yaml-mode)
+(use-package toml-mode)
+(use-package json-mode)
+(use-package markdown-mode)
+>>>>>>> 69edfa0d7e861f926748fadebcf41fb4b1a59f6a
 
 ;;========;;
 ;; System ;;
@@ -269,6 +375,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 
+;; In general, I prefer to go forward to the beginning of a word
+;; not the end, but I've provided a shortcut for both a bound
+;; forward to the beginning of the word to M-f
+(global-set-key (kbd "C-M-f") #'forward-word)
+(global-set-key (kbd "M-f") #'forward-to-word)
+
+
 ;;==================;;
 ;; Advanced Editing ;;
 ;;==================;;
@@ -364,9 +477,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       TeX-check-TeX nil
       TeX-engine 'default)
 
-(use-package latex-pretty-symbols)
-(add-hook 'latex-mode-hook #'prettify-symbols-mode)
-
 ;; Emacs Speaks Statistics ;;
 (use-package ess)
 ;; (well also Python but that's not important right now)
@@ -396,22 +506,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; imenu
 (defun me/imenu-function ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Function\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-variable ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Variable\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-class ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Class\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-method ()
-  (interactive) 
+  (interactive)
   (let ((unread-command-events  (listify-key-sequence "Method\n") ))
     (call-interactively 'imenu)))
 
@@ -462,16 +572,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq dired-kill-when-opening-new-dired-buffer t)
 
 (defun dired-sort-criteria (criteria)
-  "sort-dired by different criteria by Robert Gloeckner "
-  (interactive 
-   (list 
+  "Sort-dired by different criteria by Robert Gloeckner."
+  (interactive
+   (list
     (or (completing-read "criteria [name]: "
              '("size(S)" "extension(X)" "creation-time(ct)"
                "access-time(ut)" "time(t)" "name()"))
     "")))
   (string-match ".*(\\(.*\\))" criteria)
   (dired-sort-other
-   (concat dired-listing-switches 
+   (concat dired-listing-switches
        (match-string 1 criteria))))
 
 (setq global-auto-revert-non-file-buffers t)
@@ -490,13 +600,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Python
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
+(add-hook 'LaTeX-mode-hook 
+          (lambda ()
+            (setq flymake-compiler "pdflatex")
+            (setq flymake-args '("-interaction=nonstopmode" "%f"))))
 (setq flymake-start-on-flymake-mode t)
 (setq python-flymake-command '("ruff" "check" "--output-format"
                                "concise" "--quiet"
                                "--exit-zero" "--select" "ALL"
                                "--ignore" "D407"
                                "--stdin-filename=stdin" "-"))
-;; (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
 
 (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
 (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
@@ -527,7 +640,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Calculator
 (defun calc-or-quick-calc (arg)
-  "Runs calc or quick calc with a prefix argument."
+  "Run calc or quick calc with a prefix argument."
   (interactive "P")
   (if arg
       (call-interactively #'quick-calc)
@@ -591,7 +704,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes"))
 (setq ebib-reading-list-file (expand-file-name "~/Documents/notes/reading-list.org"))
 (setq ebib-preload-bib-files
-      '(expand-file-name "~/Documents/notes/refs.bib"))
+      `(,(expand-file-name "~/Documents/notes/refs.bib")))
 
 ;; Tries to download a paper associated with the url
 ;; Supports:
@@ -663,14 +776,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq window-resize-pixelwise t)
 
 (setq display-buffer-alist
-      `(("\\*\\(?:Buffer List\\|Ibuffer\\)\\*" 
+      `(("\\*\\(?:Buffer List\\|Ibuffer\\)\\*"
          display-buffer-in-side-window
-         (side . top) 
-         (slot . 1) 
+         (side . top)
+         (slot . 1)
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*Tags List\\*" 
+        ("\\*Tags List\\*"
          display-buffer-in-side-window
          (side . right) 
          (slot . 1) 
@@ -741,8 +854,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (if (string= major-mode "org-agenda-mode")
       (progn (org-agenda-todo "STARTED")
              (org-agenda-clock-in))
-    (progn (org-todo "STARTED")
-           (org-clock-in))))
+    (org-todo "STARTED")
+    (org-clock-in)))
 
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
@@ -798,8 +911,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   '("~/agenda.org" (expand-file-name "~/Documents/notes/reading-list.org")))
+ '(
+org-agenda-files
+   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
  '(package-selected-packages
    '(coterm powershell markdown-mode csv-mode ebib magit alda-mode)))
 (custom-set-faces

@@ -486,13 +486,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Python
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
+(add-hook 'LaTeX-mode-hook 
+          (lambda ()
+            (setq flymake-compiler "pdflatex")
+            (setq flymake-args '("-interaction=nonstopmode" "%f"))))
 (setq flymake-start-on-flymake-mode t)
 (setq python-flymake-command '("ruff" "check" "--output-format"
                                "concise" "--quiet"
                                "--exit-zero" "--select" "ALL"
                                "--ignore" "D407"
                                "--stdin-filename=stdin" "-"))
-;; (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
 
 (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
 (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)

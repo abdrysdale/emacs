@@ -624,6 +624,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Added for convenience; the default keybinding is "C-x o"
 (global-set-key (kbd "C-o") #'other-window)
 (global-set-key (kbd "M-o") #'previous-window-any-frame)
+(global-set-key (kbd "C-M-o") #'other-frame)
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties

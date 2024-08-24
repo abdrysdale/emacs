@@ -1,5 +1,6 @@
 ;;; MyEmacsConfig --- a minimal cross platform config
-;;; Comentry
+
+;;; Comentary:
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
 ;; A lot of this is based on my own personal config and
@@ -302,8 +303,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Font - only use Cascadia on windows.
 (if (eq system-type 'windows-nt)
     (add-to-list 'default-frame-alist
-                 '(font . "Cascadia Mono-12"))
-  (set-face-attribute 'default nil :font "FreeMono" :height 110))
+                 '(font . "Cascadia Mono-14"))
+  (set-face-attribute 'default nil
+                      :font "FreeMono-14"
+                      :width 'expanded
+                      :weight 'medium))
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)

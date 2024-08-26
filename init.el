@@ -652,7 +652,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;======;;
 
 ;; Notmuch ;;
-(use-package notmuch)
+(use-package notmuch
+  :straight nil)
 (setq-default notmuch-search-oldest-first nil)
 (global-set-key (kbd "C-c m m") #'notmuch)
 

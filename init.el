@@ -305,7 +305,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (add-to-list 'default-frame-alist
                  '(font . "Cascadia Mono-14"))
   (set-face-attribute 'default nil
-                      :font "FreeMono-14"
+                      :font "FreeMono-13"
                       :width 'expanded
                       :weight 'medium))
 

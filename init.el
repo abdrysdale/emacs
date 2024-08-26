@@ -337,7 +337,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-M-f") #'forward-word)
 (global-set-key (kbd "M-f") #'forward-to-word)
 
-
 ;;==================;;
 ;; Advanced Editing ;;
 ;;==================;;
@@ -356,9 +355,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (apply #'completion--in-region args)))
 
 
+;; Enables advanced editing modes
 (put 'set-goal-column 'disabled nil)    ;; Enables setting a goal column
 (put 'narrow-to-region 'disabled nil)   ;; Enables narrowing
-
+(put 'upcase-region 'disabled nil)      ;; Enables up case a regoin
+(put 'downcase-region 'disabled nil)    ;; Enables down case a regoin
 
 ;; Multiple cursors ;;
 (use-package multiple-cursors
@@ -912,5 +913,3 @@ org-agenda-files
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)

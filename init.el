@@ -864,10 +864,30 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-x C-l") #'me/org-link-copy))
 
-;; Agenda
+;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
 
+;; Capture ;;
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+         "* TODO %?\n")
+        ("n" "Note" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+         "* %?\n")
+        ("c" "Context Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+         "* TODO (%(buffer-name (plist-get org-capture-plist :original-buffer))) %?\n")
+        ("i" "Interrupting task" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+         "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
+         :clock-in :clock-resume
+         :prepend t)))
+(global-set-key (kbd "C-c m c") #'org-capture)
+
+;; By default org refile but the variable org-refile-targets can change that.
+;; In changing this is also handy to view the outline path too.
+;; Source : https://orgmode.org/manual/Refile-and-Copy.html#index-C_002dc-C_002dw-1
+(setq org-refile-targets '((nil . (:maxlevel . 10)))
+      org-refile-use-outline-path t
+      org-outline-path-complete-in-steps nil)
 
 ;;==============;;
 ;; Abbreviation ;;

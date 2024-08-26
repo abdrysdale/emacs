@@ -618,7 +618,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c u t") 'org-toggle-link-display)
 
 ;; Newsticker (RSS)
-(global-set-key (kbd "C-c n") #'newsticker-show-news)
+(global-set-key (kbd "C-c m n") #'newsticker-show-news)
 (setq newsticker-frontend #'newsticker-treeview
       newsticker-hide-old-items-in-newsticker-buffer t)
 (setq newsticker-url-list
@@ -829,7 +829,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
-;; Clock
+;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
 (setq org-clock-clocktable-default-properties '(:maxlevel 2 :scope subtree))
@@ -850,7 +850,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
-;; Links
+;; Links ;;
 (defun me/org-link-copy (&optional arg)
   "Extract URL from org-mode link and add it to kill ring."
   (interactive "P")

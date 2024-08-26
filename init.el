@@ -204,7 +204,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq read-process-output-max (* 1024 1024))  ; 1 MB
 
 ;; Sets the default directory
-(setq default-directory "~")
+(setq default-directory "~/")
 
 ;; Sets the auth source (requires gpg!)
 (setq auth-sources '("~/.authinfo.gpg")

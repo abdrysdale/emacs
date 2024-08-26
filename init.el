@@ -1,6 +1,6 @@
 ;;; MyEmacsConfig --- a minimal cross platform config
 
-;;; Comentary:
+;;; Commentary:
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
 ;; A lot of this is based on my own personal config and
@@ -643,6 +643,39 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setopt rcirc-authinfo
         `(("Libera.Chat" nickserv ,rcirc-default-nick ,libera-chat-pass)))
 
+
+;;======;;
+;; Mail ;;
+;;======;;
+
+;; Notmuch ;;
+(use-package notmuch)
+(setq-default notmuch-search-oldest-first nil)
+(global-set-key (kbd "C-c m m") #'notmuch)
+
+;; Sometimes notmuch renders html really badly for the current colour scheme.
+;; To remedy this, it's handy to open up the current email in a side buffer 
+;; and use =eww= to render the raw html.
+(add-to-list 'display-buffer-alist
+             '("html" . (display-buffer-same-window)))
+
+(defun notmuch-view-html-in-eww-other-window ()
+  "Display the current mail buffer in another window."
+  (interactive)
+  (other-window-prefix)
+  (notmuch-show-view-raw-message)
+  (shr-render-buffer (current-buffer)))
+
+(global-set-key (kbd "C-c m v") #'notmuch-view-html-in-eww-other-window)
+
+;; Sending Mail ;;
+(use-package smtpmail)
+(setq mail-user-agent 'message-user-agent)
+
+(setq message-send-mail-function 'smtpmail-send-it
+      smtpmail-smtp-server "127.0.0.1"
+      smtpmail-smtp-service 1025
+      message-kill-buffer-on-exit t)
 
 ;;======;;
 ;; Ebib ;;

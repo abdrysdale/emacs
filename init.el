@@ -261,7 +261,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq tab-bar-position t
       tab-bar-show 1
       tab-bar-close-button-show nil
-      tab-bar-format '(tab-bar-format-history tab-bar-separator)
+      tab-bar-format '(tab-bar-format-history
+                       tab-bar-format-tabs
+                       tab-bar-separator)
       tab-bar-new-tab-choice #'scratch-buffer
       tab-bar-new-tab-to 'rightmost)
 

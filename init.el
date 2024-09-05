@@ -647,6 +647,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         `(("Libera.Chat" nickserv ,rcirc-default-nick ,libera-chat-pass)))
 
 
+;; Music
+(use-package emms)
+(emms-all)
+(setq emms-player-list '(emms-player-mpv)
+      emms-info-functions '(emms-info-native)
+      emms-player-mpv-parameters '("--no-video"))
+(if (eq system-type 'windows-nt)
+    (setq emms-player-mpv-command "~/scoop/apps/mpv/current/mpv.exe"))
+
+
 ;;======;;
 ;; Mail ;;
 ;;======;;
@@ -873,13 +883,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Capture ;;
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+      '(("t" "Todo" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* TODO %?\n")
-        ("n" "Note" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("n" "Note" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* %?\n")
-        ("c" "Context Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("c" "Context Todo" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* TODO (%(buffer-name (plist-get org-capture-plist :original-buffer))) %?\n")
-        ("i" "Interrupting task" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("i" "Interrupting task" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)))

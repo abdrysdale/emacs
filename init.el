@@ -880,6 +880,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
+(setq org-deadline-warning-days 60)
 
 ;; Capture ;;
 (setq org-capture-templates

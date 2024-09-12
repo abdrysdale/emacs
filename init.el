@@ -233,6 +233,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(setq server-after-make-frame-hook #'dashboard-open)
 
 ;; Basic
 (setq inhibit-startup-message t

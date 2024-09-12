@@ -649,6 +649,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (load "~/.irc-auth")
 (setq rcirc-server-alist
       '(("irc.libera.chat"
+         :port 6697
          :channels ("#emacs"
                     "#python"
                     "#fortran"

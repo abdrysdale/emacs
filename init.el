@@ -610,6 +610,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200)
+(defun doc-view-other-frame-scroll-up ()
+  "Equivalent of switching to other frame, pressing SPC and then switching back."
+  (interactive)
+  (other-frame 1)
+  (doc-view-scroll-up-or-next-page)
+  (other-frame 1))
+(defun doc-view-other-frame-scroll-down ()
+  "Equivalent of switching to other frame, pressing p and then switching back."
+  (interactive)
+  (other-frame 1)
+  (doc-view-scroll-down-or-previous-page)
+  (other-frame 1))
+(global-set-key (kbd "C-c p n") #'doc-view-other-frame-scroll-up)
+(global-set-key (kbd "C-c p p") #'doc-view-other-frame-scroll-down)
 
 ;; Browser
 (setq shr-width 70

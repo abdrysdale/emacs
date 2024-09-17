@@ -6,6 +6,8 @@
 ;; A lot of this is based on my own personal config and
 ;; the excellent resource of Emacs ONBOARD
 ;; URL: https://github.com/monkeyjunglejuice/emacs.onboard
+;; In general, I try to use as many of the builtin features available
+;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
 (require 'server)
@@ -755,9 +757,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Default window navigation – simply switch to the next window in order.
 ;; Added for convenience; the default keybinding is "C-x o"
+;; Which we'll rebind to follow-mode
+;; Dired uses "C-o" to open file in other window so we'll need to unset that.
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (local-unset-key (kbd "C-o"))))
 (global-set-key (kbd "C-o") #'other-window)
 (global-set-key (kbd "M-o") #'previous-window-any-frame)
 (global-set-key (kbd "C-M-o") #'other-frame)
+
+;; Follow mode - for long files.
+(global-set-key (kbd "C-x o") #'follow-mode)
+
+;; Winner mode is handy for undo window changes.
+(setq winner-mode t)
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties

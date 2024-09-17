@@ -208,6 +208,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Sets the default directory
 (setq default-directory "~/")
 
+(add-to-list 'Info-directory-list (expand-file-name "~/.emacs.d/info/"))
+
 ;; Sets the auth source (requires gpg!)
 (setq auth-sources '("~/.authinfo.gpg")
       epa-gpg-program "gpg"         ;; Ensures GPG program is GPG

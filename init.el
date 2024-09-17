@@ -614,7 +614,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200)
-(add-hook 'doc-view-mode-hook #'(display-line-numbers-mode -1))
+(add-hook 'doc-view-mode-hook #'(lambda () (display-line-numbers-mode -1)))
 (defun doc-view-other-frame-scroll-up ()
   "Equivalent of switching to other frame, pressing SPC and then switching back."
   (interactive)

@@ -636,8 +636,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       eww-retrieve-command nil
       eww-browse-url-new-window-is-tab nil)
 
-(global-set-key (kbd "C-c u u") 'eww)
-(global-set-key (kbd "C-c u t") 'org-toggle-link-display)
+(defun eww-search-scholar ()
+  (interactive)
+  (let ((eww-search-prefix "https://scholar.google.co.uk/scholar?q="))
+    (call-interactively #'eww)))
+
+(global-set-key (kbd "C-c u s") #'eww-search-scholar)
+(global-set-key (kbd "C-c u u") #'eww)
+(global-set-key (kbd "C-c u t") #'org-toggle-link-display)
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)

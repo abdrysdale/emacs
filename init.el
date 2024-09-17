@@ -874,6 +874,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
+;; Bullets ;;
+(use-package org-bullets)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (if (display-graphic-p)
+                (org-bullets-mode)
+              (org-bullets-mode -1))))
+
 ;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)

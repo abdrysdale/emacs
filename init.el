@@ -8,6 +8,8 @@
 ;; A lot of this is based on my own personal config and
 ;; the excellent resource of Emacs ONBOARD
 ;; URL: https://github.com/monkeyjunglejuice/emacs.onboard
+;; In general, I try to use as many of the builtin features available
+;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
 (require 'server)
@@ -208,6 +210,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Sets the default directory
 (setq default-directory "~/")
 
+(add-to-list 'Info-directory-list (expand-file-name "~/.emacs.d/info/"))
+
 ;; Sets the auth source (requires gpg!)
 (setq auth-sources '("~/.authinfo.gpg")
       epa-gpg-program "gpg"         ;; Ensures GPG program is GPG
@@ -235,6 +239,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(setq server-after-make-frame-hook #'dashboard-open)
 
 ;; Basic
 (setq inhibit-startup-message t
@@ -616,6 +621,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200)
+(add-hook 'doc-view-mode-hook #'(lambda () (display-line-numbers-mode -1)))
+(add-hook 'doc-view-mode-hook #'doc-view-fit-page-to-window)
+(defun doc-view-other-frame-scroll-up ()
+  "Equivalent of switching to other frame, pressing SPC and then switching back."
+  (interactive)
+  (other-frame 1)
+  (doc-view-scroll-up-or-next-page)
+  (other-frame 1))
+(defun doc-view-other-frame-scroll-down ()
+  "Equivalent of switching to other frame, pressing p and then switching back."
+  (interactive)
+  (other-frame 1)
+  (doc-view-scroll-down-or-previous-page)
+  (other-frame 1))
+(global-set-key (kbd "C-c p n") #'doc-view-other-frame-scroll-up)
+(global-set-key (kbd "C-c p p") #'doc-view-other-frame-scroll-down)
 
 ;; Browser
 (setq shr-width 70
@@ -623,8 +644,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       eww-retrieve-command nil
       eww-browse-url-new-window-is-tab nil)
 
-(global-set-key (kbd "C-c u u") 'eww)
-(global-set-key (kbd "C-c u t") 'org-toggle-link-display)
+(defun eww-search-scholar ()
+  (interactive)
+  (let ((eww-search-prefix "https://scholar.google.co.uk/scholar?q="))
+    (call-interactively #'eww)))
+
+(global-set-key (kbd "C-c u s") #'eww-search-scholar)
+(global-set-key (kbd "C-c u u") #'eww)
+(global-set-key (kbd "C-c u t") #'org-toggle-link-display)
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
@@ -641,6 +668,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (load "~/.irc-auth")
 (setq rcirc-server-alist
       '(("irc.libera.chat"
+         :port 6697
          :channels ("#emacs"
                     "#python"
                     "#fortran"
@@ -652,6 +680,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       rcirc-default-user-name rcirc-default-nick)
 (setopt rcirc-authinfo
         `(("Libera.Chat" nickserv ,rcirc-default-nick ,libera-chat-pass)))
+
+
+;; Music
+(use-package emms)
+(emms-all)
+(setq emms-player-list '(emms-player-mpv)
+      emms-info-functions '(emms-info-native)
+      emms-player-mpv-parameters '("--no-video"))
+(if (eq system-type 'windows-nt)
+    (setq emms-player-mpv-command "~/scoop/apps/mpv/current/mpv.exe"))
 
 
 ;;======;;
@@ -737,9 +775,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Default window navigation – simply switch to the next window in order.
 ;; Added for convenience; the default keybinding is "C-x o"
+;; Which we'll rebind to follow-mode
+;; Dired uses "C-o" to open file in other window so we'll need to unset that.
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (local-unset-key (kbd "C-o"))))
 (global-set-key (kbd "C-o") #'other-window)
 (global-set-key (kbd "M-o") #'previous-window-any-frame)
 (global-set-key (kbd "C-M-o") #'other-frame)
+
+;; Follow mode - for long files.
+(global-set-key (kbd "C-x o") #'follow-mode)
+
+;; Winner mode is handy for undo window changes.
+(setq winner-mode t)
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties
@@ -840,6 +889,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
+;; Bullets ;;
+(use-package org-bullets)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (if (display-graphic-p)
+                (org-bullets-mode)
+              (org-bullets-mode -1))))
+
 ;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -879,16 +936,17 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
+(setq org-deadline-warning-days 60)
 
 ;; Capture ;;
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+      '(("t" "Todo" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* TODO %?\n")
-        ("n" "Note" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("n" "Note" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* %?\n")
-        ("c" "Context Todo" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("c" "Context Todo" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* TODO (%(buffer-name (plist-get org-capture-plist :original-buffer))) %?\n")
-        ("i" "Interrupting task" entry (file+headline "~/Notes/notes/agenda.org" "Inbox")
+        ("i" "Interrupting task" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)))

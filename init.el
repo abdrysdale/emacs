@@ -411,6 +411,27 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Programming Languages ;;
 ;;=======================;;
 
+;;; Python ;;;
+(defun python-imenu-use-flat-index
+    ()
+  (setq imenu-create-index-function
+        #'python-imenu-create-flat-index))
+
+(add-hook 'python-mode-hook
+          #'python-imenu-use-flat-index)
+(use-package transient)
+(use-package pyvenv)
+(use-package poetry
+  :ensure t
+  :config (global-set-key (kbd "C-c g p") #'poetry))
+
+(global-set-key (kbd "C-c g d") #'pdb)
+(setq gud-pdb-command-name "poetry run python -m pdb")
+(defun run-python-poetry ()
+  (interactive)
+  (run-python "poetry run python -i" 'project t))
+(define-key python-mode-map (kbd "C-c C-p") #'run-python-poetry)
+
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 

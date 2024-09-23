@@ -356,7 +356,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-compute-delay 0.01
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
-      icomplete-hide-common-prefix nil)
+      icomplete-hide-common-prefix nil
+      completion-styles '(flex basic partial-completion emacs22))
 
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function

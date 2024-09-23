@@ -430,7 +430,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun run-python-poetry ()
   (interactive)
   (run-python "poetry run python -i" 'project t))
-(define-key python-mode-map (kbd "C-c C-p") #'run-python-poetry)
+(eval-after-load 'python
+  '(define-key python-mode-map (kbd "C-c C-p") #'run-python-poetry))
 
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

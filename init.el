@@ -444,7 +444,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;; Lean ;;
+;;; Lean ;;;
 (use-package lean4-mode
   :straight (lean4-mode
 	     :type git
@@ -454,7 +454,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   ;; to defer loading the package until required
   :commands (lean4-mode))
 
-;;;; Latex ;;;;
+(use-package haskell-mode)
+
+;;; Latex ;;;
 (use-package tex
   :straight nil
   :ensure auctex)
@@ -465,7 +467,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       TeX-check-TeX nil
       TeX-engine 'default)
 
-;; Emacs Speaks Statistics ;;
+;;; Emacs Speaks Statistics ;;;
 (use-package ess
   :config (require 'ess-r-mode))
 ;; (well also Python but that's not important right now)

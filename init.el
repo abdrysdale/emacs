@@ -1,5 +1,7 @@
 ;;; MyEmacsConfig --- a minimal cross platform config
 
+;; -*- lexical-binding: t -*-
+
 ;;; Commentary:
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
@@ -357,7 +359,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-compute-delay 0.01
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
-      icomplete-hide-common-prefix nil)
+      icomplete-hide-common-prefix nil
+      completion-styles '(flex basic partial-completion emacs22))
 
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function
@@ -376,14 +379,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :straight nil)
 
 (defun me/mark-next-like-this-or-mark-all-like-this (arg)
-  "Run mc/mark-next-like-this or mc/mark-all-like-this with a prefix argument."
+  "Run mc/mark-next-like-this or mc/mark-all-like-this if ARG."
   (interactive "P")
   (if arg
       (call-interactively #'mc/mark-all-like-this)
     (call-interactively #'mc/mark-next-like-this)))
 
 (defun me/mark-previous-like-this-or-mark-pop (arg)
-  "Run mc/mark-previous-like-this or mc/mark-pop with a prefix argument."
+  "Run mc/mark-previous-like-this or mc/mark-pop if ARG."
   (interactive "P")
   (if arg
       (call-interactively #'mc/mark-pop)
@@ -411,6 +414,28 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Programming Languages ;;
 ;;=======================;;
 
+;;; Python ;;;
+(defun python-imenu-use-flat-index
+    ()
+  (setq imenu-create-index-function
+        #'python-imenu-create-flat-index))
+
+(add-hook 'python-mode-hook
+          #'python-imenu-use-flat-index)
+(use-package transient)
+(use-package pyvenv)
+(use-package poetry
+  :ensure t
+  :config (global-set-key (kbd "C-c g p") #'poetry))
+
+(global-set-key (kbd "C-c g d") #'pdb)
+(setq gud-pdb-command-name "poetry run python -m pdb")
+(defun run-python-poetry ()
+  (interactive)
+  (run-python "poetry run python -i" 'project t))
+(eval-after-load 'python
+  '(define-key python-mode-map (kbd "C-c C-p") #'run-python-poetry))
+
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 
@@ -423,7 +448,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;; Lean ;;
+;;; Lean ;;;
 (use-package lean4-mode
   :straight (lean4-mode
 	     :type git
@@ -433,7 +458,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   ;; to defer loading the package until required
   :commands (lean4-mode))
 
-;;;; Latex ;;;;
+(use-package haskell-mode)
+
+;;; Latex ;;;
 (use-package tex
   :straight nil
   :ensure auctex)
@@ -444,14 +471,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       TeX-check-TeX nil
       TeX-engine 'default)
 
-;; Emacs Speaks Statistics ;;
-(use-package ess)
+;;; Emacs Speaks Statistics ;;;
+(use-package ess
+  :config (require 'ess-r-mode))
 ;; (well also Python but that's not important right now)
 (setq ess-ask-for-ess-directory t) ;; I actually like this feature!
 (setq ess-local-process-name "R")
 (setq ess-eval-visibly-p 'nowait) ;; No waiting whilst ESS is evaluating
 
-(require 'ess-r-mode)
 (define-key ess-r-mode-map (kbd "M-?") nil) ;; unbinds M-?
 
 ;;============;;
@@ -473,21 +500,25 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; imenu
 (defun me/imenu-function ()
+  "Function imenu."
   (interactive)
   (let ((unread-command-events  (listify-key-sequence "Function\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-variable ()
+  "Variable imenu."
   (interactive)
   (let ((unread-command-events  (listify-key-sequence "Variable\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-class ()
+  "Class imenu."
   (interactive)
   (let ((unread-command-events  (listify-key-sequence "Class\n") ))
     (call-interactively 'imenu)))
 
 (defun me/imenu-method ()
+  "Method imenu."
   (interactive)
   (let ((unread-command-events  (listify-key-sequence "Method\n") ))
     (call-interactively 'imenu)))
@@ -507,6 +538,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Projects
 (defun edit-projects ()
+  "Edit the list of projects."
   (interactive)
   (find-file project-list-file))
 (global-set-key (kbd "C-x p a") #'edit-projects)
@@ -539,7 +571,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq dired-kill-when-opening-new-dired-buffer t)
 
 (defun dired-sort-criteria (criteria)
-  "Sort-dired by different criteria by Robert Gloeckner."
+  "Sort-dired by different CRITERIA by Robert Gloeckner."
   (interactive
    (list
     (or (completing-read "criteria [name]: "
@@ -567,7 +599,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Python
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
-(add-hook 'LaTeX-mode-hook 
+(add-hook 'LaTeX-mode-hook
           (lambda ()
             (setq flymake-compiler "pdflatex")
             (setq flymake-args '("-interaction=nonstopmode" "%f"))))
@@ -700,7 +732,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m m") #'notmuch)
 
 ;; Sometimes notmuch renders html really badly for the current colour scheme.
-;; To remedy this, it's handy to open up the current email in a side buffer 
+;; To remedy this, it's handy to open up the current email in a side buffer
 ;; and use =eww= to render the raw html.
 (add-to-list 'display-buffer-alist
              '("html" . (display-buffer-same-window)))
@@ -751,6 +783,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Converts DOI to bibtex
 (defun doi2bibtex (doi)
+  "Convert a DOI to a bibtex entry."
   (interactive "sDOI: ")
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/x-bibtex"))
@@ -832,22 +865,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                (no-other-window . nil))))
         ("\\*Tags List\\*"
          display-buffer-in-side-window
-         (side . right) 
-         (slot . 1) 
+         (side . right)
+         (slot . 1)
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (window-width . fit-window-to-buffer)
                                (preserve-size . (t . nil))
                                (no-other-window . nil))))
         ("\\*\\(?:help\\|grep\\|Completions\\|*Calendar*\\)\\*"
          display-buffer-in-side-window
-         (side . bottom) 
-         (slot . -1) 
+         (side . bottom)
+         (slot . -1)
          (window-parameters . ((preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:shell\\|compilation\\|eshell\\|eat\\)\\*" 
+        ("\\*\\(?:shell\\|compilation\\|eshell\\|eat\\)\\*"
          display-buffer-in-side-window
-         (side . bottom) 
-         (slot . 1) 
+         (side . bottom)
+         (slot . 1)
          (window-parameters . ((preserve-size . (nil . t))
                                (no-other-window . nil))))))
 
@@ -858,7 +891,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (let ((buffer (dired-noselect default-directory)))
     (with-current-buffer buffer (dired-hide-details-mode t))
     (display-buffer-in-side-window
-     buffer `((side . left) 
+     buffer `((side . left)
               (slot . 0)
               (window-parameters . ((window-width . fit-window-to-buffer)
                                     (preserve-size . (t . nil))
@@ -905,6 +938,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c g") 'org-clock-goto)
 
 (defun mark-org-todo-as-started-and-clock-in ()
+  "Mark a todo as started and clock in."
   (interactive)
   (if (string= major-mode "org-agenda-mode")
       (progn (org-agenda-todo "STARTED")
@@ -915,8 +949,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
 ;; Links ;;
-(defun org-mode-url-at-point ()
-  (interactive)
+(defun me/org-link-copy ()
+  "Extract URL from =org-mode= link and add it to kill ring."
+  (interactive "P")
   (let* ((link (org-element-lineage (org-element-context) '(link) t))
           (type (org-element-property :type link))
           (url (org-element-property :path link))
@@ -1014,3 +1049,8 @@ org-agenda-files
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
+(provide 'init)
+;;; init.el ends here

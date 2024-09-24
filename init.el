@@ -61,6 +61,9 @@
 (setenv "GIT_ASKPASS" "git-gui--askpass")
 (global-set-key (kbd "C-c g g") #'magit)
 
+(global-set-key (kbd "C-c g s") #'smerge-mode)
+(setq smerge-command-prefix (kbd "C-c v"))
+
 ;; Forge ;;
 (use-package forge
   :after magit)

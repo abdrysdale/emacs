@@ -915,18 +915,34 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
 ;; Links ;;
-(defun me/org-link-copy (&optional arg)
-  "Extract URL from org-mode link and add it to kill ring."
-  (interactive "P")
+(defun org-mode-url-at-point ()
+  (interactive)
   (let* ((link (org-element-lineage (org-element-context) '(link) t))
           (type (org-element-property :type link))
           (url (org-element-property :path link))
           (url (concat type ":" url)))
+    url))
+
+(defun me/org-link-copy (&optional arg)
+  "Extract URL from org-mode link and add it to kill ring with optional ARG."
+  (interactive "P")
+  (let ((url (org-mode-url-at-point)))
     (kill-new url)
     (message (concat "Copied URL: " url))))
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-x C-l") #'me/org-link-copy))
+
+;; Browser in external browser
+(defun browser-url-at-point-with-external-browser (&optional ARG)
+  "Browse url with default browser passing ARG to browser."
+  (interactive)
+  (let ((url (org-mode-url-at-point)))
+    (if url 
+        (browse-url-default-browser url ARG)
+      (error "No URL found"))))
+
+(define-key org-mode-map (kbd "C-c C-o") #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)

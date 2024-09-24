@@ -209,6 +209,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq default-directory "~/")
 
 (add-to-list 'Info-directory-list (expand-file-name "~/.emacs.d/info/"))
+(when (eq system-type 'windows-nt)
+    (add-to-list 'Info-directory-list
+                 (expand-file-name "~/scoop/apps/emacs/current/share/info")))
 
 ;; Sets the auth source (requires gpg!)
 (setq auth-sources '("~/.authinfo.gpg")

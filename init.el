@@ -635,7 +635,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq shr-width 70
       shr-cookie-policy nil
       eww-retrieve-command nil
-      eww-browse-url-new-window-is-tab nil)
+      eww-browse-url-new-window-is-tab nil
+      browse-url-browser-function #'eww)
 
 (defun eww-search-scholar ()
   (interactive)

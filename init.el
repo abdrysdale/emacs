@@ -952,8 +952,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
 ;; Links ;;
-(defun me/org-link-copy ()
-  "Extract URL from =org-mode= link and add it to kill ring."
+(defun org-mode-url-at-point ()
+  "Extract URL from =org-mode= link at point."
   (interactive "P")
   (let* ((link (org-element-lineage (org-element-context) '(link) t))
           (type (org-element-property :type link))

@@ -548,6 +548,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x p s") 'project-search)
 
 ;; Buffers
+(global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "C-c b k") #'kill-buffer-and-window)
 (global-set-key (kbd "C-c b ,") #'switch-to-buffer-other-window)
 (global-set-key (kbd "C-c b v") #'view-buffer-other-window)

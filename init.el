@@ -696,23 +696,29 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
 
 ;; IRC
-(rcirc-track-minor-mode 1)
 (load "~/.irc-auth")
-(setq rcirc-server-alist
-      '(("irc.libera.chat"
-         :port 6697
-         :channels ("#emacs"
-                    "#python"
-                    "#fortran"
-                    "#lisp"
-                    "#commonlisp"
-                    "#math"
-                    "#machinelearning"))))
-(setq rcirc-default-nick "TactfulCitrus"
-      rcirc-default-user-name rcirc-default-nick)
-(setopt rcirc-authinfo
-        `(("Libera.Chat" nickserv ,rcirc-default-nick ,libera-chat-pass)))
 
+(setq erc-autojoin-channels-alist
+      '(("Libera.Chat"
+         "#emacs"
+         "#python"
+         "#fortran"
+         "#nhs-dev"
+         "#math"
+         "#machinelearning")))
+
+(add-to-list 'erc-modules 'sasl)
+
+(setq erc-nick "TactfulCitrus"
+      erc-port "6667"
+      erc-server "irc.libera.chat"
+      erc-try-new-nick-p nil
+      erc-warn-about-blank-lines t
+      erc-sasl-user erc-nick
+      erc-sasl-password libera-chat-pass)
+
+
+(global-set-key (kbd "C-c m i") erc)
 
 ;; Music
 (use-package emms)

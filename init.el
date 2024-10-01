@@ -53,26 +53,6 @@
 ;; Natively compile packages at first use or immediately after installation?
 (setq package-native-compile t)
 
-;; Magit ;;
-(use-package magit
-  :commands (magit-status magit-get-current-branch)
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-(setenv "GIT_ASKPASS" "git-gui--askpass")
-(global-set-key (kbd "C-c g g") #'magit)
-
-(global-set-key (kbd "C-c g s") #'smerge-mode)
-(setq smerge-command-prefix (kbd "C-c v"))
-
-;; Forge ;;
-(use-package forge
-  :after magit)
-
-;; Git Time Machine ;;
-(use-package git-timemachine)
-(setq git-timemachine-abbreviation-length 6)
-(global-set-key (kbd "C-c g t") #'git-timemachine)
-
 ;; File modes ;;
 ;; No config needed - just needed for the file types.
 (use-package csv-mode)
@@ -227,7 +207,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; UI ;;
 ;;====;;
 
-;; Fireplace ;;
+;; Fireplace - a mission critical package;;
 (use-package fireplace)
 
 ;; Dashboard ;;
@@ -351,6 +331,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; forward to the beginning of the word to M-f
 (global-set-key (kbd "C-M-f") #'forward-word)
 (global-set-key (kbd "M-f") #'forward-to-word)
+
+;; Handy for scrolling through buffers.
+;; <SPC>    :: scroll forward one windowful.
+;; S-<SPC>  :: scroll backward one windowful.
+;; s        :: start incremental search.
+;; q        :: Quit and go back to buffer & position before view-mode.
+;; e        :: Quit and stay in the same buffer & position.
+(global-set-key (kbd "C-c v") #'view-mode)
 
 ;;==================;;
 ;; Advanced Editing ;;

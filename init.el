@@ -413,19 +413,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (add-hook 'python-mode-hook
           #'python-imenu-use-flat-index)
-(use-package transient)
-(use-package pyvenv)
-(use-package poetry
-  :ensure t
-  :config (global-set-key (kbd "C-c g p") #'poetry))
 
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
-(defun run-python-poetry ()
-  (interactive)
-  (run-python "poetry run python -i" 'project t))
-(eval-after-load 'python
-  '(define-key python-mode-map (kbd "C-c C-p") #'run-python-poetry))
+(global-set-key (kbd "C-x C-a C-i") #'gud-goto-info)
 
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -543,7 +534,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "M-[") #'previous-buffer)
 (global-set-key (kbd "M-]") #'next-buffer)
 (global-set-key (kbd "C-c b a") #'append-to-buffer)
-(global-set-key (kbd "C-x k") #'kill-this-buffer)
+
+(defun kill-this-buffer-reliably () (interactive) (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k") #'kill-this-buffer-reliably)
 
 ;; Scratch buffer
 (setq initial-major-mode #'org-mode)
@@ -915,6 +908,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
+
+(require 'ox-md)
 
 ;; Bullets ;;
 (use-package org-bullets)

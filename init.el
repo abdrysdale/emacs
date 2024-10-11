@@ -685,6 +685,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
 
 ;; IRC
+(require 'erc)
 (load "~/.irc-auth")
 
 (setq erc-autojoin-channels-alist
@@ -696,7 +697,23 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          "#math"
          "#machinelearning")))
 
-(add-to-list 'erc-modules 'sasl)
+(setq erc-modules '(netsplit
+                    fill
+                    button
+                    match
+                    track
+                    completion
+                    readonly
+                    networks
+                    ring
+                    autojoin
+                    noncommands
+                    irccontrols
+                    move-to-prompt
+                    stamp
+                    menu
+                    list
+                    sasl))
 
 (setq erc-nick "TactfulCitrus"
       erc-port "6667"
@@ -707,7 +724,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       erc-sasl-password libera-chat-pass)
 
 
-(global-set-key (kbd "C-c m i") erc)
+(global-set-key (kbd "C-c m i") #'erc)
 
 ;; Music
 (use-package emms)

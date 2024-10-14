@@ -207,6 +207,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; UI ;;
 ;;====;;
 
+;; Help
+(setq help-at-pt-timer-delay 0
+      help-at-pt-display-when-idle "always")
+
+;; Tooltips
+(setq tooltip-delay 0
+      tooltip-short-delay 0
+      use-system-tooltips nil)
+
 ;; Fireplace - a mission critical package;;
 (use-package fireplace)
 
@@ -405,6 +414,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Programming Languages ;;
 ;;=======================;;
 
+;;; The Grand Unified Debugger ;;;
+(global-set-key (kbd "C-x C-a i") #'gud-goto-info)
+(global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
+
 ;;; Python ;;;
 (defun python-imenu-use-flat-index
     ()
@@ -416,7 +429,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
-(global-set-key (kbd "C-x C-a C-i") #'gud-goto-info)
 
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

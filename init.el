@@ -261,7 +261,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-hl-line-mode t)             ; Hightlights current line
 
 ;; Modeline
-(setq mode-line-compact t)  ; Compresses repeating spaces to a single space
+(setq mode-line-compact t   ; Compresses repeating spaces to a single space
+      display-time-24hr-format t
+      display-battery-mode t)
+(display-time-mode 1)       ; Displays the time.
+(display-battery-mode 1)    ; Displays the battery.
 (size-indication-mode 1)    ; Show the buffer size in the modeline
 (column-number-mode 1)      ; Show column number along with line number in modeline
 

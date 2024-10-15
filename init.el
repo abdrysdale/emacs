@@ -203,6 +203,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       epa-gpg-program "gpg"         ;; Ensures GPG program is GPG
       epa-pinentry-mode 'loopback)  ;; Needed if GPG requires a password for decrypting keys
 
+;; Saves session
+;; Works with daemons but not remotely running Emacs sessions.
+(desktop-save-mode 1)
+(add-hook 'server-after-make-frame-hook #'desktop-read)
+(setq desktop-load-locked-desktop 'check-pid)
+
 ;;====;;
 ;; UI ;;
 ;;====;;
@@ -334,6 +340,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
+(global-set-key (kbd "C-c q") #'query-replace)
 
 ;; In general, I prefer to go forward to the beginning of a word
 ;; not the end, but I've provided a shortcut for both a bound

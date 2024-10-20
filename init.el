@@ -346,12 +346,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Tweaking Icomplete
 (require 'icomplete)
-(setq icomplete-in-buffer t
+(setq icomplete-mode t
+      icomplete-in-buffer t
       icomplete-compute-delay 0.01
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
       icomplete-hide-common-prefix nil
       completion-styles '(flex basic partial-completion emacs22))
+;; Used to use fido-vertical but that has difficulty when not selecting an item
+;; from the completion list.  That is, when rather than selecting "fo" if "foo"
+; is present "foo" will always be selected.  Moreover, the vertical completion
+;; takes up more screen real estate.  In my usual fasion, I will use icomplete mode
+;; and if anything is lacking - then see if this is fixed by fido-mode.
 
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function
@@ -839,8 +845,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-(fido-vertical-mode 1) ; Vertical minibuffer completion
-(savehist-mode 1)       ; Saves minibuffer history between sessions
+(savehist-mode 1)   ; Saves minibuffer history between sessions
 
 (setq enable-recursive-minibuffers t
       minibuffer-depth-indicate-mode t

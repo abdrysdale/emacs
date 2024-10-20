@@ -346,7 +346,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Tweaking Icomplete
 (require 'icomplete)
-(setq icomplete-mode t
+(setq fido-mode t
       icomplete-in-buffer t
       icomplete-compute-delay 0.01
       icomplete-delay-completions-threshold 10000
@@ -356,8 +356,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
 ; is present "foo" will always be selected.  Moreover, the vertical completion
-;; takes up more screen real estate.  In my usual fasion, I will use icomplete mode
-;; and if anything is lacking - then see if this is fixed by fido-mode.
+;; takes up more screen real estate.
 
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function
@@ -461,6 +460,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package tex
   :straight nil
   :ensure auctex)
+;; Useful (AUC)TeX commands
+;;
+;; C-c C-s     ::   Insert section.
+;; C-c C-e     ::   Insert environment.
+;; C-c C-m     ::   Insert macro.
+
+;; C-c C-f C-b ::   Bold.
+;; C-c C-f C-i ::   Italics.
+;; C-c C-f C-e ::   Emphasized.
+
+;; C-c C-o C-f ::   Fold mode.
+;; C-c ~       ::   Math mode.
 
 (setq TeX-auto-save t
       TeX-parse-self t

@@ -96,9 +96,6 @@
       (clear-abbrev-table latex-mode-abbrev-table))
     (define-abbrev-table 'latex-mode-abbrev-table
       '(
-        ("zbeq" "\begin{equation}\n\end{equation}" nil 0)
-        ("zali" "\begin{align}\n\end{align}" nil 0)
-        ("zben" "\begin{enumerate}\n\end{enumerate}" nil 0)
         ("zla" "\label" nil 0)
         ("zca" "\caption" nil 0)
         ("zi" "^{(i)}" nil 0)
@@ -108,10 +105,6 @@
         ("zm" "^{(m)}" nil 0)
         ("zrr" "\in \mathcal{R}" nil 0)
         ("zrn" "\in \mathcal{R}^n" nil 0)
-        ("zfig" 
-         "\begin{figure}[h]\n\centering\n\includegraphics[width=0.5\linewidth]{}\n\end{figure}"
-         nil 0)
-        ("bf" "\textbf{" nil 0)
         )))
 
 

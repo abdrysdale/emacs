@@ -366,12 +366,17 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Tweaking Icomplete
 (require 'icomplete)
-(setq icomplete-in-buffer t
+(setq fido-mode t
+      icomplete-in-buffer t
       icomplete-compute-delay 0.01
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
       icomplete-hide-common-prefix nil
       completion-styles '(flex basic partial-completion emacs22))
+;; Used to use fido-vertical but that has difficulty when not selecting an item
+;; from the completion list.  That is, when rather than selecting "fo" if "foo"
+; is present "foo" will always be selected.  Moreover, the vertical completion
+;; takes up more screen real estate.
 
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function
@@ -469,6 +474,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package tex
   :straight nil
   :ensure auctex)
+;; Useful (AUC)TeX commands
+;;
+;; C-c C-s     ::   Insert section.
+;; C-c C-e     ::   Insert environment.
+;; C-c C-m     ::   Insert macro.
+
+;; C-c C-f C-b ::   Bold.
+;; C-c C-f C-i ::   Italics.
+;; C-c C-f C-e ::   Emphasized.
+
+;; C-c C-o C-f ::   Fold mode.
+;; C-c ~       ::   Math mode.
 
 (setq TeX-auto-save t
       TeX-parse-self t
@@ -855,8 +872,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-(fido-vertical-mode 1) ; Vertical minibuffer completion
-(savehist-mode 1)       ; Saves minibuffer history between sessions
+(savehist-mode 1)   ; Saves minibuffer history between sessions
 
 (setq enable-recursive-minibuffers t
       minibuffer-depth-indicate-mode t

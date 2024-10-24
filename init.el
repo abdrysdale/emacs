@@ -375,7 +375,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       completion-styles '(basic partial-completion initials)) ;; Flex is too aggressive.
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
-; is present "foo" will always be selected.
+;; is present "foo" will always be selected.
 ;; Hence I switched to icomplete.
 ;; The vertical completion takes up more screen real estate so I ignored that.
 
@@ -768,9 +768,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       emms-player-mpv-parameters '("--no-video"))
 (if (eq system-type 'windows-nt)
     (setq emms-player-mpv-command (expand-file-name "~/scoop/apps/mpv/current/mpv.exe")))
+
 (defvar emms-content-classicfm
   "https://media-ice.musicradio.com/ClassicFMMP3"
   "URL for a classical music radio station.")
+
+(defun emms-play-classicfm ()
+  "Play the ClassicFM radio."
+  (interactive)
+  (emms-play-url emms-content-classicfm))
+(global-set-key (kbd "C-c m r") #'emms-play-classicfm)
 
 
 ;;======;;
@@ -812,7 +819,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;======;;
 
 (use-package ebib)
-(global-set-key (kbd "C-c m r") #'ebib)
+(global-set-key (kbd "C-c m b") #'ebib)
 (global-set-key (kbd "C-c i") #'ebib-insert-citation)
 (setq ebib-save-xrefs-first nil
       ebib-index-default-sort '("Year" . descend)

@@ -372,7 +372,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
       icomplete-hide-common-prefix nil
-      completion-styles '(partial-completion initials)) ;; Flex is too aggressive.
+      completion-styles '(basic partial-completion initials)) ;; Flex is too aggressive.
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
 ; is present "foo" will always be selected.

@@ -767,7 +767,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       emms-info-functions '(emms-info-native)
       emms-player-mpv-parameters '("--no-video"))
 (if (eq system-type 'windows-nt)
-    (setq emms-player-mpv-command "~/scoop/apps/mpv/current/mpv.exe"))
+    (setq emms-player-mpv-command (expand-file-name "~/scoop/apps/mpv/current/mpv.exe")))
+(defvar emms-content-classicfm
+  "https://media-ice.musicradio.com/ClassicFMMP3"
+  "URL for a classical music radio station.")
 
 
 ;;======;;

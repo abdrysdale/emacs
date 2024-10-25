@@ -397,9 +397,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (global-set-key (kbd "C->") #'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
   (global-set-key (kbd "C-x M-.") #'mark-pop)
-  (global-set-key (kbd "C-x C-.") #'mc/edit-lines))
-
-(define-key mc/keymap (kbd "<return>") nil) ;; Inserts a new line when in multiple-cursors mode
+  (global-set-key (kbd "C-x C-.") #'mc/edit-lines)
+  (define-key mc/keymap (kbd "<return>") nil))
 
 ;; iSpell ;;
 (global-set-key (kbd "C-c d s") 'ispell)

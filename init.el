@@ -400,6 +400,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (global-set-key (kbd "C-x C-.") #'mc/edit-lines)
   (define-key mc/keymap (kbd "<return>") nil))
 
+;; Expand region
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
+
 ;; iSpell ;;
 (global-set-key (kbd "C-c d s") 'ispell)
 (global-set-key (kbd "C-c d w") 'ispell-word)

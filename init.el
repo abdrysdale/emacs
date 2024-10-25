@@ -509,11 +509,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;============;;
 
 ;; Outline
+;; Mainly used text based files.
 (with-eval-after-load "outline"
   (define-key outline-minor-mode-map (kbd "C-c o")
               (lookup-key outline-minor-mode-map (kbd "C-c @"))))
 
 (setq-default outline-minor-mode t)
+
+;; Hide-show
+;; Mainly used programming based files.
+(define-key hs-minor-mode-map (kbd "C-c h")
+            (lookup-key hs-minor-mode-map (kbd "C-c @")))
+(setq-default hs-minor-mode t)
 
 ;; Search
 (setq isearch-repeat-on-direction-change t
@@ -784,7 +791,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (emms-play-url emms-content-classicfm))
 (global-set-key (kbd "C-c m r") #'emms-play-classicfm)
 (global-set-key (kbd "C-c m s") #'emms-stop)
-
 
 ;;======;;
 ;; Mail ;;

@@ -325,13 +325,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Highlighting changes
 (setq highlight-changes-mode t)
 
-(global-set-key (kbd "C-c c h") 'highlight-changes-mode)
-(global-set-key (kbd "C-c c v") 'highlight-changes-visible-mode)
-(global-set-key (kbd "C-c c n") 'highlight-changes-next-change)
-(global-set-key (kbd "C-c c p") 'highlight-changes-previous-change)
-(global-set-key (kbd "C-c c r") 'highlight-changes-rotate-faces)
-(global-set-key (kbd "C-c c f") 'highlight-compare-with-file)
-(global-set-key (kbd "C-c c b") 'highlight-compare-buffers)
+(global-set-key (kbd "C-c c c") #'highlight-changes-mode)
+(global-set-key (kbd "C-c c h") #'highlight-changes-remove-highlight)
+(global-set-key (kbd "C-c c v") #'highlight-changes-visible-mode)
+(global-set-key (kbd "C-c c n") #'highlight-changes-next-change)
+(global-set-key (kbd "C-c c p") #'highlight-changes-previous-change)
+(global-set-key (kbd "C-c c r") #'highlight-changes-rotate-faces)
+(global-set-key (kbd "C-c c f") #'highlight-compare-with-file)
+(global-set-key (kbd "C-c c b") #'highlight-compare-buffers)
 
 ;;===============;;
 ;; Basic Editing ;;

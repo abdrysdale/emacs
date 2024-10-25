@@ -294,7 +294,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 	      indent-tabs-mode nil
           tab-always-indent t)
 
-
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
 (electric-indent-mode 0)
@@ -393,27 +392,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Multiple cursors ;;
 (use-package multiple-cursors
-  :straight nil)
-
-(defun me/mark-next-like-this-or-mark-all-like-this (arg)
-  "Run mc/mark-next-like-this or mc/mark-all-like-this if ARG."
-  (interactive "P")
-  (if arg
-      (call-interactively #'mc/mark-all-like-this)
-    (call-interactively #'mc/mark-next-like-this)))
-
-(defun me/mark-previous-like-this-or-mark-pop (arg)
-  "Run mc/mark-previous-like-this or mc/mark-pop if ARG."
-  (interactive "P")
-  (if arg
-      (call-interactively #'mc/mark-pop)
-    (call-interactively #'mc/mark-previous-like-this)))
-
-(global-set-key (kbd "C-x C->") 'me/mark-next-like-this-or-mark-all-like-this)
-(global-set-key (kbd "C-x C-<") 'me/mark-previous-like-this-or-mark-pop)
-
-(global-set-key (kbd "C->") 'mc/mark-next-lines)
-(global-set-key (kbd "C-<") 'mc/mark-previous-lines)
+  :straight nil
+  :config
+  (global-set-key (kbd "C->") #'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-x M-.") #'mark-pop)
+  (global-set-key (kbd "C-x C-.") #'mc/edit-lines))
 
 (define-key mc/keymap (kbd "<return>") nil) ;; Inserts a new line when in multiple-cursors mode
 

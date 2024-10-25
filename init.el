@@ -761,13 +761,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m i") #'erc)
 
 ;; Music
-(use-package emms)
-(emms-all)
-(setq emms-player-list '(emms-player-mpv)
-      emms-info-functions '(emms-info-native)
-      emms-player-mpv-parameters '("--no-video"))
-(if (eq system-type 'windows-nt)
-    (setq emms-player-mpv-command (expand-file-name "~/scoop/apps/mpv/current/mpv.exe")))
+(use-package emms
+  :ensure t
+  :config
+  (require 'emms-setup)
+  (require 'emms-player-mplayer)
+  (require 'emms-player-mpv)
+  (emms-all)
+  (if (eq system-type 'windows-nt)
+      (setq emms-player-list '(emms-player-mplayer))
+    (setq emms-player-list '(emms-player-mpv)
+          emms-info-functions '(emms-info-native)
+          emms-player-mpv-parameters '("--no-video"))))
 
 (defvar emms-content-classicfm
   "https://media-ice.musicradio.com/ClassicFMMP3"
@@ -778,6 +783,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (interactive)
   (emms-play-url emms-content-classicfm))
 (global-set-key (kbd "C-c m r") #'emms-play-classicfm)
+(global-set-key (kbd "C-c m s") #'emms-stop)
 
 
 ;;======;;

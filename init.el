@@ -437,6 +437,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
+(setq python-shell-interpreter "ipython")
 
 ;;; Perl ;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

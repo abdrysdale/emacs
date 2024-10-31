@@ -379,6 +379,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Hence I switched to icomplete.
 ;; The vertical completion takes up more screen real estate so I ignored that.
 
+;; For some reason icomplete doesn't always load after initialisation
+(icomplete-mode)
+
 ;; Use the default `completion--in-region' function.
 (setq completion-in-region-function
       (lambda (&rest args)
@@ -510,6 +513,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             (lookup-key hs-minor-mode-map (kbd "C-c @")))
 (setq-default hs-minor-mode t)
 
+;; Semantic mode
+;; Language aware editing commands for:
+;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo
+(semantic-mode)
+
 ;; Search
 (setq isearch-repeat-on-direction-change t
       isearch-wrap-pause 'no)
@@ -635,7 +643,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
 (define-key flymake-mode-map (kbd "C-c l b") 'flymake-show-buffer-diagnostics)
 (define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics)
-
 
 ;;=======;;
 ;; Tools ;;

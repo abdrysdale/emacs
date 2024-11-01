@@ -675,6 +675,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (call-interactively #'calc)))
 (global-set-key (kbd "C-x c") 'calc-or-quick-calc)
 
+;; Farenheit to Celcius calculator
+(defun farenheit-to-celcius (temp)
+  "Convert TEMP from Farenheit to Celcius."
+  (/ (- temp 32) 1.8))
+
+(defun farenheit-to-celcius-at-point ()
+  "Get the Farenheit temperature at point as Celcius."
+  (interactive)
+  (let* ((temp-F (number-at-point))
+         (temp-C (farenheit-to-celcius temp-F))
+         (bounds (bounds-of-thing-at-point 'number)))
+    (when bounds
+      (delete-region (car bounds) (cdr bounds))
+      (insert (format "%f" temp-C))
+      (message (format "%fF = %fC" temp-F temp-C)))))
+
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200)

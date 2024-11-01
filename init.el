@@ -687,9 +687,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          (temp-C (farenheit-to-celcius temp-F))
          (bounds (bounds-of-thing-at-point 'number)))
     (when bounds
+      (message (format "%fF = %fC" temp-F temp-C))
       (delete-region (car bounds) (cdr bounds))
-      (insert (format "%f" temp-C))
-      (message (format "%fF = %fC" temp-F temp-C)))))
+      (insert (format "%f" temp-C)))))
 
 ;; Doc view
 (require 'doc-view)

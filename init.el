@@ -345,6 +345,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 (global-set-key (kbd "C-c q") #'query-replace)
+(global-set-key (kbd "C-/") #'undo)
 
 ;; In general, I prefer to go forward to the beginning of a word
 ;; not the end, but I've provided a shortcut for both a bound

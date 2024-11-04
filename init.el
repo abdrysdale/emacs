@@ -373,7 +373,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-show-matches-on-no-input t
       icomplete-hide-common-prefix nil
       read-buffer-completion-ignore-case t
-      read-file-name-completion-ignore-case t
+      completion-ignore-case t
       completion-auto-help nil
       completion-styles '(basic partial-completion initials substring)) ;; Flex is too aggressive.
 ;; Used to use fido-vertical but that has difficulty when not selecting an item

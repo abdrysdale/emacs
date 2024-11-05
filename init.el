@@ -345,6 +345,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 (global-set-key (kbd "C-c q") #'query-replace)
+(global-set-key (kbd "C-/") #'undo)
 
 ;; In general, I prefer to go forward to the beginning of a word
 ;; not the end, but I've provided a shortcut for both a bound
@@ -364,7 +365,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Advanced Editing ;;
 ;;==================;;
 
-;; Tweaking Icomplete
+;; Completion
 (require 'icomplete)
 (setq icomplete-mode t
       icomplete-in-buffer t
@@ -372,7 +373,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-delay-completions-threshold 10000
       icomplete-show-matches-on-no-input t
       icomplete-hide-common-prefix nil
-      completion-styles '(basic partial-completion initials)) ;; Flex is too aggressive.
+      read-buffer-completion-ignore-case t
+      completion-ignore-case t
+      completion-auto-help nil
+      completion-styles '(basic partial-completion initials substring)) ;; Flex is too aggressive.
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
 ;; is present "foo" will always be selected.

@@ -688,8 +688,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          (bounds (bounds-of-thing-at-point 'number)))
     (when bounds
       (message (format "%fF = %fC" temp-F temp-C))
-      (delete-region (car bounds) (cdr bounds))
-      (insert (format "%f" temp-C)))))
+      (if buffer-read-only
+          (kill-new (format "%f" temp-C))
+        (progn
+          (delete-region (car bounds) (cdr bounds))
+          (insert (format "%f" temp-C)))))))
 
 ;; Doc view
 (require 'doc-view)

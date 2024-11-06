@@ -663,6 +663,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c e") #'eshell)
 (global-set-key (kbd "C-c s") #'shell)
 
+;; Start an LLM-chat shell
+(defvar lchat-model "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
+  "Default model for the lchat shell.")
+
+(defun lchat ()
+  "Start an LLM chat shell."
+  (interactive)
+  (let ((eshell-buffer-name "lchat"))
+    (if (get-buffer eshell-buffer-name)
+        (switch-to-buffer eshell-buffer-name)
+      (progn
+        (eshell)
+        (insert (format "lchat -m %s" lchat-model))
+        (eshell-send-input)))))
+(global-set-key (kbd "C-c m l") #'lchat)
+
 ;; Visit init file
 (defun my-visit-user-init-file ()
   "Visit the init file."

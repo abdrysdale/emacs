@@ -13,6 +13,9 @@
 
 ;;; Code:
 (require 'server)
+(defvar init-script-initial-clients nil
+    "Connected clients when init script was run.")
+(setq init-script-initial-clients server-clients)
 (server-start)
 
 ;;====================;;
@@ -1137,7 +1140,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; STARTUP ;;
 ;;;;;;;;;;;;;
 
-(dashboard-open)
+(defun startup ()
+    "Startup process."
+    (interactive)
+    (unless init-script-initial-clients
+        (irc))
+    (dashboard-open))
+(startup)
 
 ;;;;;;;;;;;;;;;;;
 ;; CUSTOM VARS ;;

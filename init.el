@@ -748,7 +748,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c u s") #'eww-search-scholar)
 (global-set-key (kbd "C-c u u") #'eww)
-(global-set-key (kbd "C-c u t") #'org-toggle-link-display)
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
@@ -865,13 +864,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Ebib ;;
 ;;======;;
 
-(use-package ebib)
-(global-set-key (kbd "C-c m b") #'ebib)
-(global-set-key (kbd "C-c i") #'ebib-insert-citation)
-(setq ebib-save-xrefs-first nil
-      ebib-index-default-sort '("Year" . descend)
-      ebib-file-associations nil
-      ebib-notes-display-max-lines 30)
+(use-package ebib
+  :after org
+  :config
+  (require 'org-ebib)
+  (global-set-key (kbd "C-c m b") #'ebib)
+  (global-set-key (kbd "C-c i") #'ebib-insert-citation)
+  (setq ebib-save-xrefs-first nil
+        ebib-index-default-sort '("Year" . descend)
+        ebib-file-associations nil
+        ebib-notes-display-max-lines 30))
 
 
 (setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes"))
@@ -1084,7 +1086,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (browse-url-default-browser url ARG)
       (error "No URL found"))))
 
-(define-key org-mode-map (kbd "C-c C-o") #'browser-url-at-point-with-external-browser)
+(define-key org-mode-map (kbd "C-c u t") #'org-toggle-link-display)
+(define-key org-mode-map (kbd "C-c u b") #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)

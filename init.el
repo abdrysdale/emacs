@@ -798,8 +798,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       erc-sasl-user erc-nick
       erc-sasl-password libera-chat-pass)
 
-
-(global-set-key (kbd "C-c m i") #'erc)
+(defun irc () (interactive) (erc))
+(global-set-key (kbd "C-c m i") #'irc)
 
 ;; Music
 (use-package emms

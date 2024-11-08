@@ -13,6 +13,9 @@
 
 ;;; Code:
 (require 'server)
+(defvar init-script-initial-clients nil
+    "Connected clients when init script was run.")
+(setq init-script-initial-clients server-clients)
 (server-start)
 
 ;;====================;;
@@ -458,18 +461,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;;; Lean ;;;
-(use-package lean4-mode
-  :straight (lean4-mode
-	     :type git
-	     :host github
-	     :repo "leanprover/lean4-mode"
-	     :files ("*.el" "data"))
-  ;; to defer loading the package until required
-  :commands (lean4-mode))
-
-(use-package haskell-mode)
-
 ;;; Latex ;;;
 (use-package tex
   :straight nil
@@ -751,7 +742,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c u s") #'eww-search-scholar)
 (global-set-key (kbd "C-c u u") #'eww)
-(global-set-key (kbd "C-c u t") #'org-toggle-link-display)
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
@@ -802,8 +792,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       erc-sasl-user erc-nick
       erc-sasl-password libera-chat-pass)
 
-
-(global-set-key (kbd "C-c m i") #'erc)
+(defun irc () (interactive) (erc))
+(global-set-key (kbd "C-c m i") #'irc)
 
 ;; Music
 (use-package emms
@@ -868,13 +858,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Ebib ;;
 ;;======;;
 
-(use-package ebib)
-(global-set-key (kbd "C-c m b") #'ebib)
-(global-set-key (kbd "C-c i") #'ebib-insert-citation)
-(setq ebib-save-xrefs-first nil
-      ebib-index-default-sort '("Year" . descend)
-      ebib-file-associations nil
-      ebib-notes-display-max-lines 30)
+(use-package ebib
+  :after org
+  :config
+  (require 'org-ebib)
+  (global-set-key (kbd "C-c m b") #'ebib)
+  (global-set-key (kbd "C-c i") #'ebib-insert-citation)
+  (setq ebib-save-xrefs-first nil
+        ebib-index-default-sort '("Year" . descend)
+        ebib-file-associations nil
+        ebib-notes-display-max-lines 30))
 
 
 (setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes"))
@@ -1087,7 +1080,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (browse-url-default-browser url ARG)
       (error "No URL found"))))
 
-(define-key org-mode-map (kbd "C-c C-o") #'browser-url-at-point-with-external-browser)
+(define-key org-mode-map (kbd "C-c u t") #'org-toggle-link-display)
+(define-key org-mode-map (kbd "C-c u b") #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)
@@ -1137,7 +1131,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; STARTUP ;;
 ;;;;;;;;;;;;;
 
-(dashboard-open)
+(defun startup ()
+    "Startup process."
+    (interactive)
+    (unless init-script-initial-clients
+        (irc))
+    (dashboard-open))
+(startup)
 
 ;;;;;;;;;;;;;;;;;
 ;; CUSTOM VARS ;;

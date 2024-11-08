@@ -464,6 +464,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;** Latex **;;;
 (global-prettify-symbols-mode)
 (use-package tex
+  ;; In general I prefer the AUCTeX modes over their builtin counter parts
+  ;; That is, LaTeX-mode over latex-mode etc.
   :straight nil
   :ensure auctex
   :config
@@ -472,25 +474,27 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             (lambda ()
               (setq flymake-compiler "pdflatex")
               (setq flymake-args '("-interaction=nonstopmode" "%f"))))
-  (define-key latex-mode-map (kbd "C-c l c") #'calc-embedded)
+  (add-to-list 'auto-mode-alist '("\\.TeX$" . LaTeX-mode))
   (setq TeX-auto-save t
         TeX-parse-self t
         TeX-process-asynchronous t
         TeX-check-TeX nil
         TeX-electric-sub-and-superscript t
+        font-latex-fontify-sectioning 'color  ;; Disable variable font for sections
         TeX-engine 'default))
 ;; Useful (AUC)TeX commands
 ;;
-;; C-c C-s     ::   Insert section.
-;; C-c C-e     ::   Insert environment.
-;; C-c C-m     ::   Insert macro.
+;; C-c C-s      ::  Insert section.
+;; C-c C-e      ::  Insert environment.
+;; C-c C-m      ::  Insert macro.
 
-;; C-c C-f C-b ::   Bold.
-;; C-c C-f C-i ::   Italics.
-;; C-c C-f C-e ::   Emphasized.
+;; C-c C-f C-b  ::  Bold.
+;; C-c C-f C-i  ::  Italics.
+;; C-c C-f C-e  ::  Emphasized.
 
-;; C-c C-o C-f ::   Fold mode.
-;; C-c ~       ::   Math mode.
+;; C-c C-o C-f  ::  Fold mode.
+;; C-c ~        ::  Math mode.
+;; C-x * e      ::  calc-embedded.
 
 
 ;;;** Emacs Speaks Statistics **;;;

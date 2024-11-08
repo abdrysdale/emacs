@@ -436,7 +436,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
 
-;;; Python ;;;
+;;;** Python **;;;
 (defun python-imenu-use-flat-index
     ()
   (setq imenu-create-index-function
@@ -449,7 +449,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq gud-pdb-command-name "poetry run python -m pdb")
 (setq python-shell-interpreter "ipython")
 
-;;; Perl ;;;;
+;;;** Perl **;;;;
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 
 (setq cperl-invalid-face nil)
@@ -461,10 +461,24 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;;; Latex ;;;
+;;;** Latex **;;;
+(global-prettify-symbols-mode)
 (use-package tex
   :straight nil
-  :ensure auctex)
+  :ensure auctex
+  :config
+  (add-hook 'LaTeX-mode-hook #'TeX-fold-mode)
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (setq flymake-compiler "pdflatex")
+              (setq flymake-args '("-interaction=nonstopmode" "%f"))))
+  (define-key latex-mode-map (kbd "C-c l c") #'calc-embedded)
+  (setq TeX-auto-save t
+        TeX-parse-self t
+        TeX-process-asynchronous t
+        TeX-check-TeX nil
+        TeX-electric-sub-and-superscript t
+        TeX-engine 'default))
 ;; Useful (AUC)TeX commands
 ;;
 ;; C-c C-s     ::   Insert section.
@@ -478,13 +492,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; C-c C-o C-f ::   Fold mode.
 ;; C-c ~       ::   Math mode.
 
-(setq TeX-auto-save t
-      TeX-parse-self t
-      TeX-process-asynchronous t
-      TeX-check-TeX nil
-      TeX-engine 'default)
 
-;;; Emacs Speaks Statistics ;;;
+;;;** Emacs Speaks Statistics **;;;
 (use-package ess
   :config (require 'ess-r-mode))
 ;; (well also Python but that's not important right now)
@@ -627,10 +636,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Python
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
-(add-hook 'LaTeX-mode-hook
-          (lambda ()
-            (setq flymake-compiler "pdflatex")
-            (setq flymake-args '("-interaction=nonstopmode" "%f"))))
 (setq flymake-start-on-flymake-mode t)
 (setq python-flymake-command '("ruff" "check" "--output-format"
                                "concise" "--quiet"

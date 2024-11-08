@@ -361,6 +361,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; e        :: Quit and stay in the same buffer & position.
 (global-set-key (kbd "C-c v") #'view-mode)
 
+;; Count the words
+(global-set-key (kbd "C-c b c") #'count-words)
+
 ;;==================;;
 ;; Advanced Editing ;;
 ;;==================;;

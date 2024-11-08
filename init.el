@@ -1,7 +1,7 @@
 ;;; MyEmacsConfig --- a minimal cross platform config
-
+;;  
 ;; -*- lexical-binding: t -*-
-
+;;
 ;;; Commentary:
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.

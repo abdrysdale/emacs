@@ -196,10 +196,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Sets the default directory
 (setq default-directory "~/")
 
-(add-to-list 'Info-directory-list (expand-file-name "~/.emacs.d/info/"))
+;; Info
+(defvar info-custom-dir (expand-file-name "~/.emacs.d/info/")
+  "Location of custom info directory.")
+(add-to-list 'Info-directory-list info-custom-dir)
 (when (eq system-type 'windows-nt)
     (add-to-list 'Info-directory-list
                  (expand-file-name "~/scoop/apps/emacs/current/share/info")))
+(defun info-custom-manuals (manual)
+  (info (concat info-custom-dir manual ".info")))
+(defun info-custom-python ()
+  "Launch python info file."
+  (interactive)
+  (info-custom-manuals "python"))
+(global-set-key (kbd "C-c h p") #'info-custom-python)
 
 ;; Sets the auth source (requires gpg!)
 (setq auth-sources '("~/.authinfo.gpg")

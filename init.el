@@ -1144,7 +1144,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     "Startup process."
     (interactive)
     (unless init-script-initial-clients
-        (irc))
+      (progn
+        (irc)
+        (newsticker-start)))
     (dashboard-open))
 (startup)
 

@@ -889,10 +889,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ebib-notes-display-max-lines 30))
 
 
-(setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes"))
-(setq ebib-reading-list-file (expand-file-name "~/Documents/notes/reading-list.org"))
-(setq ebib-preload-bib-files
-      `(,(expand-file-name "~/Documents/notes/refs.bib")))
+(defvar ebib-paper-dir (expand-file-name "~/Documents/resources/papers")
+  "Path to downloaded papers.")
+(setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes")
+      ebib-reading-list-file (expand-file-name "~/Documents/notes/reading-list.org")
+      ebib-preload-bib-files `(,(expand-file-name "~/Documents/notes/refs.bib")))
+(setq ebib-file-search-dirs `(,ebib-paper-dir))
+
 
 ;; Tries to download a paper associated with the url
 ;; Supports:

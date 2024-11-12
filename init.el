@@ -916,6 +916,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (downcase-region (point) (point-min))
       (kill-new (buffer-string))
       (message "DOI copied!"))))
+(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
 ;;;===========;;;
 ;;;* Windows *;;;

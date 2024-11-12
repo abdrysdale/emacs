@@ -293,7 +293,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       tab-bar-new-tab-to 'rightmost)
 
 ;; Programming UI
-(add-hook 'prog-mode 'whitespace-mode)
+(add-hook 'prog-mode-hook #'whitespace-mode)
 (setq display-raw-bytes-as-hex t)
 
 ;; Line numbers
@@ -373,6 +373,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; q        :: Quit and go back to buffer & position before view-mode.
 ;; e        :: Quit and stay in the same buffer & position.
 (global-set-key (kbd "C-c v") #'view-mode)
+
+;; Format whitespace visualisation
+(setq whitespace-style '(face tabs spaces trailing lines space-before-tab
+                              newline indentation empty space-after-tab
+                              space-mark tab-mark missing-newline-at-eof))
 
 ;; Count the words
 (global-set-key (kbd "C-c b c") #'count-words)
@@ -730,7 +735,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200)
-(add-hook 'doc-view-mode-hook #'(lambda () (display-line-numbers-mode -1)))
+(add-hook 'doc-view-mode-hook (lambda () (display-line-numbers-mode -1)))
 (add-hook 'doc-view-mode-hook #'doc-view-fit-page-to-window)
 (defun doc-view-other-frame-scroll-up ()
   "Equivalent of switching to other frame, pressing SPC and then switching back."
@@ -1173,11 +1178,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(
-org-agenda-files
+ '(org-agenda-files
    '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
  '(package-selected-packages
-   '(coterm powershell markdown-mode csv-mode ebib magit alda-mode)))
+   '(coterm powershell markdown-mode csv-mode ebib magit alda-mode))
+ '(safe-local-variable-values '((eval outline-hide-sublevels 4))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

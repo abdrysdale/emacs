@@ -531,14 +531,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (with-eval-after-load "outline"
   (define-key outline-minor-mode-map (kbd "C-c o")
               (lookup-key outline-minor-mode-map (kbd "C-c @"))))
-
-(setq-default outline-minor-mode t)
+(add-hook 'text-mode-hook #'outline-minor-mode)
 
 ;; Hide-show
 ;; Mainly used programming based files.
-(define-key hs-minor-mode-map (kbd "C-c h")
+(define-key hs-minor-mode-map (kbd "C-c o")
             (lookup-key hs-minor-mode-map (kbd "C-c @")))
-(setq-default hs-minor-mode t)
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 
 ;; Semantic mode
 ;; Language aware editing commands for:
@@ -1136,6 +1135,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq org-refile-targets '((nil . (:maxlevel . 10)))
       org-refile-use-outline-path t
       org-outline-path-complete-in-steps nil)
+
+;; HTML syntax highlighting
+(use-package htmlize)
 
 ;;;================;;;
 ;;;* Abbreviation *;;;

@@ -537,6 +537,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Mainly used programming based files.
 (define-key hs-minor-mode-map (kbd "C-c o")
             (lookup-key hs-minor-mode-map (kbd "C-c @")))
+(setq hs-isearch-open t)    ;; Unhides comments and code when using isearch
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 
 ;; Semantic mode

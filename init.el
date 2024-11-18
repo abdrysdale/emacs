@@ -1,5 +1,5 @@
 ;;; MyEmacsConfig --- a minimal cross platform config
-;;  
+;;
 ;; -*- lexical-binding: t -*-
 ;;
 ;;; Commentary:
@@ -835,12 +835,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defvar emms-content-classicfm
   "https://media-ice.musicradio.com/ClassicFMMP3"
   "URL for a classical music radio station.")
-
 (defun emms-play-classicfm ()
   "Play the ClassicFM radio."
   (interactive)
   (emms-play-url emms-content-classicfm))
-(global-set-key (kbd "C-c m r") #'emms-play-classicfm)
+
+(defvar emms-content-lofi
+  "https://lofi.stream.laut.fm/lofi"
+  "URL for a lofi music radio station.")
+(defun emms-play-lofi ()
+  "Play a LoFi radio station."
+  (interactive)
+  (emms-play-url emms-content-lofi))
+
+
+(global-set-key (kbd "C-c m r c") #'emms-play-classicfm)
+(global-set-key (kbd "C-c m r l") #'emms-play-lofi)
 (global-set-key (kbd "C-c m s") #'emms-stop)
 
 ;;;========;;;

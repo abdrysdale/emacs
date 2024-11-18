@@ -1193,9 +1193,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  )
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars)
-;; outline-regexp: ";;;\\*+\\|\\`"
-;; eval: (outline-minor-mode 1)
-;; eval: (outline-hide-sublevels 4)
 ;; End:
 (provide 'init)
 ;;; init.el ends here

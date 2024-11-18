@@ -18,9 +18,9 @@
 (setq init-script-initial-clients server-clients)
 (server-start)
 
-;;;;=====================;;;
-;;;* Package Management *;;;
-;;;;=====================;;;
+;;  **********************
+;;; * Package Management *
+;;  **********************
 
 ;; Ensure that Emacs can verify SSL/TLS certificates
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
@@ -64,9 +64,9 @@
 (use-package json-mode)
 (use-package markdown-mode)
 
-;;;====================;;;
-;;;* Usage Statistics *;;;
-;;;====================;;;
+;;  ********************
+;;; * Usage Statistics *
+;;  ********************
 
 ;; File: elisp.info,  Node: Garbage Collection, Up: GNU Emacs Internals
 
@@ -175,9 +175,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package json-mode)
 (use-package markdown-mode)
 
-;;;==========;;;
-;;;* System *;;;
-;;;==========;;;
+;;  **********
+;;; * System *
+;;  **********
 
 ;; Prevent stale elisp bytecode from shadowing more up-to-date source files
 (setq load-prefer-newer t)
@@ -222,9 +222,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'server-after-make-frame-hook #'desktop-read)
 (setq desktop-load-locked-desktop 'check-pid)
 
-;;====;;
-;; UI ;;
-;;====;;
+;;  ******
+;;; * UI *
+;;  ******
 
 ;; Help
 (setq help-at-pt-timer-delay 0
@@ -347,9 +347,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c c f") #'highlight-compare-with-file)
 (global-set-key (kbd "C-c c b") #'highlight-compare-buffers)
 
-;;;=================;;;
-;;;* Basic Editing *;;;
-;;;=================;;;
+;;  *****************
+;;; * Basic Editing *
+;;  *****************
 
 (save-place-mode 1)
 (setq save-interprogram-paste-before-kill t)
@@ -382,9 +382,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Count the words
 (global-set-key (kbd "C-c b c") #'count-words)
 
-;;;====================;;;
-;;;* Advanced Editing *;;;
-;;;====================;;;
+;;  ********************
+;;; * Advanced Editing *
+;;  ********************
 
 ;; Completion
 (require 'icomplete)
@@ -443,15 +443,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c f c") #'fileloop-continue)
 
 
-;;;=========================;;;
-;;;* Programming Languages *;;;
-;;;=========================;;;
+;;  *************************
+;;; * Programming Languages *
+;;  *************************
 
-;;; The Grand Unified Debugger ;;;
+;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
 
-;;;** Python **;;;
+;;;; Python
 (defun python-imenu-use-flat-index
     ()
   (setq imenu-create-index-function
@@ -462,9 +462,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
-(setq python-shell-interpreter "ipython")
+(setq python-shell-interpreter "python")
 
-;;;** Perl **;;;;
+;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 
 (setq cperl-invalid-face nil)
@@ -476,7 +476,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;;;** Latex **;;;
+;;;; Latex
 (global-prettify-symbols-mode)
 (use-package tex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
@@ -512,7 +512,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; C-x * e      ::  calc-embedded.
 
 
-;;;** Emacs Speaks Statistics **;;;
+;;;; Emacs Speaks Statistics
 (use-package ess
   :config (require 'ess-r-mode))
 ;; (well also Python but that's not important right now)
@@ -522,15 +522,25 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (define-key ess-r-mode-map (kbd "M-?") nil) ;; unbinds M-?
 
-;;;==============;;;
-;;;* Navigation *;;;
-;;;==============;;;
+;;  **************
+;;; * Navigation *
+;;  **************
 
 ;; Outline
 ;; Mainly used text based files.
 (with-eval-after-load "outline"
   (define-key outline-minor-mode-map (kbd "C-c o")
               (lookup-key outline-minor-mode-map (kbd "C-c @"))))
+(add-hook 'outline-minor-mode-hook
+          (lambda ()
+            (define-key outline-minor-mode-map (kbd "<tab>") 'outline-cycle)
+            (define-key outline-minor-mode-map (kbd "S-<iso-lefttab>")
+              '(lambda()
+                 (interactive)
+                 (save-excursion
+                   (goto-char (point-min))
+                   (outline-show-all)
+                   (outline-hide-leaves))))))
 (add-hook 'text-mode-hook #'outline-minor-mode)
 
 ;; Hide-show
@@ -618,9 +628,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq midnight-mode t)
 (midnight-delay-set 'midnight-delay "02:00am")
 
-;;;=========;;;
-;;;* Dired *;;;
-;;;=========;;;
+;;  *********
+;;; * Dired *
+;;  *********
 
 (setq dired-listing-switches "-alh")
 
@@ -648,9 +658,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c d w") 'wdired-change-to-wdired-mode)
 (global-set-key (kbd "C-c d ,") 'dired-other-window)
 
-;;;===============;;;
-;;;* Development *;;;
-;;;===============;;;
+;;  ***************
+;;; * Development *
+;;  ***************
 
 ;; Python
 (require 'flymake)
@@ -667,9 +677,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-key flymake-mode-map (kbd "C-c l b") 'flymake-show-buffer-diagnostics)
 (define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics)
 
-;;;=========;;;
-;;;* Tools *;;;
-;;;=========;;;
+;;  *********
+;;; * Tools *
+;;  *********
 
 ;; Shell/Eshell
 (require 'em-banner)
@@ -854,9 +864,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m r l") #'emms-play-lofi)
 (global-set-key (kbd "C-c m s") #'emms-stop)
 
-;;;========;;;
-;;;* Mail *;;;
-;;;========;;;
+;;  ********
+;;; * Mail *
+;;  ********
 
 ;; Notmuch ;;
 (use-package notmuch
@@ -888,9 +898,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       smtpmail-smtp-service 1025
       message-kill-buffer-on-exit t)
 
-;;;========;;;
-;;;* Ebib *;;;
-;;;========;;;
+;;  ********
+;;; * Ebib *
+;;  ********
 
 (use-package ebib
   :after org
@@ -936,9 +946,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (message "DOI copied!"))))
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
-;;;===========;;;
-;;;* Windows *;;;
-;;;===========;;;
+;;  ***********
+;;; * Windows *
+;;  ***********
 
 (global-set-key (kbd "C-M-w") 'scroll-other-window-down)
 
@@ -1041,9 +1051,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq switch-to-buffer-in-dedicated-window "pop"
       switch-to-buffer-obey-display-actions t)
 
-;;;============;;;
-;;;* Org Mode *;;;
-;;;============;;;
+;;  ************
+;;; * Org Mode *
+;;  ************
 
 (variable-pitch-mode 0)
 (auto-fill-mode 0)
@@ -1150,9 +1160,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; HTML syntax highlighting
 (use-package htmlize)
 
-;;;================;;;
-;;;* Abbreviation *;;;
-;;;================;;;
+;;  ****************
+;;; * Abbreviation *
+;;  ****************
 
 (load (concat user-emacs-directory "abbrevs.el"))
 
@@ -1168,9 +1178,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq dabbrev-check-all-buffers t)
 
 
-;;;===========;;;
-;;;* STARTUP *;;;
-;;;===========;;;
+;;  ***********
+;;; * STARTUP *
+;;  ***********
 
 (defun startup ()
     "Startup process."
@@ -1182,9 +1192,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (dashboard-open))
 (startup)
 
-;;;===============;;;
-;;;* CUSTOM VARS *;;;
-;;;===============;;;
+;;  ***************
+;;; * CUSTOM VARS *
+;;  ***************
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -1204,6 +1214,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  )
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars)
+;; outline-regexp: ";;;\\*+\\|\\`"
+;; eval: (outline-minor-mode 1)
+;; eval: (outline-hide-sublevels 4)
 ;; End:
 (provide 'init)
 ;;; init.el ends here

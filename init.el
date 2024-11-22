@@ -909,6 +909,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "D") #'ebib-download-url)))
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "F") #'ebib-import-file)))
 
+;; Copies the ebib key to the kill ring
+(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-w") #'ebib-copy-key-as-kill)))
+
 ;; Converts DOI to bibtex
 (defun doi2bibtex (doi)
   "Convert a DOI to a bibtex entry."

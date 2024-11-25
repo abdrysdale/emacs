@@ -930,6 +930,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "D") #'ebib-download-url)))
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "F") #'ebib-import-file)))
 
+;; Copies the ebib key to the kill ring
+(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-w") #'ebib-copy-key-as-kill)))
+
 ;; Converts DOI to bibtex
 (defun doi2bibtex (doi)
   "Convert a DOI to a bibtex entry."
@@ -1062,20 +1065,29 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c f a") #'org-cycle-agenda-files)
 
 (setq org-return-follows-link  t
-      org-hide-emphasis-markers t)
+      org-hide-emphasis-markers t
+      org-hide-leading-stars t
+      org-indent-indentation-per-level 1
+      org-startup-indented t)
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 
 (require 'ox-md)
 
-;; Bullets ;;
-(use-package org-bullets)
-(add-hook 'org-mode-hook
-          (lambda ()
-            (if (display-graphic-p)
-                (org-bullets-mode)
-              (org-bullets-mode -1))))
+;; Publishing
+(require 'ox-publish)
+(use-package simple-httpd
+  :ensure t)
+
+;; Babel
+(use-package ob-powershell)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (python . t)
+   (powershell t)))
 
 ;; Clock ;;
 (setq org-clock-persist 'history)

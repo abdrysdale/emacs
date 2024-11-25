@@ -796,6 +796,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          "#emacs"
          "#python"
          "#fortran"
+         "##forth"
          "#nhs-dev"
          "#math"
          "#machinelearning")))
@@ -1081,13 +1082,28 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :ensure t)
 
 ;; Babel
-(use-package ob-powershell)
+(setq org-babel-load-languages '((emacs-lisp . t)
+                                 (python . t)
+                                 (R . t)
+                                 (shell . t)
+                                 (F90 . t)
+                                 (makefile . t)
+                                 (octave . t)
+                                 (sql . t)
+                                 (sqlite . t)))
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (python . t)
-   (powershell t)))
+(if (eq system-type 'windows-nt)
+    (use-package ob-powershell
+      :config
+      ;; I would never have powershell or matlab installed on a linux system
+      (add-to-list 'org-babel-load-languages '(powershell . t))
+      (add-to-list 'org-babel-load-languages '(matlab . t)))
+  (use-package ob-nix
+    :config
+    ;; Currently nix is only supported for unix systems
+    (add-to-list 'org-babel-load-languages '(nix . t))))
+(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
 
 ;; Clock ;;
 (setq org-clock-persist 'history)
@@ -1215,9 +1231,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
    '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
- '(package-selected-packages
-   '(coterm powershell markdown-mode csv-mode ebib magit alda-mode))
- '(safe-local-variable-values '((eval outline-hide-sublevels 4))))
+)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1226,9 +1240,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
  )
 ;; Local Variables:
 ;; byte-compile-warnings: (not free-vars)
-;; outline-regexp: ";;;\\*+\\|\\`"
-;; eval: (outline-minor-mode 1)
-;; eval: (outline-hide-sublevels 4)
 ;; End:
 (provide 'init)
 ;;; init.el ends here

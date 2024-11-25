@@ -950,6 +950,27 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (message "DOI copied!"))))
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
+(defun ebib-insert-latex-ref-other-window ()
+  "Insert the current item's reference and citation in the other window.
+
+This is a very me specific function. It basically, gets the current paper
+in ebib and pastes the paper title followed by the latex citation in the
+other window, switches back to the ebib window and goes to the next entry.
+
+The idea is when you want to quickly add a lot of papers to a latex document
+with some rough idea of what the papers were about."
+  (interactive)
+  (ebib-copy-reference-as-kill)
+  (ebib-copy-key-as-kill)
+  (other-window 1)
+  (yank 2)
+  (insert " ~\\cite{")
+  (yank 0)
+  (insert "}\n")
+  (other-window -1)
+  (ebib-next-entry))
+(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))
+
 ;;  ***********
 ;;; * Windows *
 ;;  ***********

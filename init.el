@@ -1064,6 +1064,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (require 'ox-md)
 
+;; Publishing
+(require 'ox-publish)
+(use-package simple-httpd
+  :ensure t)
+
+;; Babel
+(use-package ob-powershell)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (python . t)
+   (powershell t)))
+
 ;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)

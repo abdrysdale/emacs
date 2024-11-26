@@ -532,16 +532,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (with-eval-after-load "outline"
   (define-key outline-minor-mode-map (kbd "C-c o")
               (lookup-key outline-minor-mode-map (kbd "C-c @"))))
-(add-hook 'outline-minor-mode-hook
-          (lambda ()
-            (define-key outline-minor-mode-map (kbd "<tab>") 'outline-cycle)
-            (define-key outline-minor-mode-map (kbd "S-<iso-lefttab>")
-              '(lambda()
-                 (interactive)
-                 (save-excursion
-                   (goto-char (point-min))
-                   (outline-show-all)
-                   (outline-hide-leaves))))))
 (add-hook 'text-mode-hook #'outline-minor-mode)
 
 ;; Hide-show
@@ -1105,12 +1095,13 @@ with some rough idea of what the papers were about."
 
 ;; Babel
 (setq org-babel-load-languages '((emacs-lisp . t)
+                                 (forth . t)
+                                 (lisp . t)
+                                 (makefile . t)
+                                 (octave . t)
                                  (python . t)
                                  (R . t)
                                  (shell . t)
-                                 (F90 . t)
-                                 (makefile . t)
-                                 (octave . t)
                                  (sql . t)
                                  (sqlite . t)))
 
@@ -1123,7 +1114,8 @@ with some rough idea of what the papers were about."
   (use-package ob-nix
     :config
     ;; Currently nix is only supported for unix systems
-    (add-to-list 'org-babel-load-languages '(nix . t))))
+    (add-to-list 'org-babel-load-languages '(nix . t))
+    (add-to-list 'org-babel-load-languages '(F90 . t))))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 

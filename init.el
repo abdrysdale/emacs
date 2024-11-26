@@ -16,7 +16,8 @@
 (defvar init-script-initial-clients nil
     "Connected clients when init script was run.")
 (setq init-script-initial-clients server-clients)
-(server-start)
+(unless init-script-initial-clients
+  (server-start))
 
 ;;  **********************
 ;;; * Package Management *

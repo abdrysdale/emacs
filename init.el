@@ -761,11 +761,19 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       browse-url-browser-function #'eww)
 
 (defun eww-search-scholar ()
+  "Search Google Scholar."
   (interactive)
   (let ((eww-search-prefix "https://scholar.google.co.uk/scholar?q="))
     (call-interactively #'eww)))
 
+(defun eww-search-pypi ()
+  "Search PyPi."
+  (interactive)
+  (let ((eww-search-prefix "https://pypi.org/search/?q="))
+    (call-interactively #'eww)))
+
 (global-set-key (kbd "C-c u s") #'eww-search-scholar)
+(global-set-key (kbd "C-c u p") #'eww-search-pypi)
 (global-set-key (kbd "C-c u u") #'eww)
 
 ;; Newsticker (RSS)

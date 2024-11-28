@@ -584,7 +584,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; File navigation
 (global-set-key (kbd "C-c f ,") 'find-file-other-window)
-(global-set-key (kbd "C-c f p") 'find-file-at-point)
 (global-set-key (kbd "C-c f v") 'view-file)
 
 (recentf-mode 1)
@@ -622,6 +621,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  *********
 ;;; * Dired *
 ;;  *********
+
+;; Loads useful functions.
+;; Came for dired-do-find-marked-files
+;; Stayed for the file omition, virtual-dired buffers and dired-x-find-file
+(with-eval-after-load 'dired
+  (setq dired-x-hands-off-my-keys nil)
+  (require 'dired-x)
+  (dired-x-bind-find-file)
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))))
 
 (setq dired-listing-switches "-alh")
 

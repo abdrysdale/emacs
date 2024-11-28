@@ -843,13 +843,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
           emms-info-functions '(emms-info-native)
           emms-player-mpv-parameters '("--no-video"))))
 
-(defvar emms-content-classicfm
-  "https://media-ice.musicradio.com/ClassicFMMP3"
+(defvar emms-content-classic
+  "http://relax.stream.publicradio.org/relax.mp3"
   "URL for a classical music radio station.")
-(defun emms-play-classicfm ()
+(defun emms-play-classic ()
   "Play the ClassicFM radio."
   (interactive)
-  (emms-play-url emms-content-classicfm))
+  (emms-play-url emms-content-classic))
 
 (defvar emms-content-lofi
   "https://lofi.stream.laut.fm/lofi"
@@ -860,8 +860,65 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (emms-play-url emms-content-lofi))
 
 
-(global-set-key (kbd "C-c m r c") #'emms-play-classicfm)
+(defvar emms-content-bosa
+  "https://centova5.transmissaodigital.com:20104/live"
+  "URL for a bosa nova radio station.")
+(defun emms-play-bosa ()
+  "Play a Bosa Nova radio station."
+  (interactive)
+  (emms-play-url emms-content-bosa))
+
+(defvar emms-content-smooth
+  "http://playerservices.streamtheworld.com/pls/977_SMOOJAZZ.pls"
+  "URL for a Smooth Jazz radio station.")
+(defun emms-play-smooth ()
+  "Play a smooth jazz radio station."
+  (interactive)
+  (emms-play-url emms-content-smooth))
+
+(defvar emms-content-tradjazz
+  "https://icecast.walmradio.com:8443/classic"
+  "URL for a traditional Jazz radio station.")
+(defun emms-play-tradjazz ()
+  "Play a Traditional Jazz radio station."
+  (interactive)
+  (emms-play-url emms-content-tradjazz))
+
+(defvar emms-content-jazz
+  "https://icecast.walmradio.com:8443/jazz"
+  "URL for a Jazz radio station.")
+(defun emms-play-jazz ()
+  "Play a Jazz radio station."
+  (interactive)
+  (emms-play-url emms-content-jazz))
+
+(defvar emms-content-news
+  "https://media-ssl.musicradio.com/LBCUKMP3"
+  "URL for a news radio station.")
+(defun emms-play-news ()
+  "Play a news radio station."
+  (interactive)
+  (emms-play-url emms-content-news))
+
+(defvar emms-content-funk
+  "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3"
+  "URL for a funk radio station.")
+(defun emms-play-funk ()
+  "Play a funk radio station."
+  (interactive)
+  (emms-play-url emms-content-funk))
+
+
+
+(global-set-key (kbd "C-c m r b") #'emms-play-bosa)
+(global-set-key (kbd "C-c m r c") #'emms-play-classic)
+(global-set-key (kbd "C-c m r f") #'emms-play-funk)
+(global-set-key (kbd "C-c m r j") #'emms-play-jazz)
 (global-set-key (kbd "C-c m r l") #'emms-play-lofi)
+(global-set-key (kbd "C-c m r n") #'emms-play-news)
+(global-set-key (kbd "C-c m r s") #'emms-play-smooth)
+(global-set-key (kbd "C-c m r t") #'emms-play-tradjazz)
+
 (global-set-key (kbd "C-c m s") #'emms-stop)
 
 ;;  ********
@@ -966,7 +1023,7 @@ with some rough idea of what the papers were about."
   (insert " ~\\cite{")
   (yank 0)
   (insert "}\n")
-  (other-window -1)
+  (other-window I-1)
   (ebib-next-entry))
 (add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))
 

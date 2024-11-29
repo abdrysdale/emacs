@@ -448,6 +448,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Programming Languages *
 ;;  *************************
 
+
+
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
@@ -544,7 +546,28 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Semantic mode
 ;; Language aware editing commands for:
 ;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo
-(semantic-mode)
+(require 'cedet)
+(setq semantic-default-submodes
+      '(;; Perform semantic actions during idle time
+        global-semantic-idle-scheduler-mode
+        ;; Use a database of parsed tags
+        global-semanticdb-minor-mode
+        ;; Decorate buffers with additional semantic information
+        global-semantic-decoration-mode
+        ;; Highlight the name of the function you're currently in
+        global-semantic-highlight-func-mode
+        ;; show the name of the function at the top in a sticky
+        global-semantic-stickyfunc-mode
+        ;; Generate a summary of the current tag when idle
+        global-semantic-idle-summary-mode
+        ;; Show a breadcrumb of location during idle time
+        global-semantic-idle-breadcrumbs-mode
+        ;; Switch to recently changed tags with `semantic-mrub-switch-tags',
+        ;; or `C-x B'
+        global-semantic-mru-bookmark-mode))
+(add-hook 'emacs-lisp-mode-hook #'semantic-mode)
+(add-hook 'python-mode-hook #'semantic-mode)
+(add-hook 'html-mode-hook #'semantic-mode)
 
 ;; Search
 (setq isearch-repeat-on-direction-change t

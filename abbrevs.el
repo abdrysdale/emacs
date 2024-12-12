@@ -177,7 +177,7 @@ def execute_sql_concurrently(
   (interactive)
   (insert "
 parser = argparse.ArgumentParser(
-        description=''
+        description=\"\"
      )
 
 args = parser.parse_args()"))
@@ -186,23 +186,22 @@ args = parser.parse_args()"))
   (interactive)
   (insert "
 parser.add_argument(
-        '--arg',
+        \"--arg\",
         default=None,
         type=int,
-        help='',
+        help=\"\",
     )"))
 
 (defun boilerplate/py-parser-add-log ()
   (interactive)
   (insert "
 parser.add_argument(
-        '--log',
-        default='warning',
+        \"--log\",
+        default=\"warning\",
         type=str,
-        help='Log level, can be debug, info, warning, error or critical.',
+        help=\"Log level, can be debug, info, warning, error or critical.\",
     )
 
 args = parser.parse_args()
 log_level = getattr(logging, args.log.upper())
 logging.basicConfig(level=log_level)"))
-

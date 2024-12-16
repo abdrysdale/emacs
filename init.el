@@ -800,6 +800,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       eww-browse-url-new-window-is-tab nil
       browse-url-browser-function #'eww)
 
+(defun eww-search-wiki ()
+  "Search Wikipedia."
+  (interactive)
+  (let ((eww-search-prefix
+         "https://en.wikipedia.org/wiki/Special:Search?go=Go&search="))
+    (call-interactively #'eww)))
+
 (defun eww-search-scholar ()
   "Search Google Scholar."
   (interactive)
@@ -812,6 +819,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (let ((eww-search-prefix "https://pypi.org/search/?q="))
     (call-interactively #'eww)))
 
+(global-set-key (kbd "C-c u w") #'eww-search-wiki)
 (global-set-key (kbd "C-c u s") #'eww-search-scholar)
 (global-set-key (kbd "C-c u p") #'eww-search-pypi)
 (global-set-key (kbd "C-c u u") #'eww)
@@ -1222,6 +1230,9 @@ with some rough idea of what the papers were about."
     (add-to-list 'org-babel-load-languages '(nix . t))
     (add-to-list 'org-babel-load-languages '(F90 . t))))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+
+;; Stops asking for confirmation for every source block execution
+(setq org-confirm-babel-evaluate nil)
 
 
 ;; Clock ;;

@@ -506,6 +506,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; C-c C-e      ::  Insert environment.
 ;; C-c C-m      ::  Insert macro.
 
+;; C-c C-a      ::  Compile all.
+;; C-c C-c      ::  Compile.
+;; C-c C-b      ::  Compile buffer.
+;; C-c C-z      ::  Compile section.
+;; C-c C-r      ::  Compile region.
+
 ;; C-c C-f C-b  ::  Bold.
 ;; C-c C-f C-i  ::  Italics.
 ;; C-c C-f C-e  ::  Emphasized.
@@ -513,6 +519,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; C-c C-o C-f  ::  Fold mode.
 ;; C-c ~        ::  Math mode.
 ;; C-x * e      ::  calc-embedded.
+
+;; C-c C-p C-d  ::  Preview document.
+;; C-c C-p C-p  ::  Preview at point.
 
 
 ;;;; Emacs Speaks Statistics

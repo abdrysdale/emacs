@@ -437,9 +437,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind ("C-=" . er/expand-region))
 
 ;; iSpell ;;
-(global-set-key (kbd "C-c d s") 'ispell)
-(global-set-key (kbd "C-c d w") 'ispell-word)
-(global-set-key (kbd "C-c d c") 'ispell-comments-and-strings)
+(global-set-key (kbd "C-c d s") #'ispell)
+(global-set-key (kbd "C-c d w") #'ispell-word)
+(global-set-key (kbd "C-c d c") #'ispell-comments-and-strings)
+(global-set-key (kbd "C-c d b") #'ispell-buffer)
+
+(add-hook 'text-mode-hook #'flyspell-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
 
 ;; Multi-file operations
@@ -688,7 +692,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c d p") 'dired-at-point)
 (global-set-key (kbd "C-c d f") 'find-dired)
 (global-set-key (kbd "C-c d n") 'find-name-dired)
-(global-set-key (kbd "C-c d w") 'wdired-change-to-wdired-mode)
+(global-set-key (kbd "C-c d e") 'wdired-change-to-wdired-mode)
 (global-set-key (kbd "C-c d ,") 'dired-other-window)
 
 ;;  ***************

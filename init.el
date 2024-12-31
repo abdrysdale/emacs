@@ -725,8 +725,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c s") #'shell)
 
 ;; Start an LLM-chat shell
-(defvar lchat-model "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
-  "Default model for the lchat shell.")
+(defvar lchat-model nil "Default model for the lchat shell.")
+(setq lchat-model "meta-llama/Llama-3.3-70B-Instruct")
 
 (defun lchat ()
   "Start an LLM chat shell."

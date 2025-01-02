@@ -17,7 +17,9 @@
     "Connected clients when init script was run.")
 (setq init-script-initial-clients server-clients)
 (unless init-script-initial-clients
-  (server-start))
+  (progn
+    (server-force-delete)
+    (server-start)))
 
 ;;  **********************
 ;;; * Package Management *
@@ -875,12 +877,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq erc-nick "TactfulCitrus"
       erc-port "6667"
       erc-server "irc.libera.chat"
+      erc-tls-verify t
       erc-try-new-nick-p nil
       erc-warn-about-blank-lines t
       erc-sasl-user erc-nick
       erc-sasl-password libera-chat-pass)
 
-(defun irc () (interactive) (erc))
+(defun irc () "Connect to default IRC client." (interactive) (erc))
 (global-set-key (kbd "C-c m i") #'irc)
 
 ;; Music

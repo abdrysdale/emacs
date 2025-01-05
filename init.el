@@ -1248,8 +1248,7 @@ with some rough idea of what the papers were about."
   (use-package ob-nix
     :config
     ;; Currently nix is only supported for unix systems
-    (add-to-list 'org-babel-load-languages '(nix . t))
-    (add-to-list 'org-babel-load-languages '(F90 . t))))
+    (add-to-list 'org-babel-load-languages '(nix . t))))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 ;; Stops asking for confirmation for every source block execution
@@ -1381,8 +1380,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
-)
+   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org")))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

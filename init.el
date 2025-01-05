@@ -340,11 +340,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Font - only use Cascadia on windows.
 (if (eq system-type 'windows-nt)
     (add-to-list 'default-frame-alist
-                 '(font . "Cascadia Mono-14"))
-  (set-face-attribute 'default nil
-                      :font "FreeMono-13"
-                      :width 'expanded
-                      :weight 'medium))
+                 '(font . "Cascadia Mono-14")))
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)

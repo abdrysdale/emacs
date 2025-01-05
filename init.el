@@ -124,10 +124,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; WakaTime
 ;; Requires wakatime-cli
-(load (concat user-emacs-directory ".waka.el"))
-(use-package wakatime-mode
-  :straight nil)
-(global-wakatime-mode)
+(defvar waka-login-file (concat user-emacs-directory ".waka.el") "WakaTime login credentials.")
+(if (file-exists-p waka-login-file)
+    (progn
+      (load waka-login-file)
+      (use-package wakatime-mode
+	:straight nil)
+      (global-wakatime-mode))
+  (message
+   (concat "WakaTime not loaded as credentials not found in "
+           waka-login-file)))
 
 ;; Straight
 (defvar bootstrap-version)

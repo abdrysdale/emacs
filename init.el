@@ -849,7 +849,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; IRC
 (require 'erc)
-(load "~/.irc-auth")
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
@@ -885,8 +884,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       erc-tls-verify t
       erc-try-new-nick-p nil
       erc-warn-about-blank-lines t
-      erc-sasl-user erc-nick
-      erc-sasl-password libera-chat-pass)
+      erc-sasl-user erc-nick)
+
+;; The irc-auth-file should look something like:
+;; (setq libera-chat-pass my-libera-chat-passowrd)
+(let ((irc-auth-file (concat user-emacs-directory ".irc-auth.gpg")))
+  (if (file-exists-p irc-auth-file)
+      (progn
+        (load irc-auth-file)
+        (setq erc-sasl-password libera-chat-pass))))
+
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 (global-set-key (kbd "C-c m i") #'irc)

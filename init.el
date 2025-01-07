@@ -109,10 +109,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                      gcs-done)))
 
 ;; WakaTime
-;; Requires wakatime-cli
-(load (concat user-emacs-directory ".waka.el"))
-(use-package wakatime-mode)
-(global-wakatime-mode)
+;; Requires wakatime-cli (https://wakatime.com/emacs)
+;; The wakatime login file sets the wakatime-api-key variable to the api key.
+(defvar waka-login-file
+  (concat user-emacs-directory ".waka.el") "WakaTime login credentials.")
+(if (file-exists-p waka-login-file)
+    (progn
+      (load waka-login-file)
+      (setq wakatime-cli-path "~/.wakatime/wakatime-cli")
+      (use-package wakatime-mode
+	    :straight nil)
+      (global-wakatime-mode))
+  (message
+   (concat "WakaTime not loaded as credentials not found in "
+           waka-login-file)))
 
 ;; Magit ;;
 (use-package magit
@@ -293,11 +303,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Font - only use Cascadia on windows.
 (if (eq system-type 'windows-nt)
     (add-to-list 'default-frame-alist
-                 '(font . "Cascadia Mono-14"))
-  (set-face-attribute 'default nil
-                      :font "FreeMono-13"
-                      :width 'expanded
-                      :weight 'medium))
+                 '(font . "Cascadia Mono-14")))
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)
@@ -807,7 +813,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; IRC
 (require 'erc)
-(load "~/.irc-auth")
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
@@ -843,8 +848,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       erc-tls-verify t
       erc-try-new-nick-p nil
       erc-warn-about-blank-lines t
-      erc-sasl-user erc-nick
-      erc-sasl-password libera-chat-pass)
+      erc-sasl-user erc-nick)
+
+;; The irc-auth-file should look something like:
+;; (setq libera-chat-pass my-libera-chat-passowrd)
+(let ((irc-auth-file (concat user-emacs-directory ".irc-auth.gpg")))
+  (if (file-exists-p irc-auth-file)
+      (progn
+        (load irc-auth-file)
+        (setq erc-sasl-password libera-chat-pass))))
+
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 (global-set-key (kbd "C-c m i") #'irc)
@@ -1198,8 +1211,7 @@ with some rough idea of what the papers were about."
   (use-package ob-nix
     :config
     ;; Currently nix is only supported for unix systems
-    (add-to-list 'org-babel-load-languages '(nix . t))
-    (add-to-list 'org-babel-load-languages '(F90 . t))))
+    (add-to-list 'org-babel-load-languages '(nix . t))))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 ;; Stops asking for confirmation for every source block execution
@@ -1331,9 +1343,13 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
+<<<<<<< HEAD
    '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
  '(package-selected-packages
    '(htmlize ob-powershell simple-httpd ebib notmuch emms ess auctex expand-region multiple-cursors which-key dashboard page-break-lines fireplace git-timemachine forge magit wakatime-mode markdown-mode json-mode toml-mode yaml-mode csv-mode)))
+=======
+   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org")))
+>>>>>>> origin/main
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

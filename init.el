@@ -28,35 +28,21 @@
 ;; Ensure that Emacs can verify SSL/TLS certificates
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
-;; Straight
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         (concat
-          "https://raw.githubusercontent.com/radian-software/"
-          "straight.el/develop/install.el")
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(setq package-enable-at-startup nil)
-(setq straight-use-package-by-default t)
-
 ;; Package archives
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+(require 'package)
 (package-initialize)
 
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 (require 'use-package)
-(setq use-package-always-ensure t)
+(eval-and-compile
+  (setq use-package-always-ensure t
+        use-package-expand-minimally t))
+
 
 ;; Natively compile packages at first use or immediately after installation?
 (setq package-native-compile t)
@@ -125,35 +111,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; WakaTime
 ;; Requires wakatime-cli
 (load (concat user-emacs-directory ".waka.el"))
-(use-package wakatime-mode
-  :straight nil)
+(use-package wakatime-mode)
 (global-wakatime-mode)
-
-;; Straight
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(setq package-enable-at-startup nil)
-(setq straight-use-package-by-default t)
-
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-;; Natively compile packages at first use or immediately after installation?
-(setq package-native-compile t)
 
 ;; Magit ;;
 (use-package magit
@@ -426,7 +385,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Multiple cursors ;;
 (use-package multiple-cursors
-  :straight nil
   :config
   (global-set-key (kbd "C->") #'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
@@ -492,7 +450,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package tex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
   ;; That is, LaTeX-mode over latex-mode etc.
-  :straight nil
   :ensure auctex
   :config
   (add-hook 'LaTeX-mode-hook #'TeX-fold-mode)
@@ -508,6 +465,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         TeX-electric-sub-and-superscript t
         font-latex-fontify-sectioning 'color  ;; Disable variable font for sections
         TeX-engine 'default))
+
+(setq org-latex-listings 'minted
+    org-latex-packages-alist '(("newfloat" "minted"))
+    org-latex-pdf-process
+    '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 ;; Useful (AUC)TeX commands
 ;;
 ;; C-c C-s      ::  Insert section.
@@ -983,8 +946,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  ********
 
 ;; Notmuch ;;
-(use-package notmuch
-  :straight nil)
+(use-package notmuch)
 (setq-default notmuch-search-oldest-first nil)
 (global-set-key (kbd "C-c m m") #'notmuch)
 
@@ -1370,7 +1332,8 @@ with some rough idea of what the papers were about."
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
    '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
-)
+ '(package-selected-packages
+   '(htmlize ob-powershell simple-httpd ebib notmuch emms ess auctex expand-region multiple-cursors which-key dashboard page-break-lines fireplace git-timemachine forge magit wakatime-mode markdown-mode json-mode toml-mode yaml-mode csv-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

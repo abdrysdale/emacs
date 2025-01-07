@@ -1343,13 +1343,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-<<<<<<< HEAD
-   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
- '(package-selected-packages
-   '(htmlize ob-powershell simple-httpd ebib notmuch emms ess auctex expand-region multiple-cursors which-key dashboard page-break-lines fireplace git-timemachine forge magit wakatime-mode markdown-mode json-mode toml-mode yaml-mode csv-mode)))
-=======
    '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org")))
->>>>>>> origin/main
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

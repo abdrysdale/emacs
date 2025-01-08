@@ -111,18 +111,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; WakaTime
 ;; Requires wakatime-cli (https://wakatime.com/emacs)
 ;; The wakatime login file sets the wakatime-api-key variable to the api key.
-(defvar waka-login-file
-  (concat user-emacs-directory ".waka.el") "WakaTime login credentials.")
-(if (file-exists-p waka-login-file)
-    (progn
-      (load waka-login-file)
-      (setq wakatime-cli-path "~/.wakatime/wakatime-cli")
+(let ((waka-login-file (concat user-emacs-directory ".waka.el")))
+  (if (file-exists-p waka-login-file)
       (use-package wakatime-mode
-	    :straight nil)
-      (global-wakatime-mode))
-  (message
-   (concat "WakaTime not loaded as credentials not found in "
-           waka-login-file)))
+        :config
+        (setq wakatime-cli-path "wakatime-cli")
+        (load waka-login-file)
+        (global-wakatime-mode))
+    (message
+     (concat "WakaTime not loaded as credentials not found in "
+             waka-login-file))))
 
 ;; Magit ;;
 (use-package magit

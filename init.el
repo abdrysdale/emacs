@@ -1265,12 +1265,13 @@ with some rough idea of what the papers were about."
   "Browse url with default browser passing ARG to browser."
   (interactive)
   (let ((url (org-mode-url-at-point)))
-    (if url 
+    (if url
         (browse-url-default-browser url ARG)
       (error "No URL found"))))
 
 (define-key org-mode-map (kbd "C-c u t") #'org-toggle-link-display)
-(define-key org-mode-map (kbd "C-c u b") #'browser-url-at-point-with-external-browser)
+(define-key org-mode-map (kbd "C-c u b")
+            #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
 (global-set-key (kbd "C-c m a") #'org-agenda)

@@ -1296,12 +1296,12 @@ with some rough idea of what the papers were about."
          ;; and involves three stem questions which are;
          ;; what, so what and now what?
          ,(concat
-           "* TODO %^{Title}%?\n"
+           "* TODO %^{Title: }%?\n"
            "SCHEDULED: <%(org-read-date nil nil \"+83d\")> "
            "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
-           "- /What?/\n%^{What?}\n"
-           "- /So What?/\n%^{So What?}\n"
-           "- /Now What?/\n%^{Now What?}"))
+           "- /What?/\n%^{What: }\n"
+           "- /So What?/\n%^{So What: }\n"
+           "- /Now What?/\n%^{Now What: }"))
         ("i" "Interrupting task" entry
          (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"

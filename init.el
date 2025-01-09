@@ -112,13 +112,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Requires wakatime-cli (https://wakatime.com/emacs)
 ;; The wakatime login file sets the wakatime-api-key variable to the api key.
 ;; wakatime-cli must be specified in the users' path.
+(if (eq system-type 'windows-nt)
+    (setq wakatime-cli-path
+          (expand-file-name "~/scoop/apps/.wakatime/wakatime-cli"))
+  (setq wakatime-cli-path "~/.wakatime/wakatime-cli"))
 (let ((waka-login-file (concat user-emacs-directory ".waka.el")))
   (if (file-exists-p waka-login-file)
       (use-package wakatime-mode
         :init
         (load waka-login-file)
         :config
-        (setq wakatime-cli-path "wakatime-cli")
         (global-wakatime-mode))
     (message
      (concat "WakaTime not loaded as credentials not found in "
@@ -1292,8 +1295,7 @@ with some rough idea of what the papers were about."
            ") %?\n"))
         ("r" "Reflection" entry
          (file+headline "~/Documents/notes/agenda.org" "Reflections")
-         ;; Uses the Driscoll Model:
-         ;; One of the simplest models one will come across,
+         ;; Uses the Driscoll Model:- one of the simplest models
          ;; and involves three stem questions which are;
          ;; what, so what and now what?
          ,(concat

@@ -1303,6 +1303,16 @@ with some rough idea of what the papers were about."
            "- /What?/\n%^{What: }\n"
            "- /So What?/\n%^{So What: }\n"
            "- /Now What?/\n%^{Now What: }"))
+        ("p" "Continuous Personal Development" entry
+         (file+headline "~/Documents/notes/agenda.org" "CPD")
+         ,(concat
+           "* %^{Title: }%?\t"
+           "%(org-read-date nil nil \"+0d\")\t"
+           ":%^{Tag: |work|professional|formal|self|other}:\n"
+           "- /Benefit to me?/\n%^{Benefit to me: }\n"
+           "- /Benefit to person/people/organisation?/\n%^{Benefit to org: }\n"
+           "- /Where to find evidence?/\n%^{Where to find evidence: }\n"
+           "- /Time spent (in hours)/ :: %^{Time spent: }\n"))
         ("i" "Interrupting task" entry
          (file+headline "~/Documents/notes/agenda.org" "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"

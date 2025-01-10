@@ -114,7 +114,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; wakatime-cli must be specified in the users' path.
 (if (eq system-type 'windows-nt)
     (setq wakatime-cli-path
-          (expand-file-name "~/scoop/apps/.wakatime/wakatime-cli"))
+          (expand-file-name "~/scoop/shims/wakatime-cli"))
   (setq wakatime-cli-path "~/.wakatime/wakatime-cli"))
 (let ((waka-login-file (concat user-emacs-directory ".waka.el")))
   (if (file-exists-p waka-login-file)
@@ -1293,6 +1293,11 @@ with some rough idea of what the papers were about."
            "* TODO ("
            "%(buffer-name (plist-get org-capture-plist :original-buffer))"
            ") %?\n"))
+        ("i" "Interrupting task" entry
+         (file+headline "~/Documents/notes/agenda.org" "Inbox")
+         "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
+         :clock-in :clock-resume
+         :prepend t)
         ("r" "Reflection" entry
          (file+headline "~/Documents/notes/agenda.org" "Reflections")
          ;; Uses the Driscoll Model:- one of the simplest models
@@ -1314,12 +1319,7 @@ with some rough idea of what the papers were about."
            "- /Benefit to me?/\n%^{Benefit to me: }\n"
            "- /Benefit to person/people/organisation?/\n%^{Benefit to org: }\n"
            "- /Where to find evidence?/\n%^{Where to find evidence: }\n"
-           "- /Time spent (in hours)/ :: %^{Time spent: }\n"))
-        ("i" "Interrupting task" entry
-         (file+headline "~/Documents/notes/agenda.org" "Inbox")
-         "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
-         :clock-in :clock-resume
-         :prepend t)))
+           "- /Time spent (in hours)/ :: %^{Time spent: }\n"))))
 (global-set-key (kbd "C-c m c") #'org-capture)
 
 ;; By default org refile but the variable org-refile-targets can change that.

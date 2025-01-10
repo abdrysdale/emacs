@@ -93,15 +93,17 @@
       (clear-abbrev-table latex-mode-abbrev-table))
     (define-abbrev-table 'latex-mode-abbrev-table
       '(
-        ("zla" "\label" nil 0)
-        ("zca" "\caption" nil 0)
+        ("zla" "\\label" nil 0)
+        ("zca" "\\caption" nil 0)
+        ("zr" "\\ref{}" nil 0)
+        ("ea" "\\it{et al.}" nil 0)
         ("zi" "^{(i)}" nil 0)
         ("zj" "^{(j)}" nil 0)
         ("zk" "^{(k)}" nil 0)
         ("zn" "^{(n)}" nil 0)
         ("zm" "^{(m)}" nil 0)
-        ("zrr" "\in \mathcal{R}" nil 0)
-        ("zrn" "\in \mathcal{R}^n" nil 0)
+        ("zrr" "\\in \\mathcal{R}" nil 0)
+        ("zrn" "\\in \\mathcal{R}^n" nil 0)
         )))
 
 

@@ -131,7 +131,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package magit
   :commands (magit-status magit-get-current-branch)
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (magit-display-buffer-function
+   #'magit-display-buffer-same-window-except-diff-v1))
 (setenv "GIT_ASKPASS" "git-gui--askpass")
 (global-set-key (kbd "C-c g g") #'magit)
 
@@ -189,9 +190,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c h p") #'info-custom-python)
 
 ;; Sets the auth source (requires gpg!)
+;; loopback is needed if GPG requires a password for decrypting keys
 (setq auth-sources '("~/.authinfo.gpg")
-      epa-gpg-program "gpg"         ;; Ensures GPG program is GPG
-      epa-pinentry-mode 'loopback)  ;; Needed if GPG requires a password for decrypting keys
+      epa-gpg-program "gpg"
+      epa-pinentry-mode 'loopback)
 
 ;; Saves session
 ;; Works with daemons but not remotely running Emacs sessions.
@@ -257,7 +259,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (display-time-mode 1)       ; Displays the time.
 (display-battery-mode 1)    ; Displays the battery.
 (size-indication-mode 1)    ; Show the buffer size in the modeline
-(column-number-mode 1)      ; Show column number along with line number in modeline
+(column-number-mode 1)      ; Show column number with line number in modeline
 
 ;; Tabs
 (setq tab-bar-position t
@@ -370,11 +372,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       read-buffer-completion-ignore-case t
       completion-ignore-case t
       completion-auto-help nil
-      completion-styles '(basic partial-completion initials substring)) ;; Flex is too aggressive.
+      completion-styles '(basic partial-completion initials substring))
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
 ;; is present "foo" will always be selected.
 ;; Hence I switched to icomplete.
+;; Similarly, flex is too aggressive a completion match so I've removed that.
 ;; The vertical completion takes up more screen real estate so I ignored that.
 
 ;; For some reason icomplete doesn't always load after initialisation
@@ -418,12 +421,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Multi-file operations
 (global-set-key (kbd "C-c f c") #'fileloop-continue)
 
-
 ;;  *************************
 ;;; * Programming Languages *
 ;;  *************************
-
-
 
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
@@ -472,14 +472,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         TeX-process-asynchronous t
         TeX-check-TeX nil
         TeX-electric-sub-and-superscript t
-        font-latex-fontify-sectioning 'color  ;; Disable variable font for sections
+        ;; Disable variable font for sections
+        font-latex-fontify-sectioning 'color
         TeX-engine 'default))
 
 (setq org-latex-listings 'minted
     org-latex-packages-alist '(("newfloat" "minted"))
     org-latex-pdf-process
     '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+)
 ;; Useful (AUC)TeX commands
 ;;
 ;; C-c C-s      ::  Insert section.
@@ -589,10 +591,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (let ((unread-command-events  (listify-key-sequence "Method\n") ))
     (call-interactively 'imenu)))
 
-(add-hook 'prog-mode-hook (lambda () (local-set-key (kbd "M-g f") #'me/imenu-function)))
-(add-hook 'prog-mode-hook (lambda () (local-set-key (kbd "M-g v") #'me/imenu-variable)))
-(add-hook 'prog-mode-hook (lambda () (local-set-key (kbd "M-g c") #'me/imenu-class)))
-(add-hook 'prog-mode-hook (lambda () (local-set-key (kbd "M-g m") #'me/imenu-method)))
+(add-hook 'prog-mode-hook
+          (lambda () (local-set-key (kbd "M-g f") #'me/imenu-function)))
+(add-hook 'prog-mode-hook
+          (lambda () (local-set-key (kbd "M-g v") #'me/imenu-variable)))
+(add-hook 'prog-mode-hook
+          (lambda () (local-set-key (kbd "M-g c") #'me/imenu-class)))
+(add-hook 'prog-mode-hook
+          (lambda () (local-set-key (kbd "M-g m") #'me/imenu-method)))
 
 ;; File navigation
 (global-set-key (kbd "C-c f ,") 'find-file-other-window)
@@ -618,7 +624,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "M-]") #'next-buffer)
 (global-set-key (kbd "C-c b a") #'append-to-buffer)
 
-(defun kill-this-buffer-reliably () (interactive) (kill-buffer (current-buffer)))
+(defun kill-this-buffer-reliably ()
+  (interactive) (kill-buffer (current-buffer)))
 (global-set-key (kbd "C-x k") #'kill-this-buffer-reliably)
 
 ;; Scratch buffer
@@ -759,13 +766,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'doc-view-mode-hook (lambda () (display-line-numbers-mode -1)))
 (add-hook 'doc-view-mode-hook #'doc-view-fit-page-to-window)
 (defun doc-view-other-frame-scroll-up ()
-  "Equivalent of switching to other frame, pressing SPC and then switching back."
+  "Same as switching to other frame, pressing SPC and then switching back."
   (interactive)
   (other-frame 1)
   (doc-view-scroll-up-or-next-page)
   (other-frame 1))
 (defun doc-view-other-frame-scroll-down ()
-  "Equivalent of switching to other frame, pressing p and then switching back."
+  "Same as switching to other frame, pressing p and then switching back."
   (interactive)
   (other-frame 1)
   (doc-view-scroll-down-or-previous-page)
@@ -1009,8 +1016,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defvar ebib-paper-dir (expand-file-name "~/Documents/resources/papers")
   "Path to downloaded papers.")
 (setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes")
-      ebib-reading-list-file (expand-file-name "~/Documents/notes/reading-list.org")
-      ebib-preload-bib-files `(,(expand-file-name "~/Documents/notes/refs.bib")))
+      ebib-reading-list-file (expand-file-name
+                              "~/Documents/notes/reading-list.org")
+      ebib-preload-bib-files `(,(expand-file-name
+                                 "~/Documents/notes/refs.bib")))
 (setq ebib-file-search-dirs `(,ebib-paper-dir))
 
 
@@ -1019,11 +1028,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  * arXiv (https://arxiv.org/)
 ;;  * lingBuzz (https://ling.auf.net/lingBuzz/)
 ;;  * JSTOR (https://www.jstor.org/)
-(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "D") #'ebib-download-url)))
-(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "F") #'ebib-import-file)))
+(add-hook 'ebib-index-mode-hook
+          (lambda () (local-set-key (kbd "D") #'ebib-download-url)))
+(add-hook 'ebib-index-mode-hook
+          (lambda () (local-set-key (kbd "F") #'ebib-import-file)))
 
 ;; Copies the ebib key to the kill ring
-(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-w") #'ebib-copy-key-as-kill)))
+(add-hook 'ebib-index-mode-hook
+          (lambda () (local-set-key (kbd "C-w") #'ebib-copy-key-as-kill)))
 
 ;; Converts DOI to bibtex
 (defun doi2bibtex (doi)
@@ -1031,7 +1043,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (interactive "sDOI: ")
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/x-bibtex"))
-    (with-current-buffer (url-retrieve-synchronously (concat "https://doi.org/" doi))
+    (with-current-buffer (url-retrieve-synchronously
+                          (concat "https://doi.org/" doi))
       (goto-char (point-min))
       (re-search-forward "^$")
       (delete-region (point) (point-min))
@@ -1039,7 +1052,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (downcase-region (point) (point-min))
       (kill-new (buffer-string))
       (message "DOI copied!"))))
-(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
+(add-hook 'ebib-index-mode-hook
+          (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
 (defun ebib-insert-latex-ref-other-window ()
   "Insert the current item's reference and citation in the other window.
@@ -1060,7 +1074,9 @@ with some rough idea of what the papers were about."
   (insert "}\n")
   (other-window I-1)
   (ebib-next-entry))
-(add-hook 'ebib-index-mode-hook (lambda () (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))
+(add-hook 'ebib-index-mode-hook
+          (lambda ()
+            (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))
 
 ;;  ***********
 ;;; * Windows *
@@ -1184,7 +1200,9 @@ with some rough idea of what the papers were about."
       org-startup-indented t)
 
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
+      '((sequence
+         "TODO(t)" "STARTED(s!)" "WAITING(w@/!)"
+         "|" "DONE(d!)" "CANCELLED(c@)")))
 
 (require 'ox-md)
 

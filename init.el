@@ -1044,7 +1044,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/x-bibtex"))
     (with-current-buffer (url-retrieve-synchronously
-                          (concat "https://doi.org/" doi))
+                          (if (string-prefix-p "http" doi)
+                              doi
+                            (concat "https://doi.org/" doi)))
       (goto-char (point-min))
       (re-search-forward "^$")
       (delete-region (point) (point-min))
@@ -1327,7 +1329,8 @@ with some rough idea of what the papers were about."
            "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
            "- /What?/\n%^{What: }\n"
            "- /So What?/\n%^{So What: }\n"
-           "- /Now What?/\n%^{Now What: }"))
+           "- /Now What?/\n%^{Now What: }"
+           "- /3 month update:/\n"))
         ("p" "Continuous Personal Development" entry
          (file+headline "~/Documents/notes/agenda.org" "CPD")
          ,(concat

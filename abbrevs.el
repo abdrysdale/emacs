@@ -97,6 +97,7 @@
         ("zca" "\\caption" nil 0)
         ("zr" "\\ref{}" nil 0)
         ("ea" "\\it{et al.}" nil 0)
+        ("td" "\\todo[inline]{}" nil 0)
         ("zi" "^{(i)}" nil 0)
         ("zj" "^{(j)}" nil 0)
         ("zk" "^{(k)}" nil 0)

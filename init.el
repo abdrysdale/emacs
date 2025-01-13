@@ -1327,10 +1327,10 @@ with some rough idea of what the papers were about."
            "* TODO %^{Title: }%?\n"
            "SCHEDULED: <%(org-read-date nil nil \"+83d\")> "
            "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
-           "- /What?/\n%^{What: }\n"
-           "- /So What?/\n%^{So What: }\n"
-           "- /Now What?/\n%^{Now What: }"
-           "- /3 month update:/\n"))
+           "*** /What?/\n%^{What: }\n"
+           "*** /So What?/\n%^{So What: }\n"
+           "*** /Now What?/\n%^{Now What: }\n"
+           "*** /3 month update:/\n"))
         ("p" "Continuous Personal Development" entry
          (file+headline "~/Documents/notes/agenda.org" "CPD")
          ,(concat

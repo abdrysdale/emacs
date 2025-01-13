@@ -292,17 +292,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Theme
 (defvar me/dark-theme 'modus-vivendi "Default dark theme.")
 (defvar me/light-theme 'modus-operandi "Default light theme.")
+(defvar me/current-theme me/dark-theme "Current theme")
 
-(defun load-theme-light ()
-  "Load the light theme which is set by me/light-theme."
-  (interactive)
-  (load-theme me/light-theme t))
-(defun load-theme-dark ()
-  "Load the dark theme which is set by me/dark-theme."
-  (interactive)
-  (load-theme me/dark-theme t))
+(defun me/load-theme ()
+  "Load the appropriate theme based on the current theme."
+  (load-theme me/current-theme t))
 
-(load-theme me/dark-theme t)
+(defun toggle-theme ()
+  "Toggle the theme between dark and light."
+  (interactive)
+  (if (eq me/current-theme me/dark-theme)
+        (setq me/current-theme me/light-theme)
+      (setq me/current-theme me/dark-theme))
+  (me/load-theme))
+(me/load-theme)
 
 ;; Font - only use Cascadia on windows.
 (if (eq system-type 'windows-nt)
@@ -441,8 +444,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
 (setq python-shell-interpreter "ipython")
-
-(use-package
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

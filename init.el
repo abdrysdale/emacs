@@ -59,8 +59,6 @@
 ;;; * Usage Statistics *
 ;;  ********************
 
-;; File: elisp.info,  Node: Garbage Collection, Up: GNU Emacs Internals
-
 ;; Set a high value of 1 GB to prevent frequent garbage collections
 ;; during initialization.
 (setq gc-cons-threshold #x40000000)  ; default threshold is 800 KB
@@ -182,6 +180,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (add-to-list 'Info-directory-list
                  (expand-file-name "~/scoop/apps/emacs/current/share/info")))
 (defun info-custom-manuals (manual)
+  "Load an info MANUAL from the custom info directory."
   (info (concat info-custom-dir manual ".info")))
 (defun info-custom-python ()
   "Launch python info file."
@@ -293,17 +292,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Theme
 (defvar me/dark-theme 'modus-vivendi "Default dark theme.")
 (defvar me/light-theme 'modus-operandi "Default light theme.")
+(defvar me/current-theme me/dark-theme "Current theme")
 
-(defun load-theme-light ()
-  "Load the light theme which is set by me/light-theme."
-  (interactive)
-  (load-theme me/light-theme t))
-(defun load-theme-dark ()
-  "Load the dark theme which is set by me/dark-theme."
-  (interactive)
-  (load-theme me/dark-theme t))
+(defun me/load-theme ()
+  "Load the appropriate theme based on the current theme."
+  (load-theme me/current-theme t))
 
-(load-theme me/dark-theme t)
+(defun toggle-theme ()
+  "Toggle the theme between dark and light."
+  (interactive)
+  (if (eq me/current-theme me/dark-theme)
+        (setq me/current-theme me/light-theme)
+      (setq me/current-theme me/dark-theme))
+  (me/load-theme))
+(me/load-theme)
 
 ;; Font - only use Cascadia on windows.
 (if (eq system-type 'windows-nt)
@@ -432,6 +434,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;; Python
 (defun python-imenu-use-flat-index
     ()
+  "Use flat indexing for imenu."
   (setq imenu-create-index-function
         #'python-imenu-create-flat-index))
 
@@ -625,6 +628,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c b a") #'append-to-buffer)
 
 (defun kill-this-buffer-reliably ()
+  "Reliably kill this buffer."
   (interactive) (kill-buffer (current-buffer)))
 (global-set-key (kbd "C-x k") #'kill-this-buffer-reliably)
 
@@ -1044,7 +1048,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (let ((url-request-method "GET")
         (url-mime-accept-string "application/x-bibtex"))
     (with-current-buffer (url-retrieve-synchronously
-                          (concat "https://doi.org/" doi))
+                          (if (string-prefix-p "http" doi)
+                              doi
+                            (concat "https://doi.org/" doi)))
       (goto-char (point-min))
       (re-search-forward "^$")
       (delete-region (point) (point-min))
@@ -1058,7 +1064,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun ebib-insert-latex-ref-other-window ()
   "Insert the current item's reference and citation in the other window.
 
-This is a very me specific function. It basically, gets the current paper
+This is a very me specific function.  It basically, gets the current paper
 in ebib and pastes the paper title followed by the latex citation in the
 other window, switches back to the ebib window and goes to the next entry.
 
@@ -1272,7 +1278,7 @@ with some rough idea of what the papers were about."
     url))
 
 (defun me/org-link-copy (&optional arg)
-  "Extract URL from org-mode link and add it to kill ring with optional ARG."
+  "Extract URL from 'org-mode' link and add it to kill ring with optional ARG."
   (interactive "P")
   (let ((url (org-mode-url-at-point)))
     (kill-new url)
@@ -1325,9 +1331,10 @@ with some rough idea of what the papers were about."
            "* TODO %^{Title: }%?\n"
            "SCHEDULED: <%(org-read-date nil nil \"+83d\")> "
            "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
-           "- /What?/\n%^{What: }\n"
-           "- /So What?/\n%^{So What: }\n"
-           "- /Now What?/\n%^{Now What: }"))
+           "*** /What?/\n%^{What: }\n"
+           "*** /So What?/\n%^{So What: }\n"
+           "*** /Now What?/\n%^{Now What: }\n"
+           "*** /3 month update:/\n"))
         ("p" "Continuous Personal Development" entry
          (file+headline "~/Documents/notes/agenda.org" "CPD")
          ,(concat
@@ -1393,7 +1400,9 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org")))
+   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
+ '(package-selected-packages
+   '(yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib dashboard csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

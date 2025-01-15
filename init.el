@@ -485,6 +485,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
       "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
 )
+
 ;; Useful (AUC)TeX commands
 ;;
 ;; C-c C-s      ::  Insert section.
@@ -507,6 +508,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; C-c C-p C-d  ::  Preview document.
 ;; C-c C-p C-p  ::  Preview at point.
+
+;; For viewing latex commands outside of org-mode buffers,
+;; it's useful to bind to the org-latex-preview function globally.
+(global-set-key (kbd "C-c C-x C-l") #'org-latex-preview)
 
 
 ;;;; Emacs Speaks Statistics

@@ -1290,7 +1290,7 @@ with some rough idea of what the papers were about."
     (message (concat "Copied URL: " url))))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-x C-l") #'me/org-link-copy))
+  (define-key org-mode-map (kbd "C-c l l") #'me/org-link-copy))
 
 ;; Browser in external browser
 (defun browser-url-at-point-with-external-browser (&optional ARG)

@@ -359,6 +359,17 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Count the words
 (global-set-key (kbd "C-c b c") #'count-words)
 
+;; Copy the current buffer's filename to the kill ring.
+(defun copy-filename-to-kill ()
+  "Copy the current buffer's filename to the kill ring."
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (if (stringp file-name)
+        (kill-new (buffer-file-name))
+      (message "Current buffer is not a file."))))
+(global-set-key (kbd "C-c f w") #'copy-filename-to-kill)
+
+
 ;;  ********************
 ;;; * Advanced Editing *
 ;;  ********************

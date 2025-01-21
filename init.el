@@ -12,6 +12,19 @@
 ;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
+
+;; Function for allowing per system home-directory
+(defun in-home-dir (file)
+  "Return the path of a FILE in the home directory as an absolute path."
+  (let ((user-home-dir (if (string-suffix-p "Roaming" (expand-file-name "~"))
+                           (expand-file-name "~/../..")
+                         (expand-file-name "~"))))
+    (concat (file-name-as-directory user-home-dir) file)))
+
+;;  **********
+;;; * Server *
+;;  **********
+
 (require 'server)
 (defvar init-script-initial-clients nil
     "Connected clients when init script was run.")
@@ -112,8 +125,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; wakatime-cli must be specified in the users' path.
 (if (eq system-type 'windows-nt)
     (setq wakatime-cli-path
-          (expand-file-name "~/scoop/shims/wakatime-cli"))
-  (setq wakatime-cli-path "~/.wakatime/wakatime-cli"))
+          (in-home-dir "scoop/shims/wakatime-cli"))
+  (setq wakatime-cli-path (in-home-dir ".wakatime/wakatime-cli")))
 (let ((waka-login-file (concat user-emacs-directory ".waka.el")))
   (if (file-exists-p waka-login-file)
       (use-package wakatime-mode
@@ -170,15 +183,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq read-process-output-max (* 1024 1024))  ; 1 MB
 
 ;; Sets the default directory
-(setq default-directory "~/")
+(setq default-directory (in-home-dir nil))
 
 ;; Info
-(defvar info-custom-dir (expand-file-name "~/.emacs.d/info/")
+(defvar info-custom-dir (in-home-dir ".emacs.d/info/")
   "Location of custom info directory.")
 (add-to-list 'Info-directory-list info-custom-dir)
 (when (eq system-type 'windows-nt)
     (add-to-list 'Info-directory-list
-                 (expand-file-name "~/scoop/apps/emacs/current/share/info")))
+                 (in-home-dir "scoop/apps/emacs/current/share/info")))
 (defun info-custom-manuals (manual)
   "Load an info MANUAL from the custom info directory."
   (info (concat info-custom-dir manual ".info")))
@@ -190,7 +203,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Sets the auth source (requires gpg!)
 ;; loopback is needed if GPG requires a password for decrypting keys
-(setq auth-sources '("~/.authinfo.gpg")
+(setq auth-sources `(,(in-home-dir ".authinfo.gpg"))
       epa-gpg-program "gpg"
       epa-pinentry-mode 'loopback)
 
@@ -1033,13 +1046,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ebib-notes-display-max-lines 30))
 
 
-(defvar ebib-paper-dir (expand-file-name "~/Documents/resources/papers")
+(defvar ebib-paper-dir (in-home-dir "Documents/resources/papers")
   "Path to downloaded papers.")
-(setq ebib-notes-directory (expand-file-name "~/Documents/notes/paper-notes")
-      ebib-reading-list-file (expand-file-name
-                              "~/Documents/notes/reading-list.org")
-      ebib-preload-bib-files `(,(expand-file-name
-                                 "~/Documents/notes/refs.bib")))
+(setq ebib-notes-directory (in-home-dir "Documents/notes/paper-notes")
+      ebib-reading-list-file (in-home-dir
+                              "Documents/notes/reading-list.org")
+      ebib-preload-bib-files `(,(in-home-dir
+                                 "Documents/notes/refs.bib")))
 (setq ebib-file-search-dirs `(,ebib-paper-dir))
 
 
@@ -1317,29 +1330,36 @@ with some rough idea of what the papers were about."
             #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
+(setq org-agenda-files
+   `(,(in-home-dir "Documents/notes/agenda.org")
+     ,(in-home-dir "Documents/notes/reading-list.org")))
+
 (global-set-key (kbd "C-c m a") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
 (setq org-deadline-warning-days 60)
 
 ;; Capture ;;
 (setq org-capture-templates
-      `(("t" "Todo" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
+      `(("t" "Todo" entry
+         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* TODO %?\n")
-        ("n" "Note" entry (file+headline "~/Documents/notes/agenda.org" "Inbox")
+        ("n" "Note" entry
+         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")
         ("c" "Context Todo" entry
-         (file+headline "~/Documents/notes/agenda.org" "Inbox")
+         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
          ,(concat
            "* TODO ("
            "%(buffer-name (plist-get org-capture-plist :original-buffer))"
            ") %?\n"))
         ("i" "Interrupting task" entry
-         (file+headline "~/Documents/notes/agenda.org" "Inbox")
+         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)
         ("r" "Reflection" entry
-         (file+headline "~/Documents/notes/agenda.org" "Reflections")
+         (file+headline
+          (in-home-dir "Documents/notes/agenda.org") "Reflections")
          ;; Uses the Driscoll Model:- one of the simplest models
          ;; and involves three stem questions which are;
          ;; what, so what and now what?
@@ -1352,7 +1372,7 @@ with some rough idea of what the papers were about."
            "*** /Now What?/\n%^{Now What: }\n"
            "*** /3 month update:/\n"))
         ("p" "Continuous Personal Development" entry
-         (file+headline "~/Documents/notes/agenda.org" "CPD")
+         (file+headline (in-home-dir "Documents/notes/agenda.org") "CPD")
          ,(concat
            "* %^{Title: }%?\t"
            "%(org-read-date nil nil \"+0d\")\t"
@@ -1415,8 +1435,6 @@ with some rough idea of what the papers were about."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   '("~/Documents/notes/agenda.org" "~/Documents/notes/reading-list.org"))
  '(package-selected-packages
    '(yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib dashboard csv-mode auctex)))
 (custom-set-faces

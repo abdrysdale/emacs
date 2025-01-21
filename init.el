@@ -305,7 +305,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Theme
 (defvar me/dark-theme 'modus-vivendi "Default dark theme.")
 (defvar me/light-theme 'modus-operandi "Default light theme.")
-(defvar me/current-theme me/dark-theme "Current theme")
+(defvar me/current-theme me/dark-theme "Current theme.")
 
 (defun me/load-theme ()
   "Load the appropriate theme based on the current theme."
@@ -320,10 +320,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (me/load-theme))
 (me/load-theme)
 
-;; Font - only use Cascadia on windows.
-(if (eq system-type 'windows-nt)
-    (add-to-list 'default-frame-alist
-                 '(font . "Cascadia Mono-14")))
+;;  As a quick and convenient test, this line happens to be 79 characters long.
+(add-to-list 'default-frame-alist '(font . "Monospace 13"))
+(add-to-list 'default-frame-alist '(width . 79))
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)
@@ -1429,7 +1428,6 @@ with some rough idea of what the papers were about."
 ;;  ***************
 ;;; * CUSTOM VARS *
 ;;  ***************
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

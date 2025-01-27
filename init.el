@@ -267,7 +267,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Modeline
 (setq mode-line-compact t   ; Compresses repeating spaces to a single space
       display-time-24hr-format t
-      display-battery-mode t)
+      display-battery-mode t
+      header-line-format mode-line-format ; Copy mode-line to header
+      mode-line-format nil) ; Remove mode-line
 (display-time-mode 1)       ; Displays the time.
 (display-battery-mode 1)    ; Displays the battery.
 (size-indication-mode 1)    ; Show the buffer size in the modeline

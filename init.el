@@ -13,13 +13,24 @@
 
 ;;; Code:
 
+;; Local (system specific) configuration
+(defmacro setq-if-defined (var val)
+  "Set a variable if it has been previously defined."
+  (if (boundp var)
+      (list 'setq var val)
+    (error "Variable %s is not defined" var)))
+
+(defvar local/home-dir "~" "Home directory.")
+(defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
+
+(let ((local-conf (concat user-emacs-directory "local.el")))
+  (when (file-exists-p local-conf)
+    (load local-conf)))
+
 ;; Function for allowing per system home-directory
 (defun in-home-dir (file)
   "Return the path of a FILE in the home directory as an absolute path."
-  (let ((user-home-dir (if (string-suffix-p "Roaming" (expand-file-name "~"))
-                           (expand-file-name "~/../..")
-                         (expand-file-name "~"))))
-    (concat (file-name-as-directory user-home-dir) file)))
+  (concat (file-name-as-directory local/home-dir) file))
 
 ;;  **********
 ;;; * Server *
@@ -123,14 +134,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Requires wakatime-cli (https://wakatime.com/emacs)
 ;; The wakatime login file sets the wakatime-api-key variable to the api key.
 ;; wakatime-cli must be specified in the users' path.
-(if (eq system-type 'windows-nt)
-    (setq wakatime-cli-path
-          (in-home-dir "scoop/shims/wakatime-cli"))
-  (setq wakatime-cli-path (in-home-dir ".wakatime/wakatime-cli")))
 (let ((waka-login-file (concat user-emacs-directory ".waka.el")))
   (if (file-exists-p waka-login-file)
       (use-package wakatime-mode
         :init
+        (setq wakatime-cli-path (in-home-dir wakatime-cli-path-rel))
         (load waka-login-file)
         :config
         (global-wakatime-mode))

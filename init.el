@@ -13,9 +13,12 @@
 
 ;;; Code:
 
-;; Local (system specific) configuration
+;;  *****************************************
+;;; * Local (system specific) configuration *
+;;  *****************************************
+
 (defmacro setq-if-defined (var val)
-  "Set a variable if it has been previously defined."
+  "Set VAR to VAL if it has been previously defined."
   (if (boundp var)
       (list 'setq var val)
     (error "Variable %s is not defined" var)))
@@ -253,6 +256,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq server-after-make-frame-hook #'dashboard-open)
+(setq frame-title-format "The Editor of Saint IGNUcius")
 
 ;; Basic
 (setq inhibit-startup-message t

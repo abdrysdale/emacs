@@ -353,6 +353,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Basic Editing *
 ;;  *****************
 
+(delete-selection-mode 1) ;; Replace highlighted text rather than just inserted.
+
 (save-place-mode 1)
 (setq save-interprogram-paste-before-kill t)
 (setq yank-pop-change-selection t)

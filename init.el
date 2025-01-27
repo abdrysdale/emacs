@@ -1410,6 +1410,13 @@ with some rough idea of what the papers were about."
 (setq dabbrev-limit nil)  ;; No limit on searching back
 (setq dabbrev-check-all-buffers t)
 
+;;  *************
+;;; * Templates *
+;;  *************
+(let ((templates-file (concat user-emacs-directory "templates.el")))
+  (when (file-exists-p templates-file)
+      (load templates-file)))
+
 
 ;;  ***********
 ;;; * STARTUP *

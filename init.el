@@ -1361,25 +1361,25 @@ with some rough idea of what the papers were about."
 ;; Capture ;;
 (setq org-capture-templates
       `(("t" "Todo" entry
-         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* TODO %?\n")
         ("n" "Note" entry
-         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")
         ("c" "Context Todo" entry
-         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          ,(concat
            "* TODO ("
            "%(buffer-name (plist-get org-capture-plist :original-buffer))"
            ") %?\n"))
         ("i" "Interrupting task" entry
-         (file+headline (in-home-dir "Documents/notes/agenda.org") "Inbox")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)
         ("r" "Reflection" entry
          (file+headline
-          (in-home-dir "Documents/notes/agenda.org") "Reflections")
+          ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
          ;; Uses the Driscoll Model:- one of the simplest models
          ;; and involves three stem questions which are;
          ;; what, so what and now what?
@@ -1392,7 +1392,7 @@ with some rough idea of what the papers were about."
            "*** /Now What?/\n%^{Now What: }\n"
            "*** /3 month update:/\n"))
         ("p" "Continuous Personal Development" entry
-         (file+headline (in-home-dir "Documents/notes/agenda.org") "CPD")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "CPD")
          ,(concat
            "* %^{Title: }%?\t"
            "%(org-read-date nil nil \"+0d\")\t"

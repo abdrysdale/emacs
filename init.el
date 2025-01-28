@@ -14,11 +14,14 @@
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
 
-(defmacro setq-if-defined (var val)
-  "Set VAR to VAL if it has been previously defined."
+(defmacro setq-if-defined (var val &optional arg)
+  "Set VAR to VAL if it is defined else warn if ARG else raise an error."
   (if (boundp var)
       (list 'setq var val)
-    (error "Variable %s is not defined" var)))
+    (let ((warn-msg "Variable %s is not defined"))
+      (if arg
+          (warn warn-msg var)
+        (error warn-msg var)))))
 
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")

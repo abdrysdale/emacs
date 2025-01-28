@@ -916,10 +916,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; The irc-auth-file should look something like:
 ;; (setq libera-chat-pass my-libera-chat-passowrd)
 (let ((irc-auth-file (concat user-emacs-directory ".irc-auth.gpg")))
-  (if (file-exists-p irc-auth-file)
-      (progn
-        (load irc-auth-file)
-        (setq erc-sasl-password libera-chat-pass))))
+  (when (file-exists-p irc-auth-file)
+    (load irc-auth-file)
+    (setq erc-sasl-password libera-chat-pass)))
 
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))

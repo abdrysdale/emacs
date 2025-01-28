@@ -5,9 +5,6 @@
 ;;; Commentary:
 ;; It is meant to provide a decent working environment
 ;; that's fairly easy to manage.
-;; A lot of this is based on my own personal config and
-;; the excellent resource of Emacs ONBOARD
-;; URL: https://github.com/monkeyjunglejuice/emacs.onboard
 ;; In general, I try to use as many of the builtin features available
 ;; and tend to only use external package when it's much more convenient.
 

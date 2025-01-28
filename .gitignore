@@ -23,3 +23,5 @@
 *~
 /emms/
 /org-persist/
+/local.el
+/templates.el

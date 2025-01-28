@@ -676,9 +676,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x k") #'kill-this-buffer-reliably)
 
 ;; Scratch buffer
-(setq initial-major-mode #'org-mode)
-(setq initial-scratch-message "")
+(defun note-buffer ()
+  (interactive)
+  (let ((initial-major-mode #'org-mode)
+        (initial-scratch-message "#+title: Notes\n"))
+    (call-interactively #'scratch-buffer)))
+(setq initial-major-mode #'emacs-lisp-mode)
+(setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
 (global-set-key (kbd "C-c b s") #'scratch-buffer)
+(global-set-key (kbd "C-c b n") #'note-buffer)
 
 (global-auto-revert-mode 1)
 (setq midnight-mode t)

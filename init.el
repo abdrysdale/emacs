@@ -1436,6 +1436,15 @@ with some rough idea of what the papers were about."
 ;;  *************
 (let ((templates-file (concat user-emacs-directory "templates.el")))
   (when (file-exists-p templates-file)
+
+    (defmacro deftemplate (name content)
+      """Macro for defining new templates."
+      (list 'defun (intern (format "templates/%s" name)) ()
+            (list 'interactive)
+            (list 'kill-new content)
+            (list 'message "Template copied")))
+
+
       (load templates-file)))
 
 

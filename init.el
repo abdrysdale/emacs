@@ -765,7 +765,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Start an LLM-chat shell
 (defvar lchat-model nil "Default model for the lchat shell.")
-(setq lchat-model "meta-llama/Llama-3.3-70B-Instruct")
+(setq lchat-model "deepseek-ai/DeepSeek-R1")
 
 (defun lchat ()
   "Start an LLM chat shell."

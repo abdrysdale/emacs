@@ -780,7 +780,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (eshell)
         (insert (format "lchat -m %s" lchat-model))
         (eshell-send-input)))))
-(global-set-key (kbd "C-c m l") #'lchat)
+(global-set-key (kbd "C-c l l") #'lchat)
+
+;; GPTel
+(use-package gptel)
+(setq gptel-model 'deepseek-r1:latest)
+(setq gptel-backend (gptel-make-ollama
+                     "Ollama"
+                     :host "localhost:11434"
+                     :stream t
+                     :models`(,gptel-model)))
+(global-set-key (kbd "C-c l g") #'gptel)
+(global-set-key (kbd "C-c l s") #'gptel-send)
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

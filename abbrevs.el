@@ -96,7 +96,7 @@
         ("zla" "\\label" nil 0)
         ("zca" "\\caption" nil 0)
         ("zr" "\\ref{}" nil 0)
-        ("ea" "\\it{et al.}" nil 0)
+        ("ea" "\\textit{et al.}" nil 0)
         ("td" "\\todo[inline]{}" nil 0)
         ("zi" "^{(i)}" nil 0)
         ("zj" "^{(j)}" nil 0)

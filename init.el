@@ -1444,7 +1444,6 @@ with some rough idea of what the papers were about."
             (list 'kill-new content)
             (list 'message "Template copied")))
 
-
       (load templates-file)))
 
 

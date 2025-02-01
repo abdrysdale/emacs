@@ -387,6 +387,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Count the words
 (global-set-key (kbd "C-c b c") #'count-words)
 
+;; Revert the buffer
+(global-set-key (kbd "C-c b r") #'revert-buffer)
+
 ;; Copy the current buffer's filename to the kill ring.
 (defun copy-filename-to-kill ()
   "Copy the current buffer's filename to the kill ring."

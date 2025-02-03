@@ -71,7 +71,7 @@
         use-package-expand-minimally t))
 
 
-;; Natively compile packages at first use or immediately after installation?
+;; Natively compile packages immediately after installation
 (setq package-native-compile t)
 
 ;; File modes ;;

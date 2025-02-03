@@ -680,6 +680,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Scratch buffer
 (defun note-buffer ()
+  "Create a scratch buffer for 'org-mode' notes."
   (interactive)
   (let ((initial-major-mode #'org-mode)
         (initial-scratch-message "#+title: Notes\n"))
@@ -1483,7 +1484,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib dashboard csv-mode auctex)))
+   '(gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib dashboard csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

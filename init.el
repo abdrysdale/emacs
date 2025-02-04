@@ -1314,7 +1314,6 @@ with some rough idea of what the papers were about."
 ;; Stops asking for confirmation for every source block execution
 (setq org-confirm-babel-evaluate nil)
 
-
 ;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -1375,9 +1374,12 @@ with some rough idea of what the papers were about."
    `(,(in-home-dir "Documents/notes/agenda.org")
      ,(in-home-dir "Documents/notes/reading-list.org")))
 
-(global-set-key (kbd "C-c m a") #'org-agenda)
+(global-set-key (kbd "C-c m a") #'org-agenda-list)
+(global-set-key (kbd "C-c m A") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
 (setq org-deadline-warning-days 60)
+
+(define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;
 (setq org-capture-templates

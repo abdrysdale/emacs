@@ -1034,7 +1034,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m r s") #'emms-play-smooth)
 (global-set-key (kbd "C-c m r t") #'emms-play-tradjazz)
 
-(global-set-key (kbd "C-c m s") #'emms-stop)
+(global-set-key (kbd "C-c m r C-s") #'emms-stop)
 
 ;;  ********
 ;;; * Mail *

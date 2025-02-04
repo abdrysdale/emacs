@@ -8,16 +8,12 @@
     (clear-abbrev-table org-mode-abbrev-table))
   (define-abbrev-table 'org-mode-abbrev-table
     '(
-      ("zse" "#+begin_src emacs-lisp\n\n#+end_src" nil 0)
-      ("zxe" "#+begin_example emacs-lisp\n\n#+end_example" nil 0)
-      ("zsr" "#+begin_src R\n\n#+end_src" nil 0)
-      ("zxr" "#+begin_example R\n\n#+end_example" nil 0)
-      ("zsp" "#+begin_src python\n\n#+end_src" nil 0)
-      ("zxp" "#+begin_example python\n\n#+end_example" nil 0)
-      ("zsc" "#+begin_src perl\n\n#+end_src" nil 0)  ;; Perl is the cammel language (hence C)
-      ("zxc" "#+begin_example perl\n\n#+end_example" nil 0)
       ("dit" "--//--" nil 0)
       ("bahai" "bahá’í" nil 0)
+      ("t1" "$T_1$" nil 0)
+      ("t2" "$T_2$" nil 0)
+      ("tr" "$T_R$" nil 0)
+      ("te" "$T_E$" nil 0)
       )))
 
 ;; EShell

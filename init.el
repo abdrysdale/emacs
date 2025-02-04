@@ -23,6 +23,11 @@
           (warn warn-msg var)
         (error warn-msg var)))))
 
+(defmacro setq-if-not-defined (var val)
+  "Set VAR to VAL if it is not defined."
+  (when (boundp var)
+      (list 'setq var val)))
+
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
 
@@ -769,7 +774,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Start an LLM-chat shell
 (defvar lchat-model nil "Default model for the lchat shell.")
-(setq lchat-model "deepseek-ai/DeepSeek-R1")
+(setq-if-not-defined lchat-model "deepseek-ai/DeepSeek-R1")
 
 (defun lchat ()
   "Start an LLM chat shell."
@@ -1267,6 +1272,8 @@ with some rough idea of what the papers were about."
       org-hide-emphasis-markers t
       org-hide-leading-stars t
       org-indent-indentation-per-level 1
+      org-latex-caption-above nil
+      org-html-table-caption-above nil
       org-startup-indented t)
 
 (setq org-todo-keywords

@@ -34,7 +34,6 @@
     '(
       ("gsk" "(global-set-key (kbd \"" nil 0)
       ("usp" "(use-package " nil 0)
-      ("dlk" "(me/leader-keys \"" nil 0)
       )))
 
 ;; Python
@@ -43,6 +42,7 @@
       (clear-abbrev-table python-mode-abbrev-table))
     (define-abbrev-table 'python-mode-abbrev-table
       '(
+        ("zia" "from __future__ import annotations")
         ("zis" "import sys" nil 0)
         ("zio" "import os" nil 0)
         ("zit" "from typing import Optional" nil 0)

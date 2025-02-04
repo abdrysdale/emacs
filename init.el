@@ -770,6 +770,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c e") #'eshell)
 (global-set-key (kbd "C-c s") #'shell)
+(global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; Start an LLM-chat shell
 (defvar lchat-model nil "Default model for the lchat shell.")

@@ -827,8 +827,31 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                      :host "localhost:11434"
                      :stream t
                      :models`(,gptel-model)))
+(setq gptel-directives
+      `((default
+         ,(concat "I am in a conversation where I will ask you a series of"
+                 " questions about any topic."
+                 " Respond helpfully and with as much information as needed."))
+        (programming
+         ,(concat "I am a programmer who will ask you a series of questions"
+                 " related to coding and programming. I need clear explanations"
+                 " and example code where applicable."
+                 " I am using various programming languages including but"
+                 " not limited to Python, R, Fortran, Emacs-lisp."
+                 " Provide full function templates where applicable."))
+        (writing
+         ,(concat "I am a writer who will ask you a series of questions related"
+                  " to writing and language including grammar, style and"
+                 " context. Provide helpful tips and feedback"
+                 " where applicable."))
+        (chat
+         ,(concat "I am in an informal conversation and will ask you a series"
+                 " of questions. Respond in a friendly and diplomatic"
+                 " manner."))))
 (global-set-key (kbd "C-c l g") #'gptel)
 (global-set-key (kbd "C-c l s") #'gptel-send)
+(global-set-key (kbd "C-c l p") #'gptel-system-prompt)
+(global-set-key (kbd "C-c l c") #'gptel-context-quit)
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

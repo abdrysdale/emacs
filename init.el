@@ -23,6 +23,11 @@
           (warn warn-msg var)
         (error warn-msg var)))))
 
+(defmacro setq-if-not-defined (var val)
+  "Set VAR to VAL if it is not defined."
+  (when (boundp var)
+      (list 'setq var val)))
+
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
 
@@ -71,7 +76,7 @@
         use-package-expand-minimally t))
 
 
-;; Natively compile packages at first use or immediately after installation?
+;; Natively compile packages immediately after installation
 (setq package-native-compile t)
 
 ;; File modes ;;
@@ -796,10 +801,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c e") #'eshell)
 (global-set-key (kbd "C-c s") #'shell)
+(global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; Start an LLM-chat shell
 (defvar lchat-model nil "Default model for the lchat shell.")
-(setq lchat-model "deepseek-ai/DeepSeek-R1")
+(setq-if-not-defined lchat-model "deepseek-ai/DeepSeek-R1")
 
 (defun lchat ()
   "Start an LLM chat shell."
@@ -1060,7 +1066,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c m r s") #'emms-play-smooth)
 (global-set-key (kbd "C-c m r t") #'emms-play-tradjazz)
 
-(global-set-key (kbd "C-c m s") #'emms-stop)
+(global-set-key (kbd "C-c m r C-s") #'emms-stop)
 
 ;;  ********
 ;;; * Mail *
@@ -1297,6 +1303,8 @@ with some rough idea of what the papers were about."
       org-hide-emphasis-markers t
       org-hide-leading-stars t
       org-indent-indentation-per-level 1
+      org-latex-caption-above nil
+      org-html-table-caption-above nil
       org-startup-indented t)
 
 (setq org-todo-keywords
@@ -1338,7 +1346,6 @@ with some rough idea of what the papers were about."
 ;; Stops asking for confirmation for every source block execution
 (setq org-confirm-babel-evaluate nil)
 
-
 ;; Clock ;;
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -1379,7 +1386,7 @@ with some rough idea of what the papers were about."
     (message (concat "Copied URL: " url))))
 
 (with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c l l") #'me/org-link-copy))
+  (define-key org-mode-map (kbd "C-c l c") #'me/org-link-copy))
 
 ;; Browser in external browser
 (defun browser-url-at-point-with-external-browser (&optional ARG)
@@ -1399,9 +1406,12 @@ with some rough idea of what the papers were about."
    `(,(in-home-dir "Documents/notes/agenda.org")
      ,(in-home-dir "Documents/notes/reading-list.org")))
 
-(global-set-key (kbd "C-c m a") #'org-agenda)
+(global-set-key (kbd "C-c m a") #'org-agenda-list)
+(global-set-key (kbd "C-c m A") #'org-agenda)
 (global-set-key (kbd "C-c m t") #'org-todo-list)
 (setq org-deadline-warning-days 60)
+
+(define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;
 (setq org-capture-templates

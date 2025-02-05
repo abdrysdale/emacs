@@ -499,6 +499,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq cperl-lazy-help-time 1)
 
 ;;;; Latex
+(setq tectonic-compile-command "tectonic -X compile -f plain %T"
+      tectonic-watch-command "tectonic -X watch")
+(if (eq system-type 'windows-nt)
+    (setq tectonic-compile-command "tectonic -X compile -f plain %T"
+          tectonic-watch-command "tectonic -X watch")
+  (setq tectonic-compile-command
+        "nix-shell --command \"tectonic -X compile -f plain %T\""
+        tectonic-watch-command
+        "nix-shell --command \"tectonic -X watch\""))
 (global-prettify-symbols-mode)
 (use-package tex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
@@ -513,12 +522,34 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (add-to-list 'auto-mode-alist '("\\.TeX$" . LaTeX-mode))
   (setq TeX-auto-save t
         TeX-parse-self t
-        TeX-process-asynchronous t
-        TeX-check-TeX nil
         TeX-electric-sub-and-superscript t
+        TeX-master nil
         ;; Disable variable font for sections
         font-latex-fontify-sectioning 'color
+        ;; The below variables set-up AucTeX to use tectonic
+        TeX-engine-alist `((default
+                          "Tectonic"
+                          ,tectonic-compile-command
+                          ,tectonic-watch-command
+                          nil))
+        LaTeX-command-style '(("" "%(latex)"))
+        TeX-check-TeX nil
+        TeX-process-asynchronous t
         TeX-engine 'default))
+
+;; TeX-command-list needs to be modified not pass extra metadata and options
+(let ((tex-list (assoc "TeX" TeX-command-list))
+      (latex-list (assoc "LaTeX" TeX-command-list)))
+  (setf (cadr tex-list) "%(tex)"
+        (cadr latex-list) "%l"))
+
+;; Live PDF preview in tectonic projects
+(add-hook 'after-change-major-mode-hook
+          (lambda ()
+            (when-let ((project (project-current))
+                       (proot (project-root project)))
+              (when (file-exists-p (expand-file-name "Tectonic.toml" proot))
+                (setq-local TeX-output-dir (expand-file-name "build/index" proot))))))
 
 (setq org-latex-listings 'minted
     org-latex-packages-alist '(("newfloat" "minted"))

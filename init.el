@@ -852,6 +852,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c l s") #'gptel-send)
 (global-set-key (kbd "C-c l p") #'gptel-system-prompt)
 (global-set-key (kbd "C-c l c") #'gptel-context-quit)
+(global-set-key (kbd "C-c l a") #'gptel-abort)
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

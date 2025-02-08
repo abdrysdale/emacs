@@ -99,8 +99,10 @@
         ("zk" "^{(k)}" nil 0)
         ("zn" "^{(n)}" nil 0)
         ("zm" "^{(m)}" nil 0)
-        ("zrr" "\\in \\mathcal{R}" nil 0)
-        ("zrn" "\\in \\mathcal{R}^n" nil 0)
+        ("zrr" "\\mathbb{R}" nil 0)
+        ("zrn" "\\mathbb{R}^n" nil 0)
+        ("zcc" "\\mathbb{C}" nil 0)
+        ("zcn" "\\mathbb{C}^n" nil 0)
         )))
 
 

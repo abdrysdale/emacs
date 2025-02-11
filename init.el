@@ -1530,6 +1530,8 @@ with some rough idea of what the papers were about."
 ;;; * Niche Functions *
 ;;  *******************
 
+;; Mostly MRI related...
+
 (defconst gamma-bar 42.58e6 "Gyromagnetic Ratio in Hz/Tesla.")
 
 (defun get-hz/px (bw px &optional half)

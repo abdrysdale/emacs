@@ -1534,29 +1534,26 @@ with some rough idea of what the papers were about."
 
 (defun get-hz/px (bw px &optional half)
   "Get the Hz/Px from BW (kHz) and PX if HALF assumes bw is half bandwidth."
-  (let* ((bandwidth (if half (* 2 bw) bw))
-         (hz/px (/ (* 1000 bandwidth) px)))
-    (message (format "%.1f Hz/px" hz/px))))
+  (let* ((bandwidth (if half (* 2 bw) bw)))
+         (/ (* 1000 bandwidth) px)))
 
 (defun fat/water-shift (&optional T)
   "Get the fat-water shift - assumes 1.5T unless T is provided."
-  (let* ((static-field (if T T 1.5))
-         (delta_f (* static-field gamma-bar 3.5e-6)))
-    (message (format "%.1f Hz" delta_f))))
+  (let* ((static-field (if T T 1.5)))
+         (* static-field gamma-bar 3.5e-6)))
 
 (defun bw-okay-ge? (bw px)
   "Check fat/water shift from BW and PX for 1.5T GE systems."
-  (let* ((bandwidth (* 2 bw))
-         (hz/px (/ (* 1000 bandwidth) px))
-         (delta_f (* 1.5 gamma-bar 3.5e-6))
+  (let* ((hz/px (get-hz/px bw px t))
+         (delta_f (fat/water-shift))
          (fw-shift? (/ delta_f hz/px)))
     (message
      (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
 
 (defun bw-okay-siemens? (bw px)
   "Check fat/water shift from BW and PX for 1.5T Siemens systems."
-  (let* ((hz/px (/ (* 1000 bw) px))
-         (delta_f (* 1.5 gamma-bar 3.5e-6))
+  (let* ((hz/px (get-hz/px bw px))
+         (delta_f (fat/water-shift))
          (fw-shift? (/ delta_f hz/px)))
     (message
      (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))

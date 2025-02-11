@@ -1526,6 +1526,42 @@ with some rough idea of what the papers were about."
       (load templates-file)))
 
 
+;;  *******************
+;;; * Niche Functions *
+;;  *******************
+
+(defconst gamma-bar 42.58e6 "Gyromagnetic Ratio in Hz/Tesla.")
+
+(defun get-hz/px (bw px &optional half)
+  "Get the Hz/Px from BW (kHz) and PX if HALF assumes bw is half bandwidth."
+  (let* ((bandwidth (if half (* 2 bw) bw))
+         (hz/px (/ (* 1000 bandwidth) px)))
+    (message (format "%.1f Hz/px" hz/px))))
+
+(defun fat/water-shift (&optional T)
+  "Get the fat-water shift - assumes 1.5T unless T is provided."
+  (let* ((static-field (if T T 1.5))
+         (delta_f (* static-field gamma-bar 3.5e-6)))
+    (message (format "%.1f Hz" delta_f))))
+
+(defun bw-okay-ge? (bw px)
+  "Check fat/water shift from BW and PX for 1.5T GE systems."
+  (let* ((bandwidth (* 2 bw))
+         (hz/px (/ (* 1000 bandwidth) px))
+         (delta_f (* 1.5 gamma-bar 3.5e-6))
+         (fw-shift? (/ delta_f hz/px)))
+    (message
+     (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
+
+(defun bw-okay-siemens? (bw px)
+  "Check fat/water shift from BW and PX for 1.5T Siemens systems."
+  (let* ((hz/px (/ (* 1000 bw) px))
+         (delta_f (* 1.5 gamma-bar 3.5e-6))
+         (fw-shift? (/ delta_f hz/px)))
+    (message
+     (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
+
+
 ;;  ***********
 ;;; * STARTUP *
 ;;  ***********

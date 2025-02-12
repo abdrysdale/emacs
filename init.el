@@ -308,6 +308,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Line numbers
 (column-number-mode)
 (setq display-line-numbers-type 'relative)
+(setq-default display-line-numbers-width 4) ;; # lines > 9999 => rethink life.
 (global-display-line-numbers-mode t)
 
 ;; Use spaces not tabs - this is the hill I will die on.

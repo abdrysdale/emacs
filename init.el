@@ -307,8 +307,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Line numbers
 (column-number-mode)
+(setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode t)
-(setq display-line-numbers-type t)
 
 ;; Use spaces not tabs - this is the hill I will die on.
 (setq-default c-basic-offset 4

@@ -809,7 +809,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq-if-not-defined lchat-model "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B")
 
 (defun lchat ()
-  "Start an LLM chat shell."
+  "Start an LLM chat shell.
+This requires the python package lchat to be installed:
+https://pypi.org/project/lchat/
+
+The package is a simple chat interface using huggingfacehub
+and works well with any shell - including eshell."
   (interactive)
   (let ((eshell-buffer-name "lchat"))
     (if (get-buffer eshell-buffer-name)

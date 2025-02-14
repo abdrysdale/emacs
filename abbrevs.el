@@ -50,6 +50,7 @@
         ("zil" "import logging\n\nlogger = logging.getLogger(__name__)" nil 0)
         ("zmain" "if __name__ == \"__main__\":\n")
         ("zs" "(self, " nil 0)
+        ("spn" "Path | str | None = None" nil 0)
         )))
 
 ;; R

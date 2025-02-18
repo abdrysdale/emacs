@@ -108,6 +108,8 @@
                                    "\\frac{\\partial %s}{\\partial %s}"
                                    (read-string "Numerator: ")
                                    (read-string "Denominator: ")))))
+        ("inv" "" (lambda () (insert (format "\\frac{1}{%s}"
+                                        (read-string "Denominator: ")))))
         )))
 
 

@@ -103,6 +103,10 @@
         ("zrn" "\\mathbb{R}^n" nil 0)
         ("zcc" "\\mathbb{C}" nil 0)
         ("zcn" "\\mathbb{C}^n" nil 0)
+        ("partl" "" (lambda () (insert (format
+                                   "\\frac{\\partial %s}{\\partial %s}"
+                                   (read-string "Numerator: ")
+                                   (read-string "Denominator: ")))))
         )))
 
 

@@ -154,6 +154,17 @@ The timer can be canceled with `my-cancel-gc-timer'.")
      (concat "WakaTime not loaded as credentials not found in "
              waka-login-file))))
 
+;; VC Mode ;;
+;; More often than not I find myself returning to the built in features of Emacs
+;; The most controversial is perhaps with using vc over magit.
+;; I find Magit hangs more than vc-dir-mode and often fails more - with errors
+;; such as waiting for Emacs to close the commit editor.
+;; I also feel that Emacs' vc encourages me to make small commits on the file
+;; regularly without getting in my way.
+;; I digress, C-o is used to globally to switch active windows so I unbind that
+;; here.
+(define-key vc-dir-mode-map (kbd "C-o") nil)
+
 ;; Magit ;;
 (use-package magit
   :commands (magit-status magit-get-current-branch)

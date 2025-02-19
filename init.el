@@ -487,7 +487,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun python-imenu-use-flat-index
     ()
   "Use flat indexing for imenu."
-  (setq imenu-create-index-function
+  (setq imenu-create-index-function
         #'python-imenu-create-flat-index))
 
 (add-hook 'python-mode-hook
@@ -1595,14 +1595,13 @@ with some rough idea of what the papers were about."
     (let* ((buffer-notes "*notes*")
            (buffer-calendar "*Calendar*")
            (buffer-agenda "*Org Agenda*")
-           (buffer-info "*info*")
+           (buffer-info "*fireplace*")
            (buffer-scratch "*scratch*"))
       ;; Loads buffers
       (org-agenda-list)
       (calendar)
       (scratch-buffer)
       (note-buffer)
-      (info)
 
       ;; Notes
       (switch-to-buffer buffer-notes)
@@ -1618,6 +1617,7 @@ with some rough idea of what the papers were about."
 
       ;; Info
       (other-window 1)
+      (fireplace)
       (switch-to-buffer buffer-info)
 
       ;; Calendar

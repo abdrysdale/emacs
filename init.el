@@ -272,7 +272,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq server-after-make-frame-hook #'dashboard-open)
-(setq frame-title-format "The Editor of Saint IGNUcius")
+(setq frame-title-format "The Holy Editor of Saint IGNUcius")
 
 ;; Basic
 (setq inhibit-startup-message t

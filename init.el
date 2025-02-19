@@ -257,21 +257,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Fireplace - a mission critical package;;
 (use-package fireplace)
 
-;; Dashboard ;;
-(use-package page-break-lines)
-(use-package dashboard
-  :config
-  (require 'page-break-lines)
-  (setq dashboard-banner-logo-title "Welcome to the Church of Emacs"
-        dashboard-startup-banner 'ascii
-        dashboard-week-agenda t
-        dashboard-item-names '(("Recent Files:" . "")
-                               ("Bookmarks:" . "")
-                               ("Agenda for today:" . "")
-                               ("Agenda for the coming week:" . "")
-                               ("Registers:" . "")
-                               ("Projects:" . ""))))
-
 ;; Which-Key ;;
 (use-package which-key
   :init (which-key-mode)
@@ -740,12 +725,17 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun note-buffer ()
   "Create a scratch buffer for 'org-mode' notes."
   (interactive)
-  (let ((initial-major-mode #'org-mode)
-        (initial-scratch-message "#+title: Notes\n"))
-    (call-interactively #'scratch-buffer)))
+  (let* ((buffer-notes-name "*notes*")
+         (buffer-notes-scratch (get-buffer buffer-notes-name)))
+    (unless buffer-notes-scratch
+      (switch-to-buffer (get-buffer-create buffer-notes-name))
+      (org-mode)
+      (insert "#+title: Notes\n"))
+    (switch-to-buffer buffer-notes-name)))
+
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
-(global-set-key (kbd "C-c b s") #'scratch-buffer)
+(global-set-key (kbd "C-c b s") #'scratch-buffer
 (global-set-key (kbd "C-c b n") #'note-buffer)
 
 (global-auto-revert-mode 1)
@@ -1599,8 +1589,47 @@ with some rough idea of what the papers were about."
       (progn
         (irc)
         (newsticker-start)))
-    (dashboard-open))
-(startup)
+    (let* ((buffer-notes "*notes*")
+           (buffer-calendar "*Calendar*")
+           (buffer-agenda "*Org Agenda*")
+           (buffer-info "*info*")
+           (buffer-scratch "*scratch*"))
+      ;; Loads buffers
+      (org-agenda-list)
+      (calendar)
+      (scratch-buffer)
+      (note-buffer)
+      (info)
+
+      ;; Notes
+      (switch-to-buffer buffer-notes)
+      (delete-other-windows)
+      (split-window-horizontally)
+
+      ;; Scratch
+      (other-window 1)
+      (split-window-vertically)
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer buffer-scratch)
+
+      ;; Info
+      (other-window 1)
+      (switch-to-buffer buffer-info)
+
+      ;; Calendar
+      (other-window 1)
+      (switch-to-buffer (get-buffer buffer-calendar))
+
+      ;; Agenda
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer (get-buffer buffer-agenda))
+      (org-agenda-redo-all)
+      ))
+
+
+(add-hook 'emacs-startup-hook #'startup)
 
 ;;  ***************
 ;;; * CUSTOM VARS *

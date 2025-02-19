@@ -266,7 +266,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(setq server-after-make-frame-hook #'dashboard-open)
 (setq frame-title-format "The Holy Editor of Saint IGNUcius")
 
 ;; Basic
@@ -735,7 +734,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
-(global-set-key (kbd "C-c b s") #'scratch-buffer
+(global-set-key (kbd "C-c b s") #'scratch-buffer)
 (global-set-key (kbd "C-c b n") #'note-buffer)
 
 (global-auto-revert-mode 1)
@@ -1582,13 +1581,17 @@ with some rough idea of what the papers were about."
 ;;; * STARTUP *
 ;;  ***********
 
+(defun init-workers ()
+  "Initialise workers."
+    (interactive)
+    (unless init-script-initial-clients
+      (irc)
+      (newsticker-start)))
+(add-hook 'emacs-startup-hook #'init-workers)
+
 (defun startup ()
     "Startup process."
     (interactive)
-    (unless init-script-initial-clients
-      (progn
-        (irc)
-        (newsticker-start)))
     (let* ((buffer-notes "*notes*")
            (buffer-calendar "*Calendar*")
            (buffer-agenda "*Org Agenda*")
@@ -1628,8 +1631,7 @@ with some rough idea of what the papers were about."
       (org-agenda-redo-all)
       ))
 
-
-(add-hook 'emacs-startup-hook #'startup)
+(setq server-after-make-frame-hook #'startup)
 
 ;;  ***************
 ;;; * CUSTOM VARS *
@@ -1640,7 +1642,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib dashboard csv-mode auctex)))
+   '(gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

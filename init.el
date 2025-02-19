@@ -163,7 +163,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; regularly without getting in my way.
 ;; I digress, C-o is used to globally to switch active windows so I unbind that
 ;; here.
-(define-key vc-dir-mode-map (kbd "C-o") nil)
+(with-eval-after-load "vc-mode"
+  (define-key vc-dir-mode-map (kbd "C-o") nil))
 
 ;; Magit ;;
 (use-package magit
@@ -260,7 +261,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package page-break-lines)
 (use-package dashboard
   :config
-  (require 'page-break-lines))
+  (require 'page-break-lines)
+  (setq dashboard-banner-logo-title "Welcome to the Church of Emacs"
+        dashboard-startup-banner 'ascii
+        dashboard-week-agenda t
+        dashboard-item-names '(("Recent Files:" . "")
+                               ("Bookmarks:" . "")
+                               ("Agenda for today:" . "")
+                               ("Agenda for the coming week:" . "")
+                               ("Registers:" . "")
+                               ("Projects:" . ""))))
 
 ;; Which-Key ;;
 (use-package which-key

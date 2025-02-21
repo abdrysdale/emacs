@@ -1602,9 +1602,11 @@ with some rough idea of what the papers were about."
       (calendar)
       (scratch-buffer)
       (note-buffer)
+      (if (get-buffer buffer-info)
+          (kill-buffer buffer-info))
 
-      ;; Notes
-      (switch-to-buffer buffer-notes)
+      ;; Calendar
+      (switch-to-buffer buffer-calendar)
       (delete-other-windows)
       (split-window-horizontally)
 
@@ -1620,9 +1622,10 @@ with some rough idea of what the papers were about."
       (fireplace)
       (switch-to-buffer buffer-info)
 
-      ;; Calendar
+      ;; Notes
       (other-window 1)
-      (switch-to-buffer (get-buffer buffer-calendar))
+      (switch-to-buffer (get-buffer buffer-notes))
+      (org-cycle-agenda-files)
 
       ;; Agenda
       (split-window-vertically)
@@ -1632,6 +1635,7 @@ with some rough idea of what the papers were about."
       ))
 
 (setq server-after-make-frame-hook #'startup)
+(global-set-key (kbd "C-c b b") #'startup)
 
 ;;  ***************
 ;;; * CUSTOM VARS *

@@ -163,7 +163,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; regularly without getting in my way.
 ;; I digress, C-o is used to globally to switch active windows so I unbind that
 ;; here.
-(with-eval-after-load "vc-mode"
+(require 'vc-dir
   (define-key vc-dir-mode-map (kbd "C-o") nil))
 
 ;; Magit ;;
@@ -1021,14 +1021,16 @@ and works well with any shell - including eshell."
   :ensure t
   :config
   (require 'emms-setup)
-  (require 'emms-player-mplayer)
-  (require 'emms-player-mpv)
   (emms-all)
   (if (eq system-type 'windows-nt)
-      (setq emms-player-list '(emms-player-mplayer))
-    (setq emms-player-list '(emms-player-mpv)
-          emms-info-functions '(emms-info-native)
-          emms-player-mpv-parameters '("--no-video"))))
+      (progn
+        (require 'emms-player-mplayer)
+        (setq emms-player-list '(emms-player-mplayer)))
+    (progn
+      (require 'emms-player-mpv)
+      (setq emms-player-list '(emms-player-mpv)
+            emms-info-functions '(emms-info-native)
+            emms-player-mpv-parameters '("--no-video")))))
 
 (defvar emms-content-classic
   "http://relax.stream.publicradio.org/relax.mp3"

@@ -25,7 +25,7 @@
 
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."
-  (when (boundp var)
+  (unless (boundp var)
       (list 'setq var val)))
 
 (defvar local/home-dir "~" "Home directory.")
@@ -1474,6 +1474,13 @@ with some rough idea of what the papers were about."
     (format "[[%s][%s]]" url tid)))
 
 ;; Capture templates
+(setq-if-not-defined st-export-dir nil)
+(defun st/export-notes ()
+  "Export Safety Ticket Notes."
+  (interactive)
+  (make-directory (org-entry-get nil "EXPORT_DIR") t)
+  (org-latex-export-to-pdf nil t nil nil))
+
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
@@ -1501,8 +1508,12 @@ with some rough idea of what the papers were about."
           ":PROPERTIES:\n"
           ":ID: %(progn st-id)\n"
           ":URL: %(progn st-url)\n"
+          ":EXPORT_DIR: %(file-name-concat st-export-dir)\n"
+          ":EXPORT_FILE_NAME: "
+          "%(file-name-concat st-export-dir st-id \"notes\")\n"
           ":END:\n"
           "** Info\n%?\n"
+          "- [[%(progn st-url)][Link to Ticket]]\n"
           "** TODO Respond to email.\n"))
         ("r" "Reflection" entry
          (file+headline
@@ -1529,6 +1540,8 @@ with some rough idea of what the papers were about."
            "- /Where to find evidence?/\n%^{Where to find evidence: }\n"
            "- /Time spent (in hours)/ :: %^{Time spent: }\n"))))
 (global-set-key (kbd "C-c m c") #'org-capture)
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c n e") #'st/export-notes))
 
 ;; By default org refile but the variable org-refile-targets can change that.
 ;; In changing this is also handy to view the outline path too.

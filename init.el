@@ -1456,6 +1456,24 @@ with some rough idea of what the papers were about."
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;
+
+;; Safety ticket template
+(defvar oc-capture-prmt-history nil
+  "History of prompt answers for org capture.")
+(defun oc/safety-ticket-template (url-var tid-var)
+  "Capture URL-VAR and TID-VAR of safety ticket."
+  (make-local-variable url-var)
+  (make-local-variable tid-var)
+  (let* ((url (read-string "URL: " nil oc-capture-prmt-history))
+         (url (if (string-suffix-p "&edit" url)
+                  (substring url 0 -5)
+                url))
+         (tid (substring url -7)))
+    (set url-var url)
+    (set tid-var tid)
+    (format "[[%s][%s]]" url tid)))
+
+;; Capture templates
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
@@ -1474,6 +1492,18 @@ with some rough idea of what the papers were about."
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)
+        ("s" "Safety Ticket" entry
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org")
+                        "Safety Tickets")
+         ,(concat
+          "* TODO %^{Title: } %(oc/safety-ticket-template 'st-url 'st-id)"
+          " [0/1]\n"
+          ":PROPERTIES:\n"
+          ":ID: %(progn st-id)\n"
+          ":URL: %(progn st-url)\n"
+          ":END:\n"
+          "** Info\n%?\n"
+          "** TODO Respond to email.\n"))
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

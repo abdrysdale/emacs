@@ -220,14 +220,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (when (eq system-type 'windows-nt)
     (add-to-list 'Info-directory-list
                  (in-home-dir "scoop/apps/emacs/current/share/info")))
-(defun info-custom-manuals (manual)
-  "Load an info MANUAL from the custom info directory."
-  (info (concat info-custom-dir manual ".info")))
-(defun info-custom-python ()
-  "Launch python info file."
-  (interactive)
-  (info-custom-manuals "python"))
-(global-set-key (kbd "C-c h p") #'info-custom-python)
 
 ;; Sets the auth source (requires gpg!)
 ;; loopback is needed if GPG requires a password for decrypting keys

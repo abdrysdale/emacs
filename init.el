@@ -28,6 +28,13 @@
   (unless (boundp var)
       (list 'setq var val)))
 
+(defmacro defun-surely (func)
+  "Create a function NAME that run FUNC if the user is sure."
+  `(defun ,(intern (format "%s-surely" func)) ()
+     (interactive)
+     (if (yes-or-no-p "Surely you can't be serious? ")
+         ,func)))
+
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
 
@@ -263,11 +270,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Basic
 (setq inhibit-startup-message t
       visible-bell t
-      confirm-kill-emacs 'yes-or-no-p
+      confirm-kill-emacs nil
       global-tab-line-mode t
       truncate-lines t
       x-stretch-cursor t
       use-dialog-box nil)
+
+(defun-surely save-buffers-kill-terminal)
+(global-set-key (kbd "C-x C-c") #'save-buffers-kill-terminal-surely)
 
 (scroll-bar-mode -1)                ; Disable visible scrollbar
 (tool-bar-mode -1)                  ; Disable the toolbar
@@ -1399,6 +1409,10 @@ with some rough idea of what the papers were about."
 (global-set-key (kbd "C-c c l") 'org-clock-in-last)
 (global-set-key (kbd "C-c c i") 'org-clock-in)
 (global-set-key (kbd "C-c c g") 'org-clock-goto)
+(global-set-key (kbd "C-c c d") (lambda () (interactive)
+                                  (insert (format-time-string "%Y-%m-%d"))))
+(global-set-key (kbd "C-c c t") (lambda () (interactive)
+                                  (insert (format-time-string "%H:%M"))))
 
 ;; Links ;;
 (defun org-mode-url-at-point ()

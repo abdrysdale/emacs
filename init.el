@@ -163,8 +163,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; regularly without getting in my way.
 ;; I digress, C-o is used to globally to switch active windows so I unbind that
 ;; here.
-(require 'vc-dir
-  (define-key vc-dir-mode-map (kbd "C-o") nil))
+(require 'vc-dir)
+(define-key vc-dir-mode-map (kbd "C-o") nil)
 
 ;; Magit ;;
 (use-package magit
@@ -606,6 +606,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq ess-eval-visibly-p 'nowait) ;; No waiting whilst ESS is evaluating
 
 (define-key ess-r-mode-map (kbd "M-?") nil) ;; unbinds M-?
+
+;;;; Rust
+(use-package rust-mode)
 
 ;;  **************
 ;;; * Navigation *
@@ -1389,26 +1392,21 @@ with some rough idea of what the papers were about."
 (setq org-confirm-babel-evaluate nil)
 
 ;; Clock ;;
-(setq org-clock-persist 'history)
+(setq org-clock-persist t
+      org-clock-in-switch-to-state "STARTED"
+      org-clock-into-drawer t
+      org-clock-out-when-done t
+      org-clock-report-include-clocking-task t
+      org-pretty-entities t
+      org-clock-clocktable-default-properties '(:maxlevel 2 :scope subtree))
 (org-clock-persistence-insinuate)
-(setq org-clock-clocktable-default-properties '(:maxlevel 2 :scope subtree))
 
+;; Bind to slightly nicer key bindings
 (global-set-key (kbd "C-c c r") 'org-clock-report)
 (global-set-key (kbd "C-c c o") 'org-clock-out)
 (global-set-key (kbd "C-c c l") 'org-clock-in-last)
 (global-set-key (kbd "C-c c i") 'org-clock-in)
 (global-set-key (kbd "C-c c g") 'org-clock-goto)
-
-(defun mark-org-todo-as-started-and-clock-in ()
-  "Mark a todo as started and clock in."
-  (interactive)
-  (if (string= major-mode "org-agenda-mode")
-      (progn (org-agenda-todo "STARTED")
-             (org-agenda-clock-in))
-    (org-todo "STARTED")
-    (org-clock-in)))
-
-(global-set-key (kbd "C-c c s") 'mark-org-todo-as-started-and-clock-in)
 
 ;; Links ;;
 (defun org-mode-url-at-point ()
@@ -1691,7 +1689,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
+   '(rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

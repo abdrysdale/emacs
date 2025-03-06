@@ -9,7 +9,6 @@
 ;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
-
 ;;  *****************************************
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
@@ -489,7 +488,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun python-imenu-use-flat-index
     ()
   "Use flat indexing for imenu."
-  (setq imenu-create-index-function
+  (setq imenu-create-index-function
         #'python-imenu-create-flat-index))
 
 (add-hook 'python-mode-hook

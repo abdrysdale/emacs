@@ -416,6 +416,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Advanced Editing *
 ;;  ********************
 
+;; God-Mode
+;; I thought long and hard about modal vs non-modal editing.
+;; I think the efficiency depends on the ratio of writing text
+;; to navigating text. When mostly writing text, the keybindings
+;; to switch between modes add unnecessary keys and cognitive load.
+;; Conversely, when mostly navigating and performing standard edits,
+;; the modifier keys become unnecessary.
+;; A compromise to this is to toggle god-mode for such scenarios.
+;; View mode, is a potential contender, but lacks the finer grained control.
+(use-package god-mode)
+(global-set-key (kbd "C-c ESC") #'god-mode-all)
+(setq god-exempt-major-modes nil
+      god-exempt-predicates nil)
+
 ;; Completion
 (require 'icomplete)
 (setq icomplete-mode t
@@ -1694,7 +1708,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
+   '(god-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

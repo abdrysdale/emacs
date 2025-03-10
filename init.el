@@ -1417,14 +1417,20 @@ with some rough idea of what the papers were about."
 (org-clock-persistence-insinuate)
 
 ;; Bind to slightly nicer key bindings
-(global-set-key (kbd "C-c c r") 'org-clock-report)
-(global-set-key (kbd "C-c c o") 'org-clock-out)
-(global-set-key (kbd "C-c c l") 'org-clock-in-last)
-(global-set-key (kbd "C-c c i") 'org-clock-in)
-(global-set-key (kbd "C-c c g") 'org-clock-goto)
+(global-set-key (kbd "C-c c r") #'org-clock-report)
+(global-set-key (kbd "C-c c o") #'org-clock-out)
+(global-set-key (kbd "C-c c l") #'org-clock-in-last)
+(global-set-key (kbd "C-c c i") #'org-clock-in)
+(global-set-key (kbd "C-c c g") #'org-clock-goto)
+
+(global-set-key (kbd "C-c c t") #'org-timer-set-timer)
+(global-set-key (kbd "C-c c p") #'org-timer-pause-or-continue)
+(global-set-key (kbd "C-c c s") #'org-timer-stop)
+(global-set-key (kbd "C-c c .") #'org-timer)
+
 (global-set-key (kbd "C-c c d") (lambda () (interactive)
                                   (insert (format-time-string "%Y-%m-%d"))))
-(global-set-key (kbd "C-c c t") (lambda () (interactive)
+(global-set-key (kbd "C-c c n") (lambda () (interactive)
                                   (insert (format-time-string "%H:%M"))))
 
 ;; Links ;;

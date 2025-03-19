@@ -25,3 +25,6 @@
 /org-persist/
 /local.el
 /templates.el
+/eln-cache/*
+*.gpg
+.emacs.desktop*

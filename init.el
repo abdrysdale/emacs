@@ -951,6 +951,7 @@ and works well with any shell - including eshell."
 (setq shr-width 70
       shr-cookie-policy nil
       eww-retrieve-command nil
+      eww-auto-rename-buffer 'title
       eww-browse-url-new-window-is-tab nil
       browse-url-browser-function #'eww)
 

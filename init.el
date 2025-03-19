@@ -416,6 +416,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Advanced Editing *
 ;;  ********************
 
+;; God-Mode
+;; I thought long and hard about modal vs non-modal editing.
+;; I think the efficiency depends on the ratio of writing text
+;; to navigating text. When mostly writing text, the keybindings
+;; to switch between modes add unnecessary keys and cognitive load.
+;; Conversely, when mostly navigating and performing standard edits,
+;; the modifier keys become unnecessary.
+;; A compromise to this is to toggle god-mode for such scenarios.
+;; View mode, is a potential contender, but lacks the finer grained control.
+(use-package god-mode)
+(global-set-key (kbd "C-c ESC") #'god-mode-all)
+(setq god-exempt-major-modes nil
+      god-exempt-predicates nil)
+
 ;; Completion
 (require 'icomplete)
 (setq icomplete-mode t
@@ -1403,14 +1417,20 @@ with some rough idea of what the papers were about."
 (org-clock-persistence-insinuate)
 
 ;; Bind to slightly nicer key bindings
-(global-set-key (kbd "C-c c r") 'org-clock-report)
-(global-set-key (kbd "C-c c o") 'org-clock-out)
-(global-set-key (kbd "C-c c l") 'org-clock-in-last)
-(global-set-key (kbd "C-c c i") 'org-clock-in)
-(global-set-key (kbd "C-c c g") 'org-clock-goto)
+(global-set-key (kbd "C-c c r") #'org-clock-report)
+(global-set-key (kbd "C-c c o") #'org-clock-out)
+(global-set-key (kbd "C-c c l") #'org-clock-in-last)
+(global-set-key (kbd "C-c c i") #'org-clock-in)
+(global-set-key (kbd "C-c c g") #'org-clock-goto)
+
+(global-set-key (kbd "C-c c t") #'org-timer-set-timer)
+(global-set-key (kbd "C-c c p") #'org-timer-pause-or-continue)
+(global-set-key (kbd "C-c c s") #'org-timer-stop)
+(global-set-key (kbd "C-c c .") #'org-timer)
+
 (global-set-key (kbd "C-c c d") (lambda () (interactive)
                                   (insert (format-time-string "%Y-%m-%d"))))
-(global-set-key (kbd "C-c c t") (lambda () (interactive)
+(global-set-key (kbd "C-c c n") (lambda () (interactive)
                                   (insert (format-time-string "%H:%M"))))
 
 ;; Links ;;
@@ -1694,7 +1714,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
+   '(god-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

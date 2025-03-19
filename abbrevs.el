@@ -14,6 +14,8 @@
       ("t2" "$T_2$" nil 0)
       ("tr" "$T_R$" nil 0)
       ("te" "$T_E$" nil 0)
+      ("iff" "↔" nil 0)
+      ("phapy" "#+PROPERTY: header-args:Python :session *Python*" nil 0)
       )))
 
 ;; EShell
@@ -104,6 +106,7 @@
         ("zrn" "\\mathbb{R}^n" nil 0)
         ("zcc" "\\mathbb{C}" nil 0)
         ("zcn" "\\mathbb{C}^n" nil 0)
+        ("iff" "↔" nil 0)
         ("partl" "" (lambda () (insert (format
                                    "\\frac{\\partial %s}{\\partial %s}"
                                    (read-string "Numerator: ")

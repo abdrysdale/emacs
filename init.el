@@ -955,6 +955,12 @@ and works well with any shell - including eshell."
       eww-browse-url-new-window-is-tab nil
       browse-url-browser-function #'eww)
 
+(defun use-old-reddit (url)
+  "Transform any www.reddit in URL to old.reddit."
+  (replace-regexp-in-string "www.reddit.com*" "old.reddit.com" url))
+
+(add-to-list 'eww-url-transformers #'use-old-reddit)
+
 (defun eww-search-wiki ()
   "Search Wikipedia."
   (interactive)

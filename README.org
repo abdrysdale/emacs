@@ -6,8 +6,7 @@
 This repository contains my minimal (but quite useful) Emacs config.
 
 It is meant to provide a decent working environment that's fairly easy to manage.
-A lot of this is based on my own personal config and the excellent resource of Emacs [[https://github.com/monkeyjunglejuice/emacs.onboard][ONBOARD]].
 In general, I try to use as many of the builtin features available and tend to only use external package when it's much more convenient.
 
-Everything (along with commentry) is in the [[init.el]] file as outline-mode can sufficiently fold my config and a tangled config can be a lot harder to maintain properly.
-Once I'm happy with the this config I may consider creating a literate config from it.
+Everything (along with commentary) is in the [[init.el]] file as hs-mode can sufficiently fold my config and a tangled config can be a lot harder to maintain properly.
+Once I'm happy with the this config I may consider creating a literate config from it - mainly as an exercise to evaluate the usefulness of my configuration.

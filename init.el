@@ -575,7 +575,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             (when-let ((project (project-current))
                        (proot (project-root project)))
               (when (file-exists-p (expand-file-name "Tectonic.toml" proot))
-                (setq-local TeX-output-dir (expand-file-name "build/index" proot))))))
+                (setq-local TeX-output-dir
+                            (expand-file-name "build/index" proot))))))
 
 (setq org-latex-listings 'minted
     org-latex-packages-alist '(("newfloat" "minted"))
@@ -624,6 +625,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; Rust
 (use-package rust-mode)
+
+;;;; F-sharp
+(use-package fsharp-mode)
 
 ;;  **************
 ;;; * Navigation *
@@ -1714,7 +1718,7 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(god-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
+   '(god-mode fsharp-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

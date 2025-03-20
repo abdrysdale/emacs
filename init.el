@@ -272,10 +272,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq inhibit-startup-message t
       visible-bell t
       confirm-kill-emacs nil
-      global-tab-line-mode t
+      global-tab-line-mode nil
       truncate-lines t
       x-stretch-cursor t
       use-dialog-box nil)
+(global-set-key (kbd "C-c t t") #'tab-line-mode)
+(global-set-key (kbd "C-c t g") #'global-tab-line-mode)
 
 (defun-surely save-buffers-kill-terminal)
 (global-set-key (kbd "C-x C-c") #'save-buffers-kill-terminal-surely)

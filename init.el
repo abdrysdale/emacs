@@ -950,6 +950,7 @@ and works well with any shell - including eshell."
 (global-set-key (kbd "C-c p p") #'doc-view-other-frame-scroll-down)
 
 ;; Browser
+(require 'eww)
 (setq shr-width 70
       shr-cookie-policy nil
       shr-max-image-proportion 0.7

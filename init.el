@@ -283,8 +283,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       truncate-lines t
       x-stretch-cursor t
       use-dialog-box nil)
-(global-set-key (kbd "C-c t t") #'tab-line-mode)
-(global-set-key (kbd "C-c t g") #'global-tab-line-mode)
+(global-set-keys-to-prefix "C-c t" '(("t" . tab-line-mode)
+                                     ("g" . global-tab-line-mode)))
 
 (defun-surely save-buffers-kill-terminal)
 (global-set-key (kbd "C-x C-c") #'save-buffers-kill-terminal-surely)
@@ -363,14 +363,15 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Highlighting changes
 (setq highlight-changes-mode t)
 
-(global-set-key (kbd "C-c h c") #'highlight-changes-mode)
-(global-set-key (kbd "C-c h h") #'highlight-changes-remove-highlight)
-(global-set-key (kbd "C-c h v") #'highlight-changes-visible-mode)
-(global-set-key (kbd "C-c h n") #'highlight-changes-next-change)
-(global-set-key (kbd "C-c h p") #'highlight-changes-previous-change)
-(global-set-key (kbd "C-c h r") #'highlight-changes-rotate-faces)
-(global-set-key (kbd "C-c h f") #'highlight-compare-with-file)
-(global-set-key (kbd "C-c h b") #'highlight-compare-buffers)
+(global-set-keys-to-prefix "C-c h"
+                           '(("c" . highlight-changes-mode)
+                             ("h" . highlight-changes-remove-highlight)
+                             ("v" . highlight-changes-visible-mode)
+                             ("n" . highlight-changes-next-change)
+                             ("p" . highlight-changes-previous-change)
+                             ("r" . highlight-changes-rotate-faces)
+                             ("f" . highlight-compare-with-file)
+                             ("b" . highlight-compare-buffers)))
 
 ;;  *****************
 ;;; * Basic Editing *
@@ -406,11 +407,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                               newline indentation empty space-after-tab
                               space-mark tab-mark missing-newline-at-eof))
 
-;; Count the words
-(global-set-key (kbd "C-c b c") #'count-words)
-
-;; Revert the buffer
-(global-set-key (kbd "C-c b r") #'revert-buffer)
+(global-set-keys-to-prefix "C-c b" '(("c" . count-words)
+                                     ("r" . revert-buffer)))
 
 ;; Copy the current buffer's filename to the kill ring.
 (defun copy-filename-to-kill ()
@@ -489,10 +487,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind ("C-=" . er/expand-region))
 
 ;; iSpell ;;
-(global-set-key (kbd "C-c d s") #'ispell)
-(global-set-key (kbd "C-c d w") #'ispell-word)
-(global-set-key (kbd "C-c d c") #'ispell-comments-and-strings)
-(global-set-key (kbd "C-c d b") #'ispell-buffer)
+(global-set-keys-to-prefix "C-c d" '(("s" . ispell)
+                                     ("w" . ispell-word)
+                                     ("c" . ispell-comments-and-strings)
+                                     ("b" . ispell-buffer)))
 
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
@@ -725,19 +723,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
           (lambda () (local-set-key (kbd "M-g m") #'me/imenu-method)))
 
 ;; File navigation
-(global-set-key (kbd "C-c f ,") 'find-file-other-window)
-(global-set-key (kbd "C-c f v") 'view-file)
-
 (recentf-mode 1)
-(global-set-key (kbd "C-c f r") 'recentf-open-files)
+(global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
+                                     ("v" . view-file)
+                                     ("r" . recentf-open-files)))
 
 ;; Projects
 (defun edit-projects ()
   "Edit the list of projects."
   (interactive)
   (find-file project-list-file))
-(global-set-key (kbd "C-x p a") #'edit-projects)
-(global-set-key (kbd "C-x p s") 'project-search)
+(global-set-keys-to-prefix "C-x p" '(("a" . edit-projects)
+                                     ("s" . project-search)))
 
 ;; Buffers
 (global-set-key (kbd "C-x C-b") #'ibuffer)
@@ -767,8 +764,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
-(global-set-key (kbd "C-c b s") #'scratch-buffer)
-(global-set-key (kbd "C-c b n") #'note-buffer)
+(global-set-keys-to-prefix "C-c b" '(("s" . scratch-buffer)
+                                     ("n" . note-buffer)))
 
 (global-auto-revert-mode 1)
 (setq midnight-mode t)
@@ -806,12 +803,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq global-auto-revert-non-file-buffers t)
 
-(global-set-key (kbd "C-c d d") 'dired-default-directory-on-left)
-(global-set-key (kbd "C-c d p") 'dired-at-point)
-(global-set-key (kbd "C-c d f") 'find-dired)
-(global-set-key (kbd "C-c d n") 'find-name-dired)
-(global-set-key (kbd "C-c d e") 'wdired-change-to-wdired-mode)
-(global-set-key (kbd "C-c d ,") 'dired-other-window)
+(global-set-keys-to-prefix "C-c d" '(("d" . dired-default-directory-on-left)
+                                     ("p" . dired-at-point)
+                                     ("f" . find-dired)
+                                     ("n" . find-name-dired)
+                                     ("e" . wdired-change-to-wdired-mode)
+                                     ("," . dired-other-window)))
 
 ;;  ***************
 ;;; * Development *
@@ -897,11 +894,11 @@ and works well with any shell - including eshell."
          ,(concat "I am in an informal conversation and will ask you a series"
                  " of questions. Respond in a friendly and diplomatic"
                  " manner."))))
-(global-set-key (kbd "C-c l g") #'gptel)
-(global-set-key (kbd "C-c l s") #'gptel-send)
-(global-set-key (kbd "C-c l p") #'gptel-system-prompt)
-(global-set-key (kbd "C-c l c") #'gptel-context-quit)
-(global-set-key (kbd "C-c l a") #'gptel-abort)
+(global-set-keys-to-prefix "C-c l" '(("g" . gptel)
+                                     ("s" . gptel-send)
+                                     ("p" . gptel-system-prompt)
+                                     ("c" . gptel-context-quit)
+                                     ("a" . gptel-abort)))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()
@@ -955,8 +952,8 @@ and works well with any shell - including eshell."
   (other-frame 1)
   (doc-view-scroll-down-or-previous-page)
   (other-frame 1))
-(global-set-key (kbd "C-c p n") #'doc-view-other-frame-scroll-up)
-(global-set-key (kbd "C-c p p") #'doc-view-other-frame-scroll-down)
+(global-set-keys-to-prefix "C-c p"  '(("n" . doc-view-other-frame-scroll-up)
+                                      ("p" . doc-view-other-frame-scroll-down)))
 
 ;; Browser
 (require 'eww)
@@ -1149,14 +1146,14 @@ and works well with any shell - including eshell."
 
 
 
-(global-set-key (kbd "C-c m r b") #'emms-play-bosa)
-(global-set-key (kbd "C-c m r c") #'emms-play-classic)
-(global-set-key (kbd "C-c m r f") #'emms-play-funk)
-(global-set-key (kbd "C-c m r j") #'emms-play-jazz)
-(global-set-key (kbd "C-c m r l") #'emms-play-lofi)
-(global-set-key (kbd "C-c m r n") #'emms-play-news)
-(global-set-key (kbd "C-c m r s") #'emms-play-smooth)
-(global-set-key (kbd "C-c m r t") #'emms-play-tradjazz)
+(global-set-keys-to-prefix "C-c m r" '(("b" . emms-play-bosa)
+                                       ("c" . emms-play-classic)
+                                       ("f" . emms-play-funk)
+                                       ("j" . emms-play-jazz)
+                                       ("l" . emms-play-lofi)
+                                       ("n" . emms-play-news)
+                                       ("s" . emms-play-smooth)
+                                       ("t" . emms-play-tradjazz)))
 
 (global-set-key (kbd "C-c m r C-s") #'emms-stop)
 
@@ -1449,21 +1446,22 @@ with some rough idea of what the papers were about."
 (org-clock-persistence-insinuate)
 
 ;; Bind to slightly nicer key bindings
-(global-set-key (kbd "C-c c r") #'org-clock-report)
-(global-set-key (kbd "C-c c o") #'org-clock-out)
-(global-set-key (kbd "C-c c l") #'org-clock-in-last)
-(global-set-key (kbd "C-c c i") #'org-clock-in)
-(global-set-key (kbd "C-c c g") #'org-clock-goto)
-
-(global-set-key (kbd "C-c c t") #'org-timer-set-timer)
-(global-set-key (kbd "C-c c p") #'org-timer-pause-or-continue)
-(global-set-key (kbd "C-c c s") #'org-timer-stop)
-(global-set-key (kbd "C-c c .") #'org-timer)
-
-(global-set-key (kbd "C-c c d") (lambda () (interactive)
-                                  (insert (format-time-string "%Y-%m-%d"))))
-(global-set-key (kbd "C-c c n") (lambda () (interactive)
-                                  (insert (format-time-string "%H:%M"))))
+(global-set-keys-to-prefix "C-c c"
+                           '(("r" . org-clock-report)
+                             ("o" . org-clock-out)
+                             ("l" . org-clock-in-last)
+                             ("i" . org-clock-in)
+                             ("g" . org-clock-goto)
+                             ("t" . org-timer-set-timer)
+                             ("p" . org-timer-pause-or-continue)
+                             ("s" . org-timer-stop)
+                             ("." . org-timer)
+                             ("d" .(lambda () (interactive)
+                                     (insert
+                                      (format-time-string "%Y-%m-%d"))))
+                             ("n" .  (lambda () (interactive)
+                                       (insert
+                                        (format-time-string "%H:%M"))))))
 
 ;; Links ;;
 (defun org-mode-url-at-point ()
@@ -1503,9 +1501,10 @@ with some rough idea of what the papers were about."
    `(,(in-home-dir "Documents/notes/agenda.org")
      ,(in-home-dir "Documents/notes/reading-list.org")))
 
-(global-set-key (kbd "C-c m a") #'org-agenda-list)
-(global-set-key (kbd "C-c m A") #'org-agenda)
-(global-set-key (kbd "C-c m t") #'org-todo-list)
+(global-set-keys-to-prefix "C-c m"
+                           '(("a" . org-agenda-list)
+                             ("A" . org-agenda)
+                             ("t" . org-todo-list)))
 (setq org-deadline-warning-days 60)
 
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)

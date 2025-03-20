@@ -30,9 +30,11 @@
 (defmacro defun-surely (func)
   "Create a function NAME that run FUNC if the user is sure."
   `(defun ,(intern (format "%s-surely" func)) ()
+     ,(format "Run %s when the user is sure." func)
      (interactive)
-     (if (yes-or-no-p "Surely you can't be serious? ")
-         ,func)))
+     (when (yes-or-no-p "Surely you can't be serious? ")
+       (message "Don't call me Shirley!")
+       (,func))))
 
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
@@ -950,7 +952,10 @@ and works well with any shell - including eshell."
 ;; Browser
 (setq shr-width 70
       shr-cookie-policy nil
-      eww-retrieve-command nil
+      shr-max-image-proportion 0.7
+      shr-inhibit-images t
+      shr-use-xwidgets-for-media t
+      eww-retrieve-command 'sync
       eww-auto-rename-buffer 'title
       eww-browse-url-new-window-is-tab nil
       browse-url-browser-function #'eww)

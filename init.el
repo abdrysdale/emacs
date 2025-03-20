@@ -40,7 +40,7 @@
      ,(format "Run %s when the user is sure." func)
      (interactive)
      (when (yes-or-no-p "Surely you can't be serious? ")
-       (message "Don't call me Shirley!")
+       (message (format "Ran %s - and stop calling me Shirley!" func))
        (,func))))
 
 (defvar local/home-dir "~" "Home directory.")
@@ -355,6 +355,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (setq me/current-theme me/dark-theme))
   (me/load-theme))
 (me/load-theme)
+(global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
 (add-to-list 'default-frame-alist '(font . "Monospace 13"))

@@ -964,8 +964,12 @@ and works well with any shell - including eshell."
 (defun use-old-reddit (url)
   "Transform any www.reddit in URL to old.reddit."
   (replace-regexp-in-string "www.reddit.com*" "old.reddit.com" url))
-
 (add-to-list 'eww-url-transformers #'use-old-reddit)
+
+(defun ensure-https (url)
+  "Transform http:// to https:// in URL."
+  (replace-regexp-in-string "^http://*" "https://" url))
+(add-to-list 'eww-url-transformers #'ensure-https)
 
 (defun eww-search-wiki ()
   "Search Wikipedia."

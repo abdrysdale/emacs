@@ -27,6 +27,13 @@
   (unless (boundp var)
       (list 'setq var val)))
 
+(defmacro global-set-keys-to-prefix (prefix keybindings)
+  "Set functions in KEYBINDINGS to a PREFIX key."
+  `(dolist (elm ,keybindings)
+     (let ((key (format "%s %s" ,prefix (car elm)))
+           (fn (cdr elm)))
+       (global-set-key (kbd key) fn))))
+
 (defmacro defun-surely (func)
   "Create a function NAME that run FUNC if the user is sure."
   `(defun ,(intern (format "%s-surely" func)) ()
@@ -963,39 +970,41 @@ and works well with any shell - including eshell."
       eww-browse-url-new-window-is-tab nil
       browse-url-browser-function #'eww)
 
-(defun use-old-reddit (url)
+(defun eww-use-old-reddit (url)
   "Transform any www.reddit in URL to old.reddit."
   (replace-regexp-in-string "www.reddit.com*" "old.reddit.com" url))
-(add-to-list 'eww-url-transformers #'use-old-reddit)
+(add-to-list 'eww-url-transformers #'eww-use-old-reddit)
 
-(defun ensure-https (url)
+(defun eww-ensure-https (url)
   "Transform http:// to https:// in URL."
   (replace-regexp-in-string "^http://*" "https://" url))
-(add-to-list 'eww-url-transformers #'ensure-https)
+(add-to-list 'eww-url-transformers #'eww-ensure-https)
 
-(defun eww-search-wiki ()
-  "Search Wikipedia."
-  (interactive)
-  (let ((eww-search-prefix
-         "https://en.wikipedia.org/wiki/Special:Search?go=Go&search="))
-    (call-interactively #'eww)))
+(defmacro def-eww-with-search-prefix (name url)
+  "Create a function eww-search- NAME URL as default search prefix."
+  (let ((func-name (intern (format "eww-search-%s" name))))
+    `(defun ,func-name ()
+       ,(format "Launch eww with %s as the search prefix." url)
+       (interactive)
+       (let ((eww-search-prefix ,url))
+         (call-interactively #'eww)))))
 
-(defun eww-search-scholar ()
-  "Search Google Scholar."
-  (interactive)
-  (let ((eww-search-prefix "https://scholar.google.co.uk/scholar?q="))
-    (call-interactively #'eww)))
+(defvar eww-search-engine-list nil "List of search engines for eww.")
+(setq eww-search-engine-list
+      '(("wiki" . "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=")
+        ("scholar" . "https://scholar.google.co.uk/scholar?q=")
+        ("pypi" . "https://pypi.org/search/?q=")))
 
-(defun eww-search-pypi ()
-  "Search PyPi."
-  (interactive)
-  (let ((eww-search-prefix "https://pypi.org/search/?q="))
-    (call-interactively #'eww)))
+(dolist (engine eww-search-engine-list)
+  (let* ((name (car engine))
+         (url (cdr engine)))
+         (def-eww-with-search-prefix name url)))
 
-(global-set-key (kbd "C-c u w") #'eww-search-wiki)
-(global-set-key (kbd "C-c u s") #'eww-search-scholar)
-(global-set-key (kbd "C-c u p") #'eww-search-pypi)
-(global-set-key (kbd "C-c u u") #'eww)
+(global-set-keys-to-prefix "C-c u"
+                           '(("u" . eww)
+                             ("w" . eww-search-wiki)
+                             ("s" . eww-search-scholar)
+                             ("p" . eww-search-pypi)))
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)

@@ -27,6 +27,11 @@
   (unless (boundp var)
       (list 'setq var val)))
 
+(defmacro setq-if-nil (var val)
+  "Set VAR to VAL if VAR is nil."
+  (unless var
+    (list 'setq var val)))
+
 (defmacro global-set-keys-to-prefix (prefix keybindings)
   "Set functions in KEYBINDINGS to a PREFIX key."
   `(dolist (elm ,keybindings)
@@ -46,6 +51,13 @@
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
 
+;; Important files that need to be present.
+(defvar local/agenda-file nil "Local agenda file.")
+(defvar local/reading-list nil "Local reading-list file.")
+(defvar local/bib-file nil "Local bibliography file.")
+(defvar local/paper-dir nil "Local directory for papers.")
+(defvar local/paper-notes-dir  nil "Local paper directory for notes.")
+
 (let ((local-conf (concat user-emacs-directory "local.el")))
   (when (file-exists-p local-conf)
     (load local-conf)))
@@ -54,6 +66,12 @@
 (defun in-home-dir (file)
   "Return the path of a FILE in the home directory as an absolute path."
   (concat (file-name-as-directory local/home-dir) file))
+
+(setq-if-nil local/reading-list
+             (in-home-dir "Documents/notes/reading-list.org"))
+(setq-if-nil local/bib-file (in-home-dir "Documents/notes/refs.bib"))
+(setq-if-nil local/paper-dir (in-home-dir "Documents/resources/papers"))
+(setq-if-nil local/paper-notes-dir (in-home-dir "Documents/notes/paper-notes"))
 
 ;;  **********
 ;;; * Server *
@@ -280,10 +298,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       visible-bell t
       confirm-kill-emacs nil
       global-tab-line-mode nil
+      tab-line-tabs-function 'tab-line-tabs-mode-buffers
       truncate-lines t
       x-stretch-cursor t
       use-dialog-box nil)
+
 (global-set-keys-to-prefix "C-c t" '(("t" . tab-line-mode)
+                                     ("n" . tab-line-switch-to-next-tab)
+                                     ("p" . tab-line-switch-to-prev-tab)
                                      ("g" . global-tab-line-mode)))
 
 (defun-surely save-buffers-kill-terminal)
@@ -742,8 +764,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c b k") #'kill-buffer-and-window)
 (global-set-key (kbd "C-c b ,") #'switch-to-buffer-other-window)
 (global-set-key (kbd "C-c b v") #'view-buffer-other-window)
-(global-set-key (kbd "M-[") #'previous-buffer)
-(global-set-key (kbd "M-]") #'next-buffer)
+(global-set-key (kbd "M-[") (lambda () (interactive)
+                              (if tab-line-mode (tab-line-switch-to-prev-tab)
+                                (previous-buffer))))
+(global-set-key (kbd "M-]") (lambda () (interactive)
+                              (if tab-line-mode (tab-line-switch-to-next-tab)
+                                (next-buffer))))
 (global-set-key (kbd "C-c b a") #'append-to-buffer)
 
 (defun kill-this-buffer-reliably ()
@@ -1207,14 +1233,10 @@ and works well with any shell - including eshell."
         ebib-notes-display-max-lines 30))
 
 
-(defvar ebib-paper-dir (in-home-dir "Documents/resources/papers")
-  "Path to downloaded papers.")
-(setq ebib-notes-directory (in-home-dir "Documents/notes/paper-notes")
-      ebib-reading-list-file (in-home-dir
-                              "Documents/notes/reading-list.org")
-      ebib-preload-bib-files `(,(in-home-dir
-                                 "Documents/notes/refs.bib")))
-(setq ebib-file-search-dirs `(,ebib-paper-dir))
+(setq ebib-notes-directory local/paper-notes-dir
+      ebib-reading-list-file local/reading-list
+      ebib-preload-bib-files `(,local/bib-file)
+      ebib-file-search-dirs `(,local/paper-dir))
 
 
 ;; Tries to download a paper associated with the url
@@ -1498,9 +1520,7 @@ with some rough idea of what the papers were about."
             #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
-(setq org-agenda-files
-   `(,(in-home-dir "Documents/notes/agenda.org")
-     ,(in-home-dir "Documents/notes/reading-list.org")))
+(setq org-agenda-files `(,local/agenda-file ,local/reading-list))
 
 (global-set-keys-to-prefix "C-c m"
                            '(("a" . org-agenda-list)

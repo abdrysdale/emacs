@@ -298,14 +298,32 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       visible-bell t
       confirm-kill-emacs nil
       global-tab-line-mode nil
+      tab-line-close-button-show nil
       tab-line-tabs-function 'tab-line-tabs-mode-buffers
       truncate-lines t
       x-stretch-cursor t
       use-dialog-box nil)
 
+(defun get-buffers-matching-current-mode ()
+  "Return a list of buffers where their major-mode is equal to the current."
+  (seq-filter (lambda (b) (derived-mode-p
+                      (with-current-buffer b major-mode)
+                      'erc-mode)) (buffer-list)))
+
+(defun current-major-mode-tab-line-mode ()
+  "Toggle 'tab-line-mode' for buffers with the same major mode as the current."
+  (interactive)
+  (let ((*buffers* (get-buffers-matching-current-mode))
+        (*onoff* (if tab-line-mode -1 1)))
+    (dolist (b *buffers*)
+      (set-buffer b)
+      (tab-line-mode *onoff*))
+    (set-buffer (car *buffers*))))
+
 (global-set-keys-to-prefix "C-c t" '(("t" . tab-line-mode)
                                      ("n" . tab-line-switch-to-next-tab)
                                      ("p" . tab-line-switch-to-prev-tab)
+                                     ("m" . current-major-mode-tab-line-mode)
                                      ("g" . global-tab-line-mode)))
 
 (defun-surely save-buffers-kill-terminal)
@@ -894,12 +912,13 @@ and works well with any shell - including eshell."
 
 ;; GPTel
 (use-package gptel)
-(setq gptel-model 'deepseek-r1:latest)
+(setq gptel-models '(deepseek-r1:1.5b deepseek-r1:latest))
+(setq gptel-model `(,(car gptel-models)))
 (setq gptel-backend (gptel-make-ollama
                      "Ollama"
                      :host "localhost:11434"
                      :stream t
-                     :models`(,gptel-model)))
+                     :models gptel-models))
 (setq gptel-directives
       `((default
          ,(concat "I am in a conversation where I will ask you a series of"
@@ -925,7 +944,10 @@ and works well with any shell - including eshell."
                                      ("s" . gptel-send)
                                      ("p" . gptel-system-prompt)
                                      ("c" . gptel-context-quit)
-                                     ("a" . gptel-abort)))
+                                     ("a" . gptel-abort)
+                                     ("m" . gptel-menu)
+                                     ;; Sometimes just a dictionary is required
+                                     ("d" . dictionary-lookup-definition)))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()
@@ -1640,6 +1662,24 @@ with some rough idea of what the papers were about."
 (setq abbrev-suggest-hint-threshold 0)
 (setq abbrev-suggest t)
 
+;; Source: https://www.emacswiki.org/emacs/AbbrevMode#h5o-10
+(defun set-local-abbrevs (abbrevs)
+  "Add ABBREVS to `local-abbrev-table' and make it buffer local.
+ABBREVS should be a list of abbrevs as passed to `define-abbrev-table'.
+The `local-abbrev-table' will be replaced by a copy with the new abbrevs added,
+so that it is not the same as the abbrev table used in other buffers with the
+same `major-mode'."
+  (let* ((bufname (buffer-name))
+         (prefix (substring (md5 bufname) 0 (length bufname)))
+         (tblsym (intern (concat prefix "-abbrev-table"))))
+    (set tblsym (copy-abbrev-table local-abbrev-table))
+    (dolist (abbrev abbrevs)
+      (define-abbrev (eval tblsym)
+        (cl-first abbrev)
+        (cl-second abbrev)
+        (cl-third abbrev)))
+    (setq-local local-abbrev-table (eval tblsym))))
+
 ;; Key binding for unexpanding abbrevs
 (global-set-key (kbd "C-x a u") 'unexpand-abbrev)
 
@@ -1766,7 +1806,20 @@ with some rough idea of what the papers were about."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(god-mode fsharp-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex)))
+   '(god-mode fsharp-mode rust-mode gptel yaml-mode which-key wakatime-mode toml-mode simple-httpd page-break-lines ob-powershell notmuch multiple-cursors json-mode htmlize git-timemachine forge fireplace expand-region ess emms ebib csv-mode auctex))
+ '(safe-local-variable-values
+   '((eval set-local-abbrevs
+           '(("netP" "P - P_0 - P_\\text{ext}" nil)))
+     (eval set-local-abbrevs
+           '(("mflux" "\\alpha \\frac{Q^2}{A}" nil)))
+     (eval set-local-abbrevs
+           '(("rA" "\\frac{\\rho}{A}" nil)))
+     (eval set-local-abbrevs
+           '(("rA" "\\frac{\\rho}{A}" nil)
+             ("mflux" "\7lpha \14rac{Q^2}{A}" nil)))
+     (eval set-local-abbrevs
+           '(("rA" "\\frac{\\rho}{A}" nil)
+             (mflux "\7lpha \14rac{Q^2}{A}" nil))))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -93,9 +93,12 @@
     (define-abbrev-table 'latex-mode-abbrev-table
       '(
         ("wrt" "with respect to" nil 0)
-        ("zla" "\\label" nil 0)
-        ("zca" "\\caption" nil 0)
-        ("zr" "\\ref{}" nil 0)
+        ("labl" "\\label{" nil 0)
+        ("cap" "\\caption{" nil 0)
+        ("ref" "" (lambda () (progn
+                          (insert "~\\ref{")
+                          (ebib-insert-citation)
+                          (insert "}"))) 0)
         ("ea" "\\textit{et al.}" nil 0)
         ("td" "" (lambda () (insert
                         (format "\\todo{%s}" (read-string "Todo: ")))))

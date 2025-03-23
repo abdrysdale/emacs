@@ -2,6 +2,13 @@
 ;; Abbreviations ;;
 ;;===============;;
 
+(defmacro insert-and-format (string fields)
+  "Format and insert STRING with FIELDS."
+  `(lambda () (insert (apply #'format
+                        ,string (mapcar
+                                 #'(lambda (f) (read-string (format "%s: " f)))
+                                 ,fields)))))
+
 ;; Org mode
 (progn
   (when (boundp 'org-mode-abbrev-table)
@@ -30,9 +37,9 @@
 
 ;; Elisp
 (progn
-  (when (boundp 'elisp-mode-abbrev-table)
-    (clear-abbrev-table elisp-mode-abbrev-table))
-  (define-abbrev-table 'elisp-mode-abbrev-table
+  (when (boundp 'emacs-lisp-mode-abbrev-table)
+    (clear-abbrev-table emacs-lisp-mode-abbrev-table))
+  (define-abbrev-table 'emacs-lisp-mode-abbrev-table
     '(
       ("gsk" "(global-set-key (kbd \"" nil 0)
       ("usp" "(use-package " nil 0)
@@ -91,7 +98,7 @@
     (when (boundp 'latex-mode-abbrev-table)
       (clear-abbrev-table latex-mode-abbrev-table))
     (define-abbrev-table 'latex-mode-abbrev-table
-      '(
+      `(
         ("wrt" "with respect to" nil 0)
         ("labl" "\\label{" nil 0)
         ("cap" "\\caption{" nil 0)
@@ -100,10 +107,8 @@
                           (ebib-insert-citation)
                           (insert "}"))) 0)
         ("ea" "\\textit{et al.}" nil 0)
-        ("td" "" (lambda () (insert
-                        (format "\\todo{%s}" (read-string "Todo: ")))))
-        ("tdi" "" (lambda () (insert
-                         (format "\\todo[inline]{%s}" (read-string "Todo: ")))))
+        ("td" "" ,(insert-and-format "\\todo{%s}" '("Todo")))
+        ("tdi" "" ,(insert-and-format "\\todo[inline]{%s}" '("Todo")))
         ("zi" "^{(i)}" nil 0)
         ("zj" "^{(j)}" nil 0)
         ("zk" "^{(k)}" nil 0)
@@ -114,18 +119,13 @@
         ("zc" "\\mathbb{C}" nil 0)
         ("zcn" "\\mathbb{C}^n" nil 0)
         ("iff" "↔" nil 0)
-        ("txt" "" (lambda () (insert (format
-                                 "\\text{%s}" (read-string "Text: ")))))
-        ("partl" "" (lambda () (insert (format
-                                   "\\frac{\\partial %s}{\\partial %s}"
-                                   (read-string "Numerator: ")
-                                   (read-string "Denominator: ")))))
-        ("spartl" "" (lambda () (insert (format
-                                    "\\frac{\\partial^2 %s}{\\partial %s^2}"
-                                    (read-string "Numerator: ")
-                                    (read-string "Denominator: ")))))
-        ("inv" "" (lambda () (insert (format "\\frac{1}{%s}"
-                                        (read-string "Denominator: ")))))
+        ("txt" "" ,(insert-and-format "\\text{%s}" '("Text")))
+        ("partl" "" ,(insert-and-format "\\frac{\\partial %s}{\\partial %s}"
+                                '("Numerator" "Denominator")))
+        ("spartl" "" ,(insert-and-format
+                       "\\frac{\\partial^2 %s}{\\partial %s^2}"
+                       '("Numerator" "Denominator")))
+        ("inv" "" ,(insert-and-format "\\frac{1}{%s}" '("Denominator")))
         )))
 
 

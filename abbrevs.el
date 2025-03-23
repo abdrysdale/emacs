@@ -92,25 +92,35 @@
       (clear-abbrev-table latex-mode-abbrev-table))
     (define-abbrev-table 'latex-mode-abbrev-table
       '(
+        ("wrt" "with respect to" nil 0)
         ("zla" "\\label" nil 0)
         ("zca" "\\caption" nil 0)
         ("zr" "\\ref{}" nil 0)
         ("ea" "\\textit{et al.}" nil 0)
-        ("td" "\\todo[inline]{}" nil 0)
+        ("td" "" (lambda () (insert
+                        (format "\\todo{%s}" (read-string "Todo: ")))))
+        ("tdi" "" (lambda () (insert
+                         (format "\\todo[inline]{%s}" (read-string "Todo: ")))))
         ("zi" "^{(i)}" nil 0)
         ("zj" "^{(j)}" nil 0)
         ("zk" "^{(k)}" nil 0)
         ("zn" "^{(n)}" nil 0)
         ("zm" "^{(m)}" nil 0)
-        ("zrr" "\\mathbb{R}" nil 0)
+        ("zr" "\\mathbb{R}" nil 0)
         ("zrn" "\\mathbb{R}^n" nil 0)
-        ("zcc" "\\mathbb{C}" nil 0)
+        ("zc" "\\mathbb{C}" nil 0)
         ("zcn" "\\mathbb{C}^n" nil 0)
         ("iff" "↔" nil 0)
+        ("txt" "" (lambda () (insert (format
+                                 "\\text{%s}" (read-string "Text: ")))))
         ("partl" "" (lambda () (insert (format
                                    "\\frac{\\partial %s}{\\partial %s}"
                                    (read-string "Numerator: ")
                                    (read-string "Denominator: ")))))
+        ("spartl" "" (lambda () (insert (format
+                                    "\\frac{\\partial^2 %s}{\\partial %s^2}"
+                                    (read-string "Numerator: ")
+                                    (read-string "Denominator: ")))))
         ("inv" "" (lambda () (insert (format "\\frac{1}{%s}"
                                         (read-string "Denominator: ")))))
         )))

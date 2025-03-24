@@ -307,8 +307,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun get-buffers-matching-current-mode ()
   "Return a list of buffers where their major-mode is equal to the current."
   (seq-filter (lambda (b) (derived-mode-p
-                      (with-current-buffer b major-mode)
-                      'erc-mode)) (buffer-list)))
+                      (with-current-buffer b major-mode))) (buffer-list)))
 
 (defun current-major-mode-tab-line-mode ()
   "Toggle 'tab-line-mode' for buffers with the same major mode as the current."
@@ -778,17 +777,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("s" . project-search)))
 
 ;; Buffers
+(global-set-keys-to-prefix "C-c b"
+                           ("k" . kill-buffer-and-window)
+                           ("," . switch-to-buffer-other-window)
+                           ("v" . view-buffer-other-window)
+                           ("a" . append-to-buffer)
+                           ("p" . previous-buffer))
+
 (global-set-key (kbd "C-x C-b") #'ibuffer)
-(global-set-key (kbd "C-c b k") #'kill-buffer-and-window)
-(global-set-key (kbd "C-c b ,") #'switch-to-buffer-other-window)
-(global-set-key (kbd "C-c b v") #'view-buffer-other-window)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
                                 (previous-buffer))))
 (global-set-key (kbd "M-]") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-next-tab)
                                 (next-buffer))))
-(global-set-key (kbd "C-c b a") #'append-to-buffer)
 
 (defun kill-this-buffer-reliably ()
   "Reliably kill this buffer."

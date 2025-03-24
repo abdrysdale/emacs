@@ -102,8 +102,8 @@
         ("wrt" "with respect to" nil 0)
         ("labl" "\\label{" nil 0)
         ("cap" "\\caption{" nil 0)
-        ("ref" "" (lambda () (progn
-                          (insert "~\\ref{")
+        ("cite" "" (lambda () (progn
+                          (insert "~\\cite{")
                           (ebib-insert-citation)
                           (insert "}"))) 0)
         ("ea" "\\textit{et al.}" nil 0)

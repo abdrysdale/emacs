@@ -45,7 +45,6 @@
      ,(format "Run %s when the user is sure." func)
      (interactive)
      (when (yes-or-no-p "Surely you can't be serious? ")
-       (message (format "Ran %s - and stop calling me Shirley!" func))
        (,func))))
 
 (defvar local/home-dir "~" "Home directory.")
@@ -790,11 +789,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Buffers
 (global-set-keys-to-prefix "C-c b"
-                           ("k" . kill-buffer-and-window)
-                           ("," . switch-to-buffer-other-window)
-                           ("v" . view-buffer-other-window)
-                           ("a" . append-to-buffer)
-                           ("p" . previous-buffer))
+                           '(("k" . kill-buffer-and-window)
+                             ("," . switch-to-buffer-other-window)
+                             ("v" . view-buffer-other-window)
+                             ("a" . append-to-buffer)
+                             ("p" . previous-buffer)))
 
 (global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "M-[") (lambda () (interactive)
@@ -1816,6 +1815,5 @@ same `major-mode'."
 ;;  ***************
 ;; Put custom variables elsewhere
 (setq custom-file (concat user-emacs-directory "custom.el"))
-(load custom-file)
 (provide 'init)
 ;;; init.el ends here

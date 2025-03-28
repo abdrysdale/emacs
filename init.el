@@ -1026,10 +1026,10 @@ and works well with any shell - including eshell."
       shr-max-image-proportion 0.7
       shr-inhibit-images t
       shr-use-xwidgets-for-media t
+      browse-url-browser-function #'eww
       eww-retrieve-command 'sync
       eww-auto-rename-buffer 'title
-      eww-browse-url-new-window-is-tab nil
-      browse-url-browser-function #'eww)
+      eww-browse-url-new-window-is-tab nil)
 
 (defun eww-use-old-reddit (url)
   "Transform any www.reddit in URL to old.reddit."

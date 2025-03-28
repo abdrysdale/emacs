@@ -29,8 +29,8 @@
 
 (defmacro setq-if-nil (var val)
   "Set VAR to VAL if VAR is nil."
-  (unless var
-    (list 'setq var val)))
+  `(unless ,var
+     (setq ,var ,val)))
 
 (defmacro global-set-keys-to-prefix (prefix keybindings)
   "Set functions in KEYBINDINGS to a PREFIX key."
@@ -45,7 +45,6 @@
      ,(format "Run %s when the user is sure." func)
      (interactive)
      (when (yes-or-no-p "Surely you can't be serious? ")
-       (message (format "Ran %s - and stop calling me Shirley!" func))
        (,func))))
 
 (defvar local/home-dir "~" "Home directory.")
@@ -67,6 +66,7 @@
   "Return the path of a FILE in the home directory as an absolute path."
   (concat (file-name-as-directory local/home-dir) file))
 
+(setq-if-nil local/agenda-file (in-home-dir "Documents/notes/agenda.org"))
 (setq-if-nil local/reading-list
              (in-home-dir "Documents/notes/reading-list.org"))
 (setq-if-nil local/bib-file (in-home-dir "Documents/notes/refs.bib"))
@@ -1814,6 +1814,5 @@ same `major-mode'."
 ;;  ***************
 ;; Put custom variables elsewhere
 (setq custom-file (concat user-emacs-directory "custom.el"))
-(load custom-file)
 (provide 'init)
 ;;; init.el ends here

@@ -1027,6 +1027,7 @@ and works well with any shell - including eshell."
       shr-inhibit-images t
       shr-use-xwidgets-for-media t
       browse-url-browser-function #'eww
+      eww-history-limit nil
       eww-retrieve-command 'sync
       eww-auto-rename-buffer 'title
       eww-browse-url-new-window-is-tab nil)
@@ -1058,6 +1059,7 @@ and works well with any shell - including eshell."
 
 (global-set-keys-to-prefix "C-c u"
                            '(("u" . eww)
+                             ("b" . eww-list-bookmarks)
                              ("w" . eww-search-wiki)
                              ("s" . eww-search-scholar)
                              ("p" . eww-search-pypi)))

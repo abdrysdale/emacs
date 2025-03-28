@@ -319,8 +319,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun get-buffers-matching-current-mode ()
   "Return a list of buffers where their major-mode is equal to the current."
   (seq-filter (lambda (b) (derived-mode-p
-                      (with-current-buffer b major-mode)
-                      'erc-mode)) (buffer-list)))
+                      (with-current-buffer b major-mode))) (buffer-list)))
 
 (defun current-major-mode-tab-line-mode ()
   "Toggle 'tab-line-mode' for buffers with the same major mode as the current."
@@ -332,10 +331,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (tab-line-mode *onoff*))
     (set-buffer (car *buffers*))))
 
-(global-set-keys-to-prefix "C-c t" '(("t" . tab-line-mode)
+(global-set-keys-to-prefix "C-c t" '(("t" . current-major-mode-tab-line-mode)
                                      ("n" . tab-line-switch-to-next-tab)
                                      ("p" . tab-line-switch-to-prev-tab)
-                                     ("m" . current-major-mode-tab-line-mode)
                                      ("g" . global-tab-line-mode)))
 
 (defun-surely save-buffers-kill-terminal)
@@ -790,17 +788,21 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("s" . project-search)))
 
 ;; Buffers
+(global-set-keys-to-prefix "C-c b"
+                           '(("k" . kill-buffer-and-window)
+                             ("," . switch-to-buffer-other-window)
+                             ("v" . view-buffer-other-window)
+                             ("a" . append-to-buffer)
+                             ("n" . next-buffer)
+                             ("p" . previous-buffer)))
+
 (global-set-key (kbd "C-x C-b") #'ibuffer)
-(global-set-key (kbd "C-c b k") #'kill-buffer-and-window)
-(global-set-key (kbd "C-c b ,") #'switch-to-buffer-other-window)
-(global-set-key (kbd "C-c b v") #'view-buffer-other-window)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
                                 (previous-buffer))))
 (global-set-key (kbd "M-]") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-next-tab)
                                 (next-buffer))))
-(global-set-key (kbd "C-c b a") #'append-to-buffer)
 
 (defun kill-this-buffer-reliably ()
   "Reliably kill this buffer."
@@ -822,7 +824,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
 (global-set-keys-to-prefix "C-c b" '(("s" . scratch-buffer)
-                                     ("n" . note-buffer)))
+                                     ("N" . note-buffer)))
 
 (global-auto-revert-mode 1)
 (setq midnight-mode t)
@@ -998,9 +1000,10 @@ and works well with any shell - including eshell."
 
 ;; Doc view
 (require 'doc-view)
-(setq doc-view-resolution 200)
+(setq doc-view-resolution 200
+      doc-view-imenu-enabled t)
 (add-hook 'doc-view-mode-hook (lambda () (display-line-numbers-mode -1)))
-(add-hook 'doc-view-mode-hook #'doc-view-fit-page-to-window)
+
 (defun doc-view-other-frame-scroll-up ()
   "Same as switching to other frame, pressing SPC and then switching back."
   (interactive)

@@ -28,3 +28,5 @@
 /eln-cache/*
 *.gpg
 .emacs.desktop*
+custom.el
+tramp

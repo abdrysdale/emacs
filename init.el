@@ -1036,11 +1036,6 @@ and works well with any shell - including eshell."
   (replace-regexp-in-string "www.reddit.com*" "old.reddit.com" url))
 (add-to-list 'eww-url-transformers #'eww-use-old-reddit)
 
-(defun eww-ensure-https (url)
-  "Transform http:// to https:// in URL."
-  (replace-regexp-in-string "^http://*" "https://" url))
-(add-to-list 'eww-url-transformers #'eww-ensure-https)
-
 (defmacro def-eww-with-search-prefix (name url)
   "Create a function eww-search- NAME URL as default search prefix."
   (let ((func-name (intern (format "eww-search-%s" name))))

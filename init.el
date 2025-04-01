@@ -1039,30 +1039,29 @@ and works well with any shell - including eshell."
 
 (defmacro def-eww-with-search-prefix (name url)
   "Create a function eww-search- NAME URL as default search prefix."
-  (let ((func-name (intern (format "eww-search-%s" name))))
-    `(defun ,func-name ()
-       ,(format "Launch eww with %s as the search prefix." url)
-       (interactive)
-       (let ((eww-search-prefix ,url))
-         (call-interactively #'eww)))))
+  `(defun ,(intern (format "eww-search-%s" name)) ()
+     ,(format "Launch eww with %s as the search prefix." url)
+     (interactive)
+     (let ((eww-search-prefix ,url))
+       (call-interactively #'eww))))
 
 (defvar eww-search-engine-list nil "List of search engines for eww.")
 (setq eww-search-engine-list
-      '(("wiki" . "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=")
-        ("scholar" . "https://scholar.google.co.uk/scholar?q=")
-        ("pypi" . "https://pypi.org/search/?q=")))
+      '(("wiki" "w"
+         "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=")
+        ("scholar" "s" "https://scholar.google.co.uk/scholar?q=")
+        ("pypi" "p" "https://pypi.org/search/?q=")))
 
 (dolist (engine eww-search-engine-list)
   (let* ((name (car engine))
-         (url (cdr engine)))
-         (def-eww-with-search-prefix name url)))
+         (prefix (nth 1 engine))
+         (url (nth 2 engine)))
+    (eval `(global-set-key (kbd ,(format "C-c u %s" prefix))
+                           (def-eww-with-search-prefix ,name ,url)))))
 
 (global-set-keys-to-prefix "C-c u"
                            '(("u" . eww)
-                             ("b" . eww-list-bookmarks)
-                             ("w" . eww-search-wiki)
-                             ("s" . eww-search-scholar)
-                             ("p" . eww-search-pypi)))
+                             ("b" . eww-list-bookmarks)))
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
@@ -1430,7 +1429,7 @@ with some rough idea of what the papers were about."
                                     (preserve-size . (t . nil))
                                     (no-other-window . nil)))))))
 
-(global-set-key (kbd "C-c w t") 'window-toggle-side-windows)
+(global-set-key (kbd "C-c w t") #'window-toggle-side-windows)
 
 (setq switch-to-buffer-in-dedicated-window "pop"
       switch-to-buffer-obey-display-actions t)
@@ -1693,7 +1692,7 @@ same `major-mode'."
     (setq-local local-abbrev-table (eval tblsym))))
 
 ;; Key binding for unexpanding abbrevs
-(global-set-key (kbd "C-x a u") 'unexpand-abbrev)
+(global-set-key (kbd "C-x a u") #'unexpand-abbrev)
 
 (setq dabbrev-limit nil)  ;; No limit on searching back
 (setq dabbrev-check-all-buffers t)

@@ -1047,8 +1047,7 @@ and works well with any shell - including eshell."
 
 (defvar eww-search-engine-list nil "List of search engines for eww.")
 (setq eww-search-engine-list
-      '(("wiki" "w"
-         "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=")
+      '(("wiki" "w" "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=")
         ("scholar" "s" "https://scholar.google.co.uk/scholar?q=")
         ("pypi" "p" "https://pypi.org/search/?q=")))
 

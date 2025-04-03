@@ -1,2 +1,4 @@
 ;; Auto-generated file; don't edit -*- mode: lisp-data -*-
-((:url "https://theconversation.com/" :title "The Conversation UK is your most reliable trusted news. Written by academics." :time "Fri Mar 28 08:22:12 2025"))
+((:url "https://www.opendemocracy.net/en/" :title "Home | openDemocracy" :time "Tue Apr  1 14:24:47 2025")
+ (:url "http://news.ycombinator.com/" :title "Hacker News" :time "Tue Apr  1 14:23:04 2025")
+ (:url "https://theconversation.com/" :title "The Conversation UK is your most reliable trusted news. Written by academics." :time "Fri Mar 28 08:22:12 2025"))

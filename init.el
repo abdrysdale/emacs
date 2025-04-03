@@ -927,7 +927,7 @@ and works well with any shell - including eshell."
 ;; GPTel
 (use-package gptel)
 (setq gptel-models '(deepseek-r1:1.5b deepseek-r1:latest))
-(setq gptel-model `(,(car gptel-models)))
+(setq gptel-model `,(car gptel-models))
 (setq gptel-backend (gptel-make-ollama
                      "Ollama"
                      :host "localhost:11434"

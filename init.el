@@ -49,6 +49,7 @@
 
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
+(defvar lchat-model nil "Default model for the lchat shell.")
 
 ;; Important files that need to be present.
 (defvar local/agenda-file nil "Local agenda file.")
@@ -843,9 +844,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (dired-x-bind-find-file)
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))))
 
-(setq dired-listing-switches "-alh")
-
-(setq dired-kill-when-opening-new-dired-buffer t)
+(setq dired-listing-switches "-alh"
+      dired-dwim-target #'dired-dwim-target-recent
+      dired-kill-when-opening-new-dired-buffer t)
 
 (defun dired-sort-criteria (criteria)
   "Sort-dired by different CRITERIA by Robert Gloeckner."
@@ -904,7 +905,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; Start an LLM-chat shell
-(defvar lchat-model nil "Default model for the lchat shell.")
 (setq-if-nil lchat-model "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B")
 
 (defun lchat ()

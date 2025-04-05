@@ -103,9 +103,8 @@
         ("labl" "\\label{" nil 0)
         ("cap" "\\caption{" nil 0)
         ("cite" "" (lambda () (progn
-                          (insert "~\\cite{")
-                          (ebib-insert-citation)
-                          (insert "}"))) 0)
+                          (insert "~")
+                          (ebib-insert-citation))) 0)
         ("ea" "\\textit{et al.}" nil 0)
         ("td" "" ,(insert-and-format "\\todo{%s}" '("Todo")))
         ("tdi" "" ,(insert-and-format "\\todo[inline]{%s}" '("Todo")))

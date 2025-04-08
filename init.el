@@ -49,6 +49,7 @@
 
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
+(defvar lchat-model nil "Default model for the lchat shell.")
 
 ;; Important files that need to be present.
 (defvar local/agenda-file nil "Local agenda file.")
@@ -601,6 +602,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         tectonic-watch-command
         "nix-shell --command \"tectonic -X watch\""))
 (global-prettify-symbols-mode)
+
 (use-package tex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
   ;; That is, LaTeX-mode over latex-mode etc.
@@ -612,10 +614,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
               (setq flymake-compiler "pdflatex")
               (setq flymake-args '("-interaction=nonstopmode" "%f"))))
   (add-to-list 'auto-mode-alist '("\\.TeX$" . LaTeX-mode))
+  (setq-default TeX-master nil)
   (setq TeX-auto-save t
         TeX-parse-self t
         TeX-electric-sub-and-superscript t
-        TeX-master nil
         ;; Disable variable font for sections
         font-latex-fontify-sectioning 'color
         ;; The below variables set-up AucTeX to use tectonic
@@ -677,6 +679,31 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; For viewing latex commands outside of org-mode buffers,
 ;; it's useful to bind to the org-latex-preview function globally.
 (global-set-key (kbd "C-c C-x C-l") #'org-latex-preview)
+
+
+;;;; RefTeX
+;;
+;; Useful RefTeX commands
+;;
+;; C-c =    :: ToC.
+;; C-c (    :: Create a label.
+;; C-c )    :: Reference a label.
+;;
+;; C-c /    :: Create an index.
+;; C-c <    :: Select an index.
+;; C-c \    :: Create a special index.
+;; C-c >    :: Display and edit the index.
+;;
+;; C-c &    :: Display cross-reference.
+(add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+(setq reftex-plug-into-AUCTeX t)
+(defun LaTeX-insert-citation-from-ebib ()
+  "Insert a LaTeX citation."
+  (interactive)
+  (insert "~\\cite{")
+  (ebib-insert-citation)
+  (insert "}"))
+(define-key LaTeX-mode-map (kbd "C-c [") #'LaTeX-insert-citation-from-ebib)
 
 
 ;;;; Emacs Speaks Statistics
@@ -849,9 +876,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (dired-x-bind-find-file)
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))))
 
-(setq dired-listing-switches "-alh")
-
-(setq dired-kill-when-opening-new-dired-buffer t)
+(setq dired-listing-switches "-alh"
+      dired-dwim-target #'dired-dwim-target-recent
+      dired-kill-when-opening-new-dired-buffer t)
 
 (defun dired-sort-criteria (criteria)
   "Sort-dired by different CRITERIA by Robert Gloeckner."
@@ -940,7 +967,7 @@ and works well with any shell - including eshell."
 ;; GPTel
 (use-package gptel)
 (setq gptel-models '(deepseek-r1:1.5b deepseek-r1:latest))
-(setq gptel-model `(,(car gptel-models)))
+(setq gptel-model `,(car gptel-models))
 (setq gptel-backend (gptel-make-ollama
                      "Ollama"
                      :host "localhost:11434"

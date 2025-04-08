@@ -910,23 +910,30 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; Start an LLM-chat shell
-(defvar lchat-model nil "Default model for the lchat shell.")
-(setq-if-nil lchat-model "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B")
+(defvar lchat-model-default nil "Default model for the lchat shell.")
+
+(defvar lchat-models '("deepseek-ai/DeepSeek-R1-Distill-Qwen-32B")
+  "List of supported lchat models.")
+(setq-if-nil lchat-model-default "meta-llama/Llama-3.3-70B-Instruct")
+(add-to-list 'lchat-models lchat-model-default)
 
 (defun lchat ()
-  "Start an LLM chat shell.
+  "Start an LLM chat shell if universal-arg chose the model.
 This requires the python package lchat to be installed:
 https://pypi.org/project/lchat/
 
 The package is a simple chat interface using huggingfacehub
 and works well with any shell - including eshell."
   (interactive)
-  (let ((eshell-buffer-name "lchat"))
+  (let* ((model (if current-prefix-arg
+                   (completing-read "Select a model: " lchat-models)
+                  lchat-model-default))
+         (eshell-buffer-name (format "*lchat-%s*" model)))
     (if (get-buffer eshell-buffer-name)
         (switch-to-buffer eshell-buffer-name)
       (progn
         (eshell)
-        (insert (format "lchat -m %s" lchat-model))
+        (insert (format "lchat -m %s" model))
         (eshell-send-input)))))
 (global-set-key (kbd "C-c l l") #'lchat)
 

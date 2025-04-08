@@ -584,6 +584,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
+;;;; Powershel
+(use-package powershell)
+
+;;;; Nix
+(use-package nix-mode)
+
 ;;;; Latex
 (setq tectonic-compile-command "tectonic -X compile -f plain %T"
       tectonic-watch-command "tectonic -X watch")
@@ -1449,6 +1455,7 @@ with some rough idea of what the papers were about."
       org-indent-indentation-per-level 1
       org-latex-caption-above nil
       org-html-table-caption-above nil
+      org-agenda-skip-deadline-prewarning-if-scheduled t
       org-startup-indented t)
 
 (setq org-todo-keywords
@@ -1548,7 +1555,7 @@ with some rough idea of what the papers were about."
       (error "No URL found"))))
 
 (define-key org-mode-map (kbd "C-c u t") #'org-toggle-link-display)
-(define-key org-mode-map (kbd "C-c u b")
+(define-key org-mode-map (kbd "C-c u p")
             #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;

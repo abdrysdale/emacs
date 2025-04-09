@@ -1628,6 +1628,26 @@ with some rough idea of what the papers were about."
   (make-directory (org-entry-get nil "EXPORT_DIR") t)
   (org-latex-export-to-pdf nil t nil nil))
 
+(setq-if-not-defined st-off-label-templates-dir nil)
+(defun st/set-template ()
+  "Set the template used for the ticket."
+  (interactive)
+  (let* ((tid (org-entry-get nil "ID"))
+         (template-dir st-off-label-templates-dir)
+         (template-file (completing-read "Select a template: "
+                                         (directory-files template-dir)))
+         (template-path (file-name-concat template-dir template-file))
+         (export-dir (org-entry-get nil "EXPORT_DIR"))
+         (export-path (file-name-concat export-dir
+                                        (format "%s_%s" tid template-file))))
+    (org-entry-put nil "TEMPLATE" template-file)
+    (copy-file tempalte-path export-path)))
+
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)
+  (define-key org-mode-map (kbd "C-c n t") #'st/set-template))
+
+
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
@@ -1687,8 +1707,6 @@ with some rough idea of what the papers were about."
            "- /Where to find evidence?/\n%^{Where to find evidence: }\n"
            "- /Time spent (in hours)/ :: %^{Time spent: }\n"))))
 (global-set-key (kbd "C-c m c") #'org-capture)
-(with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c n e") #'st/export-notes))
 
 ;; By default org refile but the variable org-refile-targets can change that.
 ;; In changing this is also handy to view the outline path too.

@@ -603,12 +603,34 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         "nix-shell --command \"tectonic -X watch\""))
 (global-prettify-symbols-mode)
 
-(use-package tex
+;;;; RefTeX
+;;
+;; Useful RefTeX commands
+;;
+;; C-c =    :: ToC.
+;; C-c (    :: Create a label.
+;; C-c )    :: Reference a label.
+;;
+;; C-c /    :: Create an index.
+;; C-c <    :: Select an index.
+;; C-c \    :: Create a special index.
+;; C-c >    :: Display and edit the index.
+;;
+;; C-c &    :: Display cross-reference.
+(defun LaTeX-insert-citation-from-ebib ()
+  "Insert a LaTeX citation."
+  (interactive)
+  (insert "~\\cite{")
+  (ebib-insert-citation)
+  (insert "}"))
+
+(use-package latex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
   ;; That is, LaTeX-mode over latex-mode etc.
   :ensure auctex
   :config
   (add-hook 'LaTeX-mode-hook #'TeX-fold-mode)
+  (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
   (add-hook 'LaTeX-mode-hook
             (lambda ()
               (setq flymake-compiler "pdflatex")
@@ -627,9 +649,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                           ,tectonic-watch-command
                           nil))
         LaTeX-command-style '(("" "%(latex)"))
+        ;; Sets up reftex with AUCTeX
+        reftex-plug-into-AUCTeX t
         TeX-check-TeX nil
         TeX-process-asynchronous t
-        TeX-engine 'default))
+        TeX-engine 'default)
+  :bind (:map LaTeX-mode-map ("C-c [" . #'LaTeX-insert-citation-from-ebib)))
 
 ;; TeX-command-list needs to be modified not pass extra metadata and options
 (let ((tex-list (assoc "TeX" TeX-command-list))
@@ -679,32 +704,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; For viewing latex commands outside of org-mode buffers,
 ;; it's useful to bind to the org-latex-preview function globally.
 (global-set-key (kbd "C-c C-x C-l") #'org-latex-preview)
-
-
-;;;; RefTeX
-;;
-;; Useful RefTeX commands
-;;
-;; C-c =    :: ToC.
-;; C-c (    :: Create a label.
-;; C-c )    :: Reference a label.
-;;
-;; C-c /    :: Create an index.
-;; C-c <    :: Select an index.
-;; C-c \    :: Create a special index.
-;; C-c >    :: Display and edit the index.
-;;
-;; C-c &    :: Display cross-reference.
-(add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-(setq reftex-plug-into-AUCTeX t)
-(defun LaTeX-insert-citation-from-ebib ()
-  "Insert a LaTeX citation."
-  (interactive)
-  (insert "~\\cite{")
-  (ebib-insert-citation)
-  (insert "}"))
-(define-key LaTeX-mode-map (kbd "C-c [") #'LaTeX-insert-citation-from-ebib)
-
 
 ;;;; Emacs Speaks Statistics
 (use-package ess

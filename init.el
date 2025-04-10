@@ -320,8 +320,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun get-buffers-matching-current-mode ()
   "Return a list of buffers where their major-mode is equal to the current."
   (seq-filter (lambda (b) (derived-mode-p
-                      (with-current-buffer b major-mode))) (buffer-list)))
+                      (with-current-buffer b major-mode)))
+              (buffer-list)))
 
+(tab-line-mode -1)
 (defun current-major-mode-tab-line-mode ()
   "Toggle 'tab-line-mode' for buffers with the same major mode as the current."
   (interactive)
@@ -839,7 +841,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                              ("p" . previous-buffer)))
 
 (global-set-key (kbd "C-x C-b") #'ibuffer)
-(current-major-mode-tab-line-mode)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
                                 (previous-buffer))))

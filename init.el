@@ -1173,6 +1173,9 @@ and works well with any shell - including eshell."
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 (global-set-key (kbd "C-c m i") #'irc)
 
+(use-package transmission
+  :config (setq transmission-timer 5))
+
 ;; Music
 (use-package emms
   :ensure t

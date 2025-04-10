@@ -839,6 +839,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                              ("p" . previous-buffer)))
 
 (global-set-key (kbd "C-x C-b") #'ibuffer)
+(current-major-mode-tab-line-mode)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
                                 (previous-buffer))))

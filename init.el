@@ -1316,7 +1316,8 @@ and works well with any shell - including eshell."
   (setq ebib-save-xrefs-first nil
         ebib-index-default-sort '("Year" . descend)
         ebib-file-associations nil
-        ebib-notes-display-max-lines 30))
+        ebib-notes-display-max-lines 30)
+  :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry)))
 
 
 (setq ebib-notes-directory local/paper-notes-dir

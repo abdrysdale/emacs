@@ -1317,7 +1317,8 @@ and works well with any shell - including eshell."
         ebib-index-default-sort '("Year" . descend)
         ebib-file-associations nil
         ebib-notes-display-max-lines 30)
-  :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry)))
+  :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry))
+  :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
 
 
 (setq ebib-notes-directory local/paper-notes-dir

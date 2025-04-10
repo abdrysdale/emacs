@@ -522,8 +522,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Enables advanced editing modes
 (put 'set-goal-column 'disabled nil)    ;; Enables setting a goal column
 (put 'narrow-to-region 'disabled nil)   ;; Enables narrowing
-(put 'upcase-region 'disabled nil)      ;; Enables up case a regoin
-(put 'downcase-region 'disabled nil)    ;; Enables down case a regoin
+
+(put 'upcase-region 'disabled nil)      ;; Enables up case a region
+(put 'downcase-region 'disabled nil)    ;; Enables down case a region
+(defun titlecase-region (BEG END)
+  "Convert a region to title case between BEG and END."
+  (interactive "r")
+    (downcase-region BEG END)
+    (upcase-initials-region BEG END))
+
+;; I use this more than insert-file
+(global-set-key (kbd "C-x i") #'titlecase-region)
+(global-set-key (kbd "C-x w r") #'write-region)
 
 ;; Multiple cursors ;;
 (use-package multiple-cursors

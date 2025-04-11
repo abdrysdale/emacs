@@ -1361,25 +1361,42 @@ and works well with any shell - including eshell."
 (add-hook 'ebib-index-mode-hook
           (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
+(defun abstract-from-bibtex (entry)
+  "Get the abstract from a bibtex ENTRY."
+  (interactive)
+  (let*
+      ((abs-beg (string-match "abstract" entry))
+       (beg (+ 1 (string-match "{" entry abs-beg)))
+       (end (string-match "}," entry beg))
+       (abstract (substring entry beg end)))
+    (if abs-beg abstract "No abstract")))
+
 (defun ebib-insert-latex-ref-other-window ()
   "Insert the current item's reference and citation in the other window.
 
-This is a very me specific function.  It basically, gets the current paper
+This is a very specific function.  It basically, gets the current paper
 in ebib and pastes the paper title followed by the latex citation in the
 other window, switches back to the ebib window and goes to the next entry.
 
 The idea is when you want to quickly add a lot of papers to a latex document
 with some rough idea of what the papers were about."
   (interactive)
-  (ebib-copy-reference-as-kill)
-  (ebib-copy-key-as-kill)
-  (other-window 1)
-  (yank 2)
-  (insert " ~\\cite{")
-  (yank 0)
-  (insert "}\n")
-  (other-window I-1)
-  (ebib-next-entry))
+  (let* ((ref (progn
+               (ebib-copy-reference-as-kill)
+               (car kill-ring)))
+        (key (progn
+               (ebib-copy-key-as-kill)
+               (car kill-ring)))
+        (entry (progn
+                 (ebib-copy-entry-as-kill)
+                 (car kill-ring)))
+        (abstract (abstract-from-bibtex entry)))
+    (other-window 1)
+    (insert (format "\n%s~\\cite{%s}" ref key))
+    (insert " % ")
+    (insert abstract)
+    (other-window -1)
+    (ebib-next-entry)))
 (add-hook 'ebib-index-mode-hook
           (lambda ()
             (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))

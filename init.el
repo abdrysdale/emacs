@@ -1371,6 +1371,12 @@ and works well with any shell - including eshell."
        (abstract (substring entry beg end)))
     (if abs-beg abstract "No abstract")))
 
+(defmacro run-func-and-get-latest-kill (func)
+  "Run FUNC and return the last item from the kill ring."
+  `(progn
+     (,func)
+     (car kill-ring)))
+
 (defun ebib-insert-latex-ref-other-window ()
   "Insert the current item's reference and citation in the other window.
 
@@ -1381,15 +1387,12 @@ other window, switches back to the ebib window and goes to the next entry.
 The idea is when you want to quickly add a lot of papers to a latex document
 with some rough idea of what the papers were about."
   (interactive)
-  (let* ((ref (progn
-               (ebib-copy-reference-as-kill)
-               (car kill-ring)))
-        (key (progn
-               (ebib-copy-key-as-kill)
-               (car kill-ring)))
-        (entry (progn
-                 (ebib-copy-entry-as-kill)
-                 (car kill-ring)))
+  (let* ((ref (run-func-and-get-latest-kill
+               ebib-copy-reference-as-kill))
+        (key (run-func-and-get-latest-kill
+              ebib-copy-key-as-kill))
+        (entry (run-func-and-get-latest-kill
+                ebib-copy-entry-as-kill))
         (abstract (abstract-from-bibtex entry)))
     (other-window 1)
     (insert (format "\n%s~\\cite{%s}" ref key))

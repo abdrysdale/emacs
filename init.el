@@ -1010,7 +1010,10 @@ and works well with any shell - including eshell."
                         :models
                         '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
                           meta-llama/Llama-4-Scout-17B-16E-Instruct
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8))
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                          deepseek-ai/DeepSeek-R1
+                          deepseek-ai/DeepSeek-V3
+                          ))
         gpt-model (car (gptel-openai-models gptel-backend)))
   (gptel-make-ollama "Ollama"
     :host "localhost:11434"

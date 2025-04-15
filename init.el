@@ -651,12 +651,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; C-c >    :: Display and edit the index.
 ;;
 ;; C-c &    :: Display cross-reference.
-(defun LaTeX-insert-citation-from-ebib ()
-  "Insert a LaTeX citation."
+(defun ebib-latex-quick-cite ()
+  "Insert the \cite{key} for an ebib key."
   (interactive)
-  (insert "~\\cite{")
-  (ebib-insert-citation)
-  (insert "}"))
+  (let ((ebib-citation-commands '((LaTeX-mode
+                                  (("cite" "\\cite{%(%K%,)}")))))
+        (ebib-citation-insert-multiple current-prefix-arg))
+    (ebib-insert-citation)))
 
 (use-package latex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
@@ -688,7 +689,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         TeX-check-TeX nil
         TeX-process-asynchronous t
         TeX-engine 'default)
-  :bind (:map LaTeX-mode-map ("C-c [" . #'LaTeX-insert-citation-from-ebib))
+  :bind (:map reftex-mode-map ("C-c [" . nil))
+  :bind (:map LaTeX-mode-map ("C-c [" . #'ebib-latex-quick-cite))
   :bind (:map LaTeX-mode-map ("C-c l t" . #'latex-format-as-todo)))
 
 ;; TeX-command-list needs to be modified not pass extra metadata and options
@@ -1345,7 +1347,8 @@ and works well with any shell - including eshell."
 
 (add-to-list 'ebib-citation-commands
              '(LaTeX-mode
-               (("cite" "\\cite%<[%A]%>[%A]{%(%K%,)}")
+               (("cite" "\\cite{%(%K%,)}")
+                ("cite+info" "\\cite%<[%A]%>[%A]{%(%K%,)}")
                 ("paren" "\\parencite%<[%A]%>[%A]{%(%K%,)}")
                 ("foot" "\\footcite%<[%A]%>[%A]{%(%K%,)}")
                 ("text" "\\textcite%<[%A]%>[%A]{%(%K%,)}")

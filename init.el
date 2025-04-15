@@ -530,8 +530,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun titlecase-region (BEG END)
   "Convert a region to title case between BEG and END."
   (interactive "r")
-    (downcase-region BEG END)
-    (upcase-initials-region BEG END))
+  (downcase-region BEG END)
+  (upcase-initials-region BEG END))
 
 ;; I use this more than insert-file
 (global-set-key (kbd "C-x i") #'titlecase-region)
@@ -554,6 +554,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-keys-to-prefix "C-c d" '(("s" . ispell)
                                      ("w" . ispell-word)
                                      ("c" . ispell-comments-and-strings)
+                                     ("l" . dictionary-lookup-definition)
                                      ("b" . ispell-buffer)))
 
 (add-hook 'text-mode-hook #'flyspell-mode)
@@ -615,6 +616,27 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         "nix-shell --command \"tectonic -X watch\""))
 (global-prettify-symbols-mode)
 
+(defun how-is-this-paper-looking? (BEG END)
+  "Display number of todos and cites between BEG and END."
+  (interactive "r")
+  (message (format "[%s, %s] => %d cites; %d todos"
+                   BEG END
+                   (how-many "[\\]cite" BEG END)
+                   (how-many "[\\]todo" BEG END))))
+(global-set-key (kbd "C-c w p") #'how-is-this-paper-looking?)
+
+(defun latex-format-as-todo (BEG END)
+  "Wrap the text between BEG and END in a todo."
+  (interactive "r")
+  (save-excursion
+    (narrow-to-region BEG END)
+    (set-mark nil)
+    (goto-char (point-min))
+    (insert "\\todo{")
+    (goto-char (point-max))
+    (insert "}")
+    (widen)))
+
 ;;;; RefTeX
 ;;
 ;; Useful RefTeX commands
@@ -666,7 +688,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         TeX-check-TeX nil
         TeX-process-asynchronous t
         TeX-engine 'default)
-  :bind (:map LaTeX-mode-map ("C-c [" . #'LaTeX-insert-citation-from-ebib)))
+  :bind (:map LaTeX-mode-map ("C-c [" . #'LaTeX-insert-citation-from-ebib))
+  :bind (:map LaTeX-mode-map ("C-c l t" . #'latex-format-as-todo)))
 
 ;; TeX-command-list needs to be modified not pass extra metadata and options
 (let ((tex-list (assoc "TeX" TeX-command-list))
@@ -1319,6 +1342,28 @@ and works well with any shell - including eshell."
         ebib-notes-display-max-lines 30)
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
+
+(add-to-list 'ebib-citation-commands
+             '(LaTeX-mode
+               (("cite" "\\cite%<[%A]%>[%A]{%(%K%,)}")
+                ("paren" "\\parencite%<[%A]%>[%A]{%(%K%,)}")
+                ("foot" "\\footcite%<[%A]%>[%A]{%(%K%,)}")
+                ("text" "\\textcite%<[%A]%>[%A]{%(%K%,)}")
+                ("smart" "\\smartcite%<[%A]%>[%A]{%(%K%,)}")
+                ("super" "\\supercite{%K}")
+                ("auto" "\\autocite%<[%A]%>[%A]{%(%K%,)}")
+                ("cites" "\\cites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("parens" "\\parencites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("foots" "\\footcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("texts" "\\textcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("smarts" "\\smartcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("supers" "\\supercites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("autos" "\\autoscites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                ("author" "\\citeauthor%<[%A]%>[%A]{%(%K%,)}")
+                ("title" "\\citetitle%<[%A]%>[%A]{%(%K%,)}")
+                ("year" "\\citeyear%<[%A]%>[%A][%A]{%K}")
+                ("date" "\\citedate%<[%A]%>[%A]{%(%K%,)}")
+                ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))))
 
 
 (setq ebib-notes-directory local/paper-notes-dir

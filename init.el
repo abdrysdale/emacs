@@ -671,7 +671,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
               (setq flymake-compiler "pdflatex")
               (setq flymake-args '("-interaction=nonstopmode" "%f"))))
   (add-to-list 'auto-mode-alist '("\\.TeX$" . LaTeX-mode))
-  (setq-default TeX-master nil)
   (setq TeX-auto-save t
         TeX-parse-self t
         TeX-electric-sub-and-superscript t
@@ -689,6 +688,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         TeX-check-TeX nil
         TeX-process-asynchronous t
         TeX-engine 'default)
+  (setq-default TeX-master nil)
   :bind (:map reftex-mode-map ("C-c [" . nil))
   :bind (:map LaTeX-mode-map ("C-c [" . #'ebib-latex-quick-cite))
   :bind (:map LaTeX-mode-map ("C-c l t" . #'latex-format-as-todo)))
@@ -1001,14 +1001,23 @@ and works well with any shell - including eshell."
 (global-set-key (kbd "C-c l l") #'lchat)
 
 ;; GPTel
-(use-package gptel)
-(setq gptel-models '(deepseek-r1:1.5b deepseek-r1:latest))
-(setq gptel-model `,(car gptel-models))
-(setq gptel-backend (gptel-make-ollama
-                     "Ollama"
-                     :host "localhost:11434"
-                     :stream t
-                     :models gptel-models))
+(use-package gptel
+  :config
+  (setq gptel-backend (gptel-make-openai "TogetherAI"
+                        :host "api.together.xyz"
+                        :key together-ai-api-key
+                        :stream t
+                        :models
+                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8))
+        gpt-model (car (gptel-openai-models gptel-backend)))
+  (gptel-make-ollama "Ollama"
+    :host "localhost:11434"
+    :stream t
+    :models '(deepseek-r1:1.5b
+              deepseek-r1:latest)))
+
 (setq gptel-directives
       `((default
          ,(concat "I am in a conversation where I will ask you a series of"

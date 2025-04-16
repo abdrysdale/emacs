@@ -846,6 +846,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (recentf-mode 1)
 (global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
                                      ("v" . view-file)
+                                     ("l" . add-file-local-variable)
                                      ("r" . recentf-open-files)))
 
 ;; Projects
@@ -1042,12 +1043,57 @@ and works well with any shell - including eshell."
          ,(concat "I am in an informal conversation and will ask you a series"
                  " of questions. Respond in a friendly and diplomatic"
                  " manner."))))
+
+(defvar paper-title nil "Title of the current paper title.")
+(defvar paper-info nil "Extra information to consider about the paper.")
+(defvar paper-topics nil "Topics of the paper.")
+(defun summarise-papers (BEG END)
+  "Summarise a citation(s) between BEG and END."
+  (interactive "r")
+  (let* ((region-text (buffer-substring BEG END))
+        (prompt (format (concat "I'm writing a paper titled: %s."
+                                " Considering the following: %s."
+                                "Please summarise the following abstract(s),"
+                                " in 1 sentence for the paper I'm writing"
+                                " and group the abstract"
+                                " into one of the following groups: %s."
+                                "When summarising, if relevant,"
+                                " try and write something insightful."
+                                "Moreover, do not just summarise the paper,"
+                                " but write the summary so it can"
+                                " slot seamlessly into my paper."
+                                "If there is no abstract, group the paper"
+                                " but flag for review."
+                                "Place all papers with the same group together."
+                                "Format your response as:"
+                                " GROUP: SUMMARY~\\cite{KEY}.\n")
+                        paper-title paper-info paper-topics region-text))
+        (full-text (concat prompt region-text)))
+    (gptel-request
+        full-text
+      :callback
+      (lambda (response info)
+        (if (not response)
+            (message "summarise-papers failed with message: %s"
+                     (plist-get info :status))
+          (with-current-buffer (get-buffer-create "*summarise-papers*")
+            (let ((inhibit-read-only t))
+              (erase-buffer)
+              (insert response))
+            (markdown-mode)
+            (display-buffer (current-buffer)
+                            `((display-buffer-in-side-window)
+                              (side . right)
+                              (window-width . (lambda ()
+                                                (/ frame-width 4)))))))))))
+
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
                                      ("p" . gptel-system-prompt)
                                      ("c" . gptel-context-quit)
                                      ("a" . gptel-abort)
                                      ("m" . gptel-menu)
+                                     ("o" . summarise-papers)
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
 

@@ -973,34 +973,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c s") #'shell)
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
-;; Start an LLM-chat shell
-(defvar lchat-model-default nil "Default model for the lchat shell.")
-
-(defvar lchat-models '("deepseek-ai/DeepSeek-R1-Distill-Qwen-32B")
-  "List of supported lchat models.")
-(setq-if-nil lchat-model-default "meta-llama/Llama-3.3-70B-Instruct")
-(add-to-list 'lchat-models lchat-model-default)
-
-(defun lchat ()
-  "Start an LLM chat shell if universal-arg chose the model.
-This requires the python package lchat to be installed:
-https://pypi.org/project/lchat/
-
-The package is a simple chat interface using huggingfacehub
-and works well with any shell - including eshell."
-  (interactive)
-  (let* ((model (if current-prefix-arg
-                   (completing-read "Select a model: " lchat-models)
-                  lchat-model-default))
-         (eshell-buffer-name (format "*lchat-%s*" model)))
-    (if (get-buffer eshell-buffer-name)
-        (switch-to-buffer eshell-buffer-name)
-      (progn
-        (eshell)
-        (insert (format "lchat -m %s" model))
-        (eshell-send-input)))))
-(global-set-key (kbd "C-c l l") #'lchat)
-
 ;; GPTel
 (use-package gptel
   :config
@@ -1014,14 +986,11 @@ and works well with any shell - including eshell."
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           deepseek-ai/DeepSeek-R1
                           deepseek-ai/DeepSeek-V3
-                          ))
+                          Qwen/QwQ-32B))
         gpt-model (car (gptel-openai-models gptel-backend))
-        gptel-temperature 0.7)
-  (gptel-make-ollama "Ollama"
-    :host "localhost:11434"
-    :stream t
-    :models '(deepseek-r1:1.5b
-              deepseek-r1:latest)))
+        gptel-temperature 0.7
+        gpt-include-reasoning "*gptel-thinking*"))
+
 
 (setq gptel-directives
       `((default
@@ -1048,6 +1017,13 @@ and works well with any shell - including eshell."
 (defvar paper-title nil "Title of the current paper title.")
 (defvar paper-info nil "Extra information to consider about the paper.")
 (defvar paper-topics nil "Topics of the paper.")
+(defun insert-paper-local-variables ()
+  "Insert paper related file local variables."
+  (interactive)
+  (add-file-local-variable paper-title (read-string "Title: "))
+  (add-file-local-variable paper-info (read-string "Info: "))
+  (add-file-local-variable paper-topics (read-string "Topics: ")))
+
 (defun summarise-papers (BEG END)
   "Summarise a citation(s) between BEG and END."
   (interactive "r")

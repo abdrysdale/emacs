@@ -1015,7 +1015,8 @@ and works well with any shell - including eshell."
                           deepseek-ai/DeepSeek-R1
                           deepseek-ai/DeepSeek-V3
                           ))
-        gpt-model (car (gptel-openai-models gptel-backend)))
+        gpt-model (car (gptel-openai-models gptel-backend))
+        gptel-temperature 0.7)
   (gptel-make-ollama "Ollama"
     :host "localhost:11434"
     :stream t
@@ -1050,27 +1051,36 @@ and works well with any shell - including eshell."
 (defun summarise-papers (BEG END)
   "Summarise a citation(s) between BEG and END."
   (interactive "r")
-  (let* ((region-text (buffer-substring BEG END))
-        (prompt (format (concat "I'm writing a paper titled: %s."
-                                " Considering the following: %s."
-                                "Please summarise the following abstract(s),"
-                                " in 1 sentence for the paper I'm writing"
-                                " and group the abstract"
-                                " into one of the following groups: %s."
-                                "When summarising, if relevant,"
-                                " try and write something insightful."
-                                "Moreover, do not just summarise the paper,"
-                                " but write the summary so it can"
-                                " slot seamlessly into my paper."
-                                "If there is no abstract, group the paper"
-                                " but flag for review."
-                                "Place all papers with the same group together."
-                                "Format your response as:"
-                                " GROUP: SUMMARY~\\cite{KEY}.\n")
-                        paper-title paper-info paper-topics region-text))
-        (full-text (concat prompt region-text)))
+  (let* ((gptel-temperature 0.3)
+         (abstract (buffer-substring BEG END))
+         (title (if paper-title
+                    (format "I'm writing a paper titled: %s." paper-title)
+                  nil))
+         (info (if paper-info
+                     (format "Considering the following: %s." paper-info)
+                 nil))
+         (topics (if paper-topics
+                     (format (concat
+                              "Group the outputs into the following groups: %s"
+                              "\n If there is no abstract, group the paper"
+                              " but flag for review"
+                              "Place all papers with the same group together.")
+                             paper-topics)
+                   nil))
+         (prompt (concat title info
+                         "Please summarise the following abstract(s),"
+                         " in 1 or 2 sentences for my paper."
+                         "When summarising, if relevant,"
+                         " try and write something insightful."
+                         "Moreover, do not just summarise the paper,"
+                         " but write the summary so it can"
+                         " slot seamlessly into my paper."
+                         topics
+                         "Format your response as:"
+                         " GROUP: SUMMARY~\\cite{KEY}.\n"
+                         abstract)))
     (gptel-request
-        full-text
+        prompt
       :callback
       (lambda (response info)
         (if (not response)
@@ -1390,6 +1400,12 @@ and works well with any shell - including eshell."
 ;;; * Ebib *
 ;;  ********
 
+(defun ebib-dependent-add-entry-and-next ()
+  "Add the current entry as dependent entry and then move down."
+  (interactive)
+  (ebib-dependent-add-entry)
+  (ebib-next-entry))
+
 (use-package ebib
   :after org
   :config
@@ -1400,7 +1416,7 @@ and works well with any shell - including eshell."
         ebib-index-default-sort '("Year" . descend)
         ebib-file-associations nil
         ebib-notes-display-max-lines 30)
-  :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry))
+  :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
 
 (add-to-list 'ebib-citation-commands
@@ -1467,15 +1483,15 @@ and works well with any shell - including eshell."
 (add-hook 'ebib-index-mode-hook
           (lambda () (local-set-key (kbd "C-d") #'doi2bibtex)))
 
-(defun abstract-from-bibtex (entry)
-  "Get the abstract from a bibtex ENTRY."
+(defun field-from-bibtex (entry field)
+  "Get the FIELD from a bibtex ENTRY."
   (interactive)
   (let*
-      ((abs-beg (string-match "abstract" entry))
-       (beg (+ 1 (string-match "{" entry abs-beg)))
+      ((beg? (string-match field entry))
+       (beg (+ 1 (string-match "{" entry beg?)))
        (end (string-match "}," entry beg))
-       (abstract (substring entry beg end)))
-    (if abs-beg abstract "No abstract")))
+       (contents (substring entry beg end)))
+    (if beg? contents (format "No %s" field))))
 
 (defmacro run-func-and-get-latest-kill (func)
   "Run FUNC and return the last item from the kill ring."
@@ -1483,8 +1499,8 @@ and works well with any shell - including eshell."
      (,func)
      (car kill-ring)))
 
-(defun ebib-insert-latex-ref-other-window ()
-  "Insert the current item's reference and citation in the other window.
+(defun ebib-insert-latex-ref-other-window (N)
+  "Insert the current N item's reference and citation in the other window.
 
 This is a very specific function.  It basically, gets the current paper
 in ebib and pastes the paper title followed by the latex citation in the
@@ -1492,20 +1508,21 @@ other window, switches back to the ebib window and goes to the next entry.
 
 The idea is when you want to quickly add a lot of papers to a latex document
 with some rough idea of what the papers were about."
-  (interactive)
-  (let* ((ref (run-func-and-get-latest-kill
-               ebib-copy-reference-as-kill))
-        (key (run-func-and-get-latest-kill
-              ebib-copy-key-as-kill))
-        (entry (run-func-and-get-latest-kill
-                ebib-copy-entry-as-kill))
-        (abstract (abstract-from-bibtex entry)))
-    (other-window 1)
-    (insert (format "\n%s~\\cite{%s}" ref key))
-    (insert " % ")
-    (insert abstract)
-    (other-window -1)
-    (ebib-next-entry)))
+  (interactive "p")
+  (dotimes (i N)
+    (let* ((key (run-func-and-get-latest-kill
+                 ebib-copy-key-as-kill))
+           (entry (run-func-and-get-latest-kill
+                   ebib-copy-entry-as-kill))
+           (title (field-from-bibtex entry "title"))
+           (abstract (field-from-bibtex entry "abstract")))
+      (other-window 1)
+      (insert (format "\n%s~\\cite{%s}" title key))
+      (insert " % ")
+      (insert abstract)
+      (other-window -1)
+      (ebib-next-entry))))
+
 (add-hook 'ebib-index-mode-hook
           (lambda ()
             (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))

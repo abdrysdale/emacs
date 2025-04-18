@@ -34,9 +34,7 @@
     (display-buffer (current-buffer)
                     `((display-buffer-in-side-window)
                       (side . right)
-                      (window-width . (lambda ()
-                                        (/ frame-width 4)))))))
-
+                      (window-width . 0.25)))))
 (defun gptel-papers-handle-response (response info buffer)
   "Handle RESPONSE from gptel and INFO about the request & display in BUFFER."
   (if (not response)
@@ -65,9 +63,7 @@
       :context buffer
       :callback (lambda (response info)
                   (gptel-papers-handle-response
-                   response
-                   info
-                   (plist-get info :context))))))
+                   response info (plist-get info :context))))))
 
 (defun gptel-papers-request-output-in-side-window (prompt buffer &optional n)
   "Send a PROMPT to gptel displaying the result in a side window.

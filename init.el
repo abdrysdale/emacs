@@ -986,11 +986,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           deepseek-ai/DeepSeek-R1
                           deepseek-ai/DeepSeek-V3
-                          Qwen/QwQ-32B))
+                          Qwen/QwQ-32B
+                          black-forest-labs/FLUX.1-schnell-Free))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
-        gpt-include-reasoning "*gptel-thinking*"))
-
+        gptel-default-mode 'org-mode
+        gptel-track-media t
+        gptel-include-reasoning "*gptel-thinking*")
+  (load (concat user-emacs-directory "gptel-papers.el")))
 
 (setq gptel-directives
       `((default
@@ -1014,72 +1017,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                  " of questions. Respond in a friendly and diplomatic"
                  " manner."))))
 
-(defvar paper-title nil "Title of the current paper title.")
-(defvar paper-info nil "Extra information to consider about the paper.")
-(defvar paper-topics nil "Topics of the paper.")
-(defun insert-paper-local-variables ()
-  "Insert paper related file local variables."
-  (interactive)
-  (add-file-local-variable paper-title (read-string "Title: "))
-  (add-file-local-variable paper-info (read-string "Info: "))
-  (add-file-local-variable paper-topics (read-string "Topics: ")))
-
-(defun summarise-papers (BEG END)
-  "Summarise a citation(s) between BEG and END."
-  (interactive "r")
-  (let* ((gptel-temperature 0.3)
-         (abstract (buffer-substring BEG END))
-         (title (if paper-title
-                    (format "I'm writing a paper titled: %s." paper-title)
-                  nil))
-         (info (if paper-info
-                     (format "Considering the following: %s." paper-info)
-                 nil))
-         (topics (if paper-topics
-                     (format (concat
-                              "Group the outputs into the following groups: %s"
-                              "\n If there is no abstract, group the paper"
-                              " but flag for review"
-                              "Place all papers with the same group together.")
-                             paper-topics)
-                   nil))
-         (prompt (concat title info
-                         "Please summarise the following abstract(s),"
-                         " in 1 or 2 sentences for my paper."
-                         "When summarising, if relevant,"
-                         " try and write something insightful."
-                         "Moreover, do not just summarise the paper,"
-                         " but write the summary so it can"
-                         " slot seamlessly into my paper."
-                         topics
-                         "Format your response as:"
-                         " GROUP: SUMMARY~\\cite{KEY}.\n"
-                         abstract)))
-    (gptel-request
-        prompt
-      :callback
-      (lambda (response info)
-        (if (not response)
-            (message "summarise-papers failed with message: %s"
-                     (plist-get info :status))
-          (with-current-buffer (get-buffer-create "*summarise-papers*")
-            (let ((inhibit-read-only t))
-              (erase-buffer)
-              (insert response))
-            (markdown-mode)
-            (display-buffer (current-buffer)
-                            `((display-buffer-in-side-window)
-                              (side . right)
-                              (window-width . (lambda ()
-                                                (/ frame-width 4)))))))))))
-
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
                                      ("p" . gptel-system-prompt)
                                      ("c" . gptel-context-quit)
                                      ("a" . gptel-abort)
                                      ("m" . gptel-menu)
-                                     ("o" . summarise-papers)
+                                     ("o" . gptel-papers-summarise)
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
 

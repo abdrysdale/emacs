@@ -35,12 +35,34 @@
                     `((display-buffer-in-side-window)
                       (side . right)
                       (window-width . 0.25)))))
+
 (defun gptel-papers-handle-response (response info buffer)
   "Handle RESPONSE from gptel and INFO about the request & display in BUFFER."
   (if (not response)
       (message "gptel-request failed with message: %s"
                (plist-get info :status))
     (gptel-papers-display-response response buffer)))
+
+(defun gptel-papers-validate-response (input-content response-buffer)
+  "Validate the response in RESPONSE-BUFFER against the INPUT-CONTENT."
+  (let ((lines (split-string input-content "\n")))
+    (with-current-buffer response-buffer
+      (end-of-buffer)
+      (insert "\n\n*Papers not found:*\n\n"))
+    (dolist (line lines)
+      (let* ((cite-start (string-match "[\\]cite{[[:alnum:]_-]*}" line))
+             (cite-end (match-end 0))
+             (key-start (+ 6 cite-start))
+             (key-end (1- cite-end)))
+        (with-current-buffer response-buffer
+          (let ((inhibit-read-only t))
+            (when cite-start
+              (if (re-search-forward
+                   (substring line key-start key-end) nil t)
+                  (end-of-line)
+                (end-of-buffer))
+              (insert (concat "\n% " line))
+              (beginning-of-buffer))))))))
 
 (defun gptel-papers-improve-response
     (original-prompt original-response n buffer)
@@ -60,31 +82,38 @@
         (gptel-include-reasoning nil))
     (message "Refining prompt with %s (attempt %d)" gptel-model n)
     (gptel-request improve-prompt
-      :context buffer
+      :context (list buffer content)
       :callback (lambda (response info)
-                  (gptel-papers-handle-response
-                   response info (plist-get info :context))))))
+                  (let ((buffer (car (plist-get info :context)))
+                        (content (cdr (plist-get info :context))))
+                    (gptel-papers-handle-response
+                     response info buffer)
+                    (gptel-papers-validate-response content buffer))))))
 
-(defun gptel-papers-request-output-in-side-window (prompt buffer &optional n)
+(defun gptel-papers-request-output-in-side-window
+    (prompt buffer content &optional n)
   "Send a PROMPT to gptel displaying the result in a side window.
-The side window is named BUFFER the prompt is refined with N times."
+The side window is named BUFFER the prompt is refined with N times.
+Finally CONTENT is used to check all papers have been included."
   (let ((gptel-model (car gptel-papers-summary-models)))
     (gptel-request prompt
-      :context buffer
+      :context (list buffer content prompt n)
       :callback (lambda (response info)
-                  (gptel-papers-handle-response
-                   response
-                   info
-                   "*paper-summary*")))
-    (dotimes (i (or n 0))
-      (let ((response (with-current-buffer buffer (buffer-string))))
-        (gptel-papers-improve-response prompt response i buffer)))))
-
+                  (let ((buffer (car (plist-get info :context)))
+                        (content (nth 1 (plist-get info :context)))
+                        (prompt (nth 2 (plist-get info :context)))
+                        (n (cdr (plist-get info :context))))
+                    (gptel-papers-handle-response response info buffer)
+                    (gptel-papers-validate-response content buffer)
+                    (when n
+                      (gptel-papers-improve-response
+                       prompt response n buffer)))))))
 
 (defun gptel-papers-summarise (BEG END n)
   "Summarise a citation(s) between BEG and END with N refinements."
   (interactive "r\np")
   (let* ((gptel-temperature 0.3)
+         (out-buffer "*paper-summary*")
          (contents (buffer-substring BEG END))
          (title (if paper-title paper-title (read-string "Title: ")))
          (info (if paper-info paper-info (read-string "Info: ")))
@@ -112,5 +141,5 @@ The side window is named BUFFER the prompt is refined with N times."
                   " after each summary.\n"
                   contents)))
     (gptel-papers-request-output-in-side-window
-     prompt "*paper-summary*" (or n 0))))
+     prompt out-buffer contents (or n 0))))
 ;;; gptel-papers.el ends here

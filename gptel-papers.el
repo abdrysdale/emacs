@@ -61,7 +61,7 @@
                    (substring line key-start key-end) nil t)
                   (end-of-line)
                 (end-of-buffer))
-              (insert (concat "\n% " line))
+              (insert (concat "\n- " line))
               (beginning-of-buffer))))))))
 
 (defun gptel-papers-improve-response
@@ -85,7 +85,7 @@
       :context (list buffer content)
       :callback (lambda (response info)
                   (let ((buffer (car (plist-get info :context)))
-                        (content (cdr (plist-get info :context))))
+                        (content (last (plist-get info :context))))
                     (gptel-papers-handle-response
                      response info buffer)
                     (gptel-papers-validate-response content buffer))))))
@@ -102,10 +102,10 @@ Finally CONTENT is used to check all papers have been included."
                   (let ((buffer (car (plist-get info :context)))
                         (content (nth 1 (plist-get info :context)))
                         (prompt (nth 2 (plist-get info :context)))
-                        (n (cdr (plist-get info :context))))
+                        (n (nth 3 (plist-get info :context))))
                     (gptel-papers-handle-response response info buffer)
                     (gptel-papers-validate-response content buffer)
-                    (when n
+                    (when (not (zerop n))
                       (gptel-papers-improve-response
                        prompt response n buffer)))))))
 

@@ -780,6 +780,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Language aware editing commands for:
 ;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo
 (require 'cedet)
+(require 'semantic)
 (setq semantic-default-submodes
       '(;; Perform semantic actions during idle time
         global-semantic-idle-scheduler-mode
@@ -798,9 +799,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ;; Switch to recently changed tags with `semantic-mrub-switch-tags',
         ;; or `C-x B'
         global-semantic-mru-bookmark-mode))
-(add-hook 'emacs-lisp-mode-hook #'semantic-mode)
-(add-hook 'python-mode-hook #'semantic-mode)
-(add-hook 'html-mode-hook #'semantic-mode)
+(add-hook 'prog-mode-hook #'semantic-mode)
+(define-key semantic-mode-map (kbd "M-/") #'completion-at-point)
+(define-key semantic-mode-map (kbd "C-c , a")
+            #'semantic-analyze-current-context)
 
 ;; Search
 (setq isearch-repeat-on-direction-change t
@@ -1657,6 +1659,14 @@ with some rough idea of what the papers were about."
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c l c") #'me/org-link-copy))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook
+                      (lambda ()
+                        (when (eq major-mode 'org-mode)
+                          (org-babel-tangle)))
+                      nil t)))
 
 ;; Browser in external browser
 (defun browser-url-at-point-with-external-browser (&optional ARG)

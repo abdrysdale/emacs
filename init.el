@@ -1466,11 +1466,20 @@ with some rough idea of what the papers were about."
 (global-set-key (kbd "M-o") #'previous-window-any-frame)
 (global-set-key (kbd "C-M-o") #'other-frame)
 
+;; Move to window with arrow keys, swap windows with shift + arrow keys
+(setq shift-select-mode nil)    ;; Shift + arrow keys overrides this anyway.
+(windmove-default-keybindings 'none)
+(windmove-swap-states-default-keybindings 'shift)
+(windmove-mode)
+
 ;; Follow mode - for long files.
 (global-set-key (kbd "C-x o") #'follow-mode)
 
 ;; Winner mode is handy for undo window changes.
 (setq winner-mode t)
+
+;; Toggle side windows
+(global-set-key (kbd "C-c w t") #'window-toggle-side-windows)
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties
@@ -1548,8 +1557,6 @@ with some rough idea of what the papers were about."
               (window-parameters . ((window-width . fit-window-to-buffer)
                                     (preserve-size . (t . nil))
                                     (no-other-window . nil)))))))
-
-(global-set-key (kbd "C-c w t") #'window-toggle-side-windows)
 
 (setq switch-to-buffer-in-dedicated-window "pop"
       switch-to-buffer-obey-display-actions t)

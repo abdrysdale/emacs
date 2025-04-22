@@ -1,4 +1,4 @@
-;;; MyEmacsConfig --- a minimal cross platform config
+ ;;; MyEmacsConfig --- a minimal cross platform config
 ;;
 ;; -*- lexical-binding: t -*-
 ;;
@@ -584,7 +584,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "poetry run python -m pdb")
-(setq python-shell-interpreter "ipython")
+(setq python-shell-interpreter "python")
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -638,7 +638,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (widen)))
 
 ;;;; RefTeX
-;;
+(require 'reftex)
 ;; Useful RefTeX commands
 ;;
 ;; C-c =    :: ToC.
@@ -663,6 +663,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
   ;; That is, LaTeX-mode over latex-mode etc.
   :ensure auctex
+  :ensure reftex
   :config
   (add-hook 'LaTeX-mode-hook #'TeX-fold-mode)
   (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
@@ -1338,32 +1339,30 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ebib-index-default-sort '("Year" . descend)
         ebib-file-associations nil
         ebib-notes-display-max-lines 30)
+  (add-to-list 'ebib-citation-commands
+               '(LaTeX-mode
+                 (("cite" "\\cite{%(%K%,)}")
+                  ("cite+info" "\\cite%<[%A]%>[%A]{%(%K%,)}")
+                  ("paren" "\\parencite%<[%A]%>[%A]{%(%K%,)}")
+                  ("foot" "\\footcite%<[%A]%>[%A]{%(%K%,)}")
+                  ("text" "\\textcite%<[%A]%>[%A]{%(%K%,)}")
+                  ("smart" "\\smartcite%<[%A]%>[%A]{%(%K%,)}")
+                  ("super" "\\supercite{%K}")
+                  ("auto" "\\autocite%<[%A]%>[%A]{%(%K%,)}")
+                  ("cites" "\\cites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("parens" "\\parencites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("foots" "\\footcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("texts" "\\textcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("smarts" "\\smartcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("supers" "\\supercites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("autos" "\\autoscites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
+                  ("author" "\\citeauthor%<[%A]%>[%A]{%(%K%,)}")
+                  ("title" "\\citetitle%<[%A]%>[%A]{%(%K%,)}")
+                  ("year" "\\citeyear%<[%A]%>[%A][%A]{%K}")
+                  ("date" "\\citedate%<[%A]%>[%A]{%(%K%,)}")
+                  ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))))
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
-
-(add-to-list 'ebib-citation-commands
-             '(LaTeX-mode
-               (("cite" "\\cite{%(%K%,)}")
-                ("cite+info" "\\cite%<[%A]%>[%A]{%(%K%,)}")
-                ("paren" "\\parencite%<[%A]%>[%A]{%(%K%,)}")
-                ("foot" "\\footcite%<[%A]%>[%A]{%(%K%,)}")
-                ("text" "\\textcite%<[%A]%>[%A]{%(%K%,)}")
-                ("smart" "\\smartcite%<[%A]%>[%A]{%(%K%,)}")
-                ("super" "\\supercite{%K}")
-                ("auto" "\\autocite%<[%A]%>[%A]{%(%K%,)}")
-                ("cites" "\\cites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("parens" "\\parencites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("foots" "\\footcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("texts" "\\textcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("smarts" "\\smartcites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("supers" "\\supercites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("autos" "\\autoscites%<(%A)%>(%A)%(%<[%A]%>[%A]{%K}%)")
-                ("author" "\\citeauthor%<[%A]%>[%A]{%(%K%,)}")
-                ("title" "\\citetitle%<[%A]%>[%A]{%(%K%,)}")
-                ("year" "\\citeyear%<[%A]%>[%A][%A]{%K}")
-                ("date" "\\citedate%<[%A]%>[%A]{%(%K%,)}")
-                ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))))
-
 
 (setq ebib-notes-directory local/paper-notes-dir
       ebib-reading-list-file local/reading-list

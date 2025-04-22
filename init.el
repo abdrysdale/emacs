@@ -1,4 +1,4 @@
- ;;; MyEmacsConfig --- a minimal cross platform config
+;;; MyEmacsConfig --- a minimal cross platform config
 ;;
 ;; -*- lexical-binding: t -*-
 ;;
@@ -88,7 +88,7 @@
     (server-start)))
 
 (defmacro run-after-first-frame-connection (func)
-  "Run a function after first frame is loaded."
+  "Run FUNC after first frame is loaded."
   (let ((num-clients init-script-initial-clients)
         (*func-has-run* nil))
     `(lambda ()

@@ -370,6 +370,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                        tab-bar-separator)
       tab-bar-new-tab-choice #'scratch-buffer
       tab-bar-new-tab-to 'rightmost)
+(global-set-key (kbd "C-M-l") #'tab-previous)
 
 ;; Programming UI
 (add-hook 'prog-mode-hook #'whitespace-mode)

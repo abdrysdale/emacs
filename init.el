@@ -361,12 +361,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (size-indication-mode 1)    ; Show the buffer size in the modeline
 (column-number-mode 1)      ; Show column number with line number in modeline
 
-;; Tabs
+;; Tab bar
 (setq tab-bar-position t
       tab-bar-show 1
       tab-bar-close-button-show nil
       tab-bar-format '(tab-bar-format-history
-                       tab-bar-format-tabs
+                       tab-bar-format-tabs-groups
                        tab-bar-separator)
       tab-bar-new-tab-choice #'scratch-buffer
       tab-bar-new-tab-to 'rightmost)
@@ -1148,8 +1148,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          "#python"
          "#fortran"
          "##forth"
-         "#nhs-dev"
-         "#math"
+         "#indieweb"
          "#machinelearning")))
 
 (setq erc-modules '(netsplit

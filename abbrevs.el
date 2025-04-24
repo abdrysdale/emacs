@@ -99,6 +99,15 @@
       (clear-abbrev-table LaTeX-mode-abbrev-table))
     (define-abbrev-table 'LaTeX-mode-abbrev-table
       `(
+        ("aa" "&" nil 0)
+        ("ss" "$" nil 0)
+        ("hl" "\\hline" nil 0)
+        ("ifig" ""
+         ,(insert-and-format
+           "\\includegraphics[width=0.9\\linewidth]{%s}"
+           '("Figure")))
+        ("ll" "" ,(insert-and-format "%s_{%s}" '("Variable" "Subscript")))
+        ("bf" "" ,(insert-and-format "\\textbf{%s}" '("Text")))
         ("wrt" "with respect to" nil 0)
         ("ea" "\\textit{et al.}" nil 0)
         ("td" "" ,(insert-and-format "\\todo{%s}" '("Todo")))

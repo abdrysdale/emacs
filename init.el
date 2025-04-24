@@ -1149,6 +1149,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          "#python"
          "#fortran"
          "##forth"
+         "#commonlisp"
+         "#lisp"
          "#indieweb"
          "#machinelearning")))
 
@@ -1846,6 +1848,7 @@ same `major-mode'."
 
 ;; Key binding for unexpanding abbrevs
 (global-set-key (kbd "C-x a u") #'unexpand-abbrev)
+
 
 (setq dabbrev-limit nil)  ;; No limit on searching back
 (setq dabbrev-check-all-buffers t)

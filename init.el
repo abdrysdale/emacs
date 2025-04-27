@@ -47,6 +47,14 @@
      (when (yes-or-no-p "Surely you can't be serious? ")
        (,func))))
 
+(defun add-to-list-multiple (list to-add)
+  "Adds TO-ADD to LIST.
+Allows for adding a sequence of items to the same list, rather
+than having to call `add-to-list' multiple times."
+  (interactive)
+  (dolist (item to-add)
+    (add-to-list list item)))
+
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
 (defvar lchat-model nil "Default model for the lchat shell.")
@@ -915,7 +923,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (setq dired-x-hands-off-my-keys nil)
   (require 'dired-x)
   (dired-x-bind-find-file)
-  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))))
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
+  (add-hook 'dired-mode-hook
+            (lambda () (local-set-key (kbd "M-p") #'dired-up-directory))))
+
+
 
 (setq dired-listing-switches "-alh"
       dired-dwim-target #'dired-dwim-target-recent
@@ -1102,7 +1114,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (defun eww-use-old-reddit (url)
   "Transform any www.reddit in URL to old.reddit."
-  (replace-regexp-in-string "www.reddit.com*" "old.reddit.com" url))
+  (replace-regexp-in-string "^h?t*p?s?:?/*www.reddit*"
+                            "https://old.reddit" url))
 (add-to-list 'eww-url-transformers #'eww-use-old-reddit)
 
 (defmacro def-eww-with-search-prefix (name url)
@@ -1139,6 +1152,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("npj ml" "https://www.nature.com/natmachintell.rss" nil 3600)
         ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph" nil 3600)
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
+
+(unless (eq system-type 'windows-nt)
+  (add-to-list-multiple 'newsticker-url-list
+               '(("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
+                 ("abdrysdale" "https://abdrysdale.phd/feed.xml"))))
 
 ;; IRC
 (require 'erc)

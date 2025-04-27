@@ -102,6 +102,9 @@
         ("aa" "&" nil 0)
         ("ss" "$" nil 0)
         ("hl" "\\hline" nil 0)
+        ("oc" "\\si{\\celsius}" nil 0)
+        ("ooc" "" ,(insert-and-format "$ %s \\si{\\celsius}$"
+                                      '("Temperature (°C)")))
         ("ifig" ""
          ,(insert-and-format
            "\\includegraphics[width=0.9\\linewidth]{%s}"

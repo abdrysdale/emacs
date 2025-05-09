@@ -21,7 +21,7 @@
       (if arg
           (warn warn-msg var)
         (error warn-msg var)))))
-
+                                                                                                  Get tortoise out
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."
   (unless (boundp var)
@@ -1316,7 +1316,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         "Top up bird feeders"
         "Send someone a nice message"
         "Prayer/meditation"
-        "Check bin"
+        "Check bins"
         "Read a poem"
         "Shower"
         "Put clothes away"
@@ -1344,27 +1344,56 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (setq idx (+ 1 idx))
         (sit-for 0.5)))))
 
-(define-derived-mode sh/code-red-mode special-mode "Code Red")
-(define-key sh/code-red-mode-map (kbd "q")
-            (lambda () (interactive) (kill-buffer) (tab-close)))
-
-(defun sh/code-red ()
-  "Opens a *Help* buffer and displays a self help task."
+(defun sh/code-red-buffer ()
+  "Load the 'code-red' buffer."
   (interactive)
   (tab-new)
   (switch-to-buffer (get-buffer-create "*Code Red*"))
   (text-mode)
   (erase-buffer)
   (sit-for 0)
-  (delete-other-windows)
-  (let* ((task (random-choice sh/tasks))
-         (msg (concat "* " task " *"))
-         (stars (make-string (length msg) ?*)))
-    (print-center-of-frame (list stars msg stars))
-    (animate-string "Press q to quit." (- (frame-height) 5) 5))
-  (sh/code-red-mode))
+  (delete-other-windows))
 
+(define-derived-mode sh/code-red-mode org-mode "Code Red")
+(defun sh/code-red-exit () (interactive) (kill-buffer) (tab-close))
+
+
+(defun sh/code-red-display-tasks ()
+  "Display all of the code-red tasks."
+  (interactive)
+  (sh/code-red-buffer)
+  (let ((x (/ (- (frame-width) 10) 2))
+        (tasks (mapcar (lambda (v) (concat "- " v ".")) sh/tasks)))
+    (print-center-of-frame tasks x nil))
+  (sh/code-red-mode))
+(define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
+
+(defun sh/code-red (&optional arg)
+  "Opens a buffer in a new tab and displays a self help task.
+
+If ARG then no new tasks are allowed."
+  (interactive)
+  (sh/code-red-buffer)
+  (let* ((task (random-choice sh/tasks))
+         (msg (concat "+ " task " +"))
+         (another-msg "a => another")
+         (stars (make-string (length msg) ?+)))
+    (print-center-of-frame (list stars msg stars))
+    (when arg
+        (setq another-msg (concat "+" another-msg "+")))
+    (animate-string (concat another-msg "\n\td => display tasks\n\tq => quit")
+                    (- (frame-height) 5) 4))
+  (sh/code-red-mode)
+  (if arg
+    (local-set-key (kbd "a")
+                   (lambda () (interactive)
+                     (message "It's best you just do this task.")))
+    (local-set-key (kbd "a")
+                   #'sh/code-red-again)))
 (global-set-key (kbd "C-x C-r") #'sh/code-red)
+
+(defun sh/code-red-again () (interactive) (sh/code-red-exit) (sh/code-red t))
+(define-key sh/code-red-mode-map (kbd "a") #'sh/code-red-again)
 
 
 ;;  ********

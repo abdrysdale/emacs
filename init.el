@@ -21,7 +21,7 @@
       (if arg
           (warn warn-msg var)
         (error warn-msg var)))))
-                                                                                                  Get tortoise out
+
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."
   (unless (boundp var)

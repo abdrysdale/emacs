@@ -1306,6 +1306,67 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-c m r C-s") #'emms-stop)
 
+;; Self Help
+(setq sh/tasks
+      '("Get tortoise out"
+        "Make a cup of coffee"
+        "Water the plants"
+        "Check washing"
+        "Check dishwasher"
+        "Top up bird feeders"
+        "Send someone a nice message"
+        "Prayer/meditation"
+        "Check bin"
+        "Read a poem"
+        "Shower"
+        "Put clothes away"
+        "Tidy a room"
+        "Drink glass of water"
+        "Set up toys"
+        "Check house plants"))
+
+(defun random-choice (list)
+  "Return a random element from a LIST."
+  (let* ((N (length list))
+         (i (random N)))
+    (nth i list)))
+
+(defun print-center-of-frame (msg &optional x y)
+  "Print MSG at width X and height Y or at the frame center."
+  (let* ((lines (if (listp msg) msg (list msg)))
+         (M (length lines))
+         (idx 0)
+         (H (if y y (/ (- (frame-height) M) 2))))
+    (dolist (line lines)
+      (let* ((N (length line))
+             (W (if x x (/ (- (frame-width) N) 2))))
+        (animate-string line (+ H idx) W)
+        (setq idx (+ 1 idx))
+        (sit-for 0.5)))))
+
+(define-derived-mode sh/code-red-mode special-mode "Code Red")
+(define-key sh/code-red-mode-map (kbd "q")
+            (lambda () (interactive) (kill-buffer) (tab-close)))
+
+(defun sh/code-red ()
+  "Opens a *Help* buffer and displays a self help task."
+  (interactive)
+  (tab-new)
+  (switch-to-buffer (get-buffer-create "*Code Red*"))
+  (text-mode)
+  (erase-buffer)
+  (sit-for 0)
+  (delete-other-windows)
+  (let* ((task (random-choice sh/tasks))
+         (msg (concat "* " task " *"))
+         (stars (make-string (length msg) ?*)))
+    (print-center-of-frame (list stars msg stars))
+    (animate-string "Press q to quit." (- (frame-height) 5) 5))
+  (sh/code-red-mode))
+
+(global-set-key (kbd "C-x C-r") #'sh/code-red)
+
+
 ;;  ********
 ;;; * Mail *
 ;;  ********

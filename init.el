@@ -1,6 +1,5 @@
-;;; MyEmacsConfig --- a minimal cross platform config
-;;
 ;; -*- lexical-binding: t -*-
+;;; MyEmacsConfig --- a minimal cross platform config
 ;;
 ;;; Commentary:
 ;; It is meant to provide a decent working environment
@@ -1309,6 +1308,136 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                        ("t" . emms-play-tradjazz)))
 
 (global-set-key (kbd "C-c m r C-s") #'emms-stop)
+
+;; Self Help
+(setq sh/tasks
+      '("Get tortoise out"
+        "Make a cup of coffee"
+        "Water the plants"
+        "Check washing"
+        "Check dishwasher"
+        "Top up bird feeders"
+        "Send someone a nice message"
+        "Prayer/meditation"
+        "Check bins"
+        "Read a poem"
+        "Shower"
+        "Put clothes away"
+        "Tidy a room"
+        "Drink glass of water"
+        "Set up toys"
+        "Check house plants"))
+
+(defun random-choice (list)
+  "Return a random element from a LIST."
+  (let* ((N (length list))
+         (i (random N)))
+    (nth i list)))
+
+(defun print-center-of-frame (msg &optional x y)
+  "Print MSG at width X and height Y or at the frame center."
+  (let* ((lines (if (listp msg) msg (list msg)))
+         (M (length lines))
+         (idx 0)
+         (H (if y y (/ (- (frame-height) M) 2))))
+    (dolist (line lines)
+      (let* ((N (length line))
+             (W (if x x (/ (- (frame-width) N) 2))))
+        (animate-string line (+ H idx) W)
+        (setq idx (+ 1 idx))
+        (sit-for 0.5)))))
+
+(defun sh/code-red-buffer ()
+  "Load the 'code-red' buffer."
+  (interactive)
+  (let ((name "*Code Red*"))
+    (unless (get-buffer name)
+      (tab-new))
+    (switch-to-buffer (get-buffer-create name)))
+  (text-mode)
+  (erase-buffer)
+  (sit-for 0)
+  (delete-other-windows))
+
+(define-derived-mode sh/code-red-mode org-mode "Code Red")
+(defun sh/code-red-exit () (interactive) (kill-buffer) (tab-close))
+
+(defvar ascii-tortoise nil "An ascii tortoise")
+(setq ascii-tortoise
+"
+   _____________
+ /               \\
+|  You got this!  |                     ________
+ \\ ____________  /                 ___/ \\     / \\__
+               \\/   ___           /      \\ _ /     \\
+                   /   \\      __/  __          __    \\__
+                  |  o  \\    /   /    \\      /    \\      \\
+                  \\_ /    \\ /   |      |    |      |      \\
+                    \\     |      \\ __ /      \\ __ /       /____/\\
+                     \\___/   _                      _    /_____ /
+                         \\_/   \\__________________/   \\_/
+                          /    /                 /    /
+                         /    / \\              /    / \\
+                        |   /\\    \\           |   /\\    \\
+                        |  \\   \\___|          |  \\   \\___|
+                        \\___|   '''           \\___|   '''
+                         '''                   '''
+")
+
+(defun sh/tortoise (&optional task)
+  (interactive)
+  (sh/code-red-buffer)
+  (when task
+      (print-center-of-frame task nil 10))
+  (animate-string ascii-tortoise 15 15)
+  (special-mode)
+  (local-set-key (kbd "q") #'sh/code-red-exit))
+
+(define-key sh/code-red-mode-map (kbd "t") #'sh/tortoise)
+
+(defun sh/code-red (&optional arg input-task)
+  "Opens a buffer in a new tab and displays a self help task.
+
+If ARG then no new tasks are allowed.
+IF INPUT-TASK then just display that task."
+  (interactive)
+  (sh/code-red-buffer)
+  (let* ((task (if input-task input-task (random-choice sh/tasks)))
+         (msg (concat "+ " task " +"))
+         (another-msg "a => another")
+         (stars (make-string (length msg) ?+)))
+    (print-center-of-frame (list stars msg stars))
+    (when arg
+        (setq another-msg (concat "+" another-msg "+")))
+    (animate-string (concat
+                     another-msg
+                     "\n\td => display tasks"
+                     "\n\tt => tortoise"
+                     "\n\tq => quit")
+                    (- (frame-height) 6) 4)
+    (sh/code-red-mode)
+    (local-set-key (kbd "t") (lambda () (interactive) (sh/tortoise task))))
+  (if arg
+    (local-set-key (kbd "a")
+                   (lambda () (interactive)
+                     (message "It's best you just do this task.")))
+    (local-set-key (kbd "a")
+                   #'sh/code-red-again)))
+(global-set-key (kbd "C-x C-r") #'sh/code-red)
+
+(defun sh/code-red-again () (interactive) (sh/code-red-exit) (sh/code-red t))
+(define-key sh/code-red-mode-map (kbd "a") #'sh/code-red-again)
+
+(defun sh/code-red-display-tasks ()
+  "Display all of the code-red tasks."
+  (interactive)
+  (sh/code-red-buffer)
+  (let ((x (/ (- (frame-width) 10) 2))
+        (tasks (mapcar (lambda (v) (concat "- " v ".")) sh/tasks)))
+    (print-center-of-frame tasks x nil))
+  (sh/code-red-mode)
+  (sh/code-red t (completing-read "Select a task: " sh/tasks)))
+(define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
 
 ;;  ********
 ;;; * Mail *

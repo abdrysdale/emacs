@@ -1,5 +1,5 @@
-;;; MyEmacsConfig --- a minimal cross platform config
 ;;
+;;; MyEmacsConfig --- a minimal cross platform config
 ;; -*- lexical-binding: t -*-
 ;;
 ;;; Commentary:
@@ -1357,24 +1357,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-derived-mode sh/code-red-mode org-mode "Code Red")
 (defun sh/code-red-exit () (interactive) (kill-buffer) (tab-close))
 
-
-(defun sh/code-red-display-tasks ()
-  "Display all of the code-red tasks."
-  (interactive)
-  (sh/code-red-buffer)
-  (let ((x (/ (- (frame-width) 10) 2))
-        (tasks (mapcar (lambda (v) (concat "- " v ".")) sh/tasks)))
-    (print-center-of-frame tasks x nil))
-  (sh/code-red-mode))
-(define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
-
-(defun sh/code-red (&optional arg)
+(defun sh/code-red (&optional arg input-task)
   "Opens a buffer in a new tab and displays a self help task.
 
-If ARG then no new tasks are allowed."
+If ARG then no new tasks are allowed.
+IF INPUT-TASK then just display that task."
   (interactive)
   (sh/code-red-buffer)
-  (let* ((task (random-choice sh/tasks))
+  (let* ((task (if input-task input-task (random-choice sh/tasks)))
          (msg (concat "+ " task " +"))
          (another-msg "a => another")
          (stars (make-string (length msg) ?+)))
@@ -1395,6 +1385,16 @@ If ARG then no new tasks are allowed."
 (defun sh/code-red-again () (interactive) (sh/code-red-exit) (sh/code-red t))
 (define-key sh/code-red-mode-map (kbd "a") #'sh/code-red-again)
 
+(defun sh/code-red-display-tasks ()
+  "Display all of the code-red tasks."
+  (interactive)
+  (sh/code-red-buffer)
+  (let ((x (/ (- (frame-width) 10) 2))
+        (tasks (mapcar (lambda (v) (concat "- " v ".")) sh/tasks)))
+    (print-center-of-frame tasks x nil))
+  (sh/code-red-mode)
+  (sh/code-red t (completing-read "Select a task: " sh/tasks)))
+(define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
 
 ;;  ********
 ;;; * Mail *

@@ -1388,7 +1388,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (interactive)
   (sh/code-red-buffer)
   (when task
-      (print-center-of-frame task nil 10))
+      (print-center-of-frame (concat "* " task " *") nil 10))
   (animate-string ascii-tortoise 15 15)
   (special-mode)
   (local-set-key (kbd "q") #'sh/code-red-exit))

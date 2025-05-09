@@ -274,6 +274,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (when (eq system-type 'windows-nt)
     (add-to-list 'Info-directory-list
                  (in-home-dir "scoop/apps/emacs/current/share/info")))
+(define-key Info-mode-map (kbd "M-p") #'Info-up)
 
 ;; Sets the auth source (requires gpg!)
 ;; loopback is needed if GPG requires a password for decrypting keys
@@ -1146,16 +1147,19 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
 (setq newsticker-frontend #'newsticker-treeview
+      newsticker-automatically-mark-items-as-old nil
       newsticker-hide-old-items-in-newsticker-buffer t)
 (setq newsticker-url-list
-      '(("npj imaging" "https://www.nature.com/npjimaging.rss" nil 3600)
-        ("npj ml" "https://www.nature.com/natmachintell.rss" nil 3600)
-        ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph" nil 3600)
-        ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss" nil 3600)))
+      '(("npj imaging" "https://www.nature.com/npjimaging.rss")
+        ("npj ml" "https://www.nature.com/natmachintell.rss")
+        ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph")
+        ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")))
 
 (unless (eq system-type 'windows-nt)
   (add-to-list-multiple 'newsticker-url-list
                '(("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
+                 ("Ruslan" "https://codelearn.me/feed.xml")
+                 ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
                  ("abdrysdale" "https://abdrysdale.phd/feed.xml"))))
 
 ;; IRC

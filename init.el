@@ -47,7 +47,7 @@
        (,func))))
 
 (defun add-to-list-multiple (list to-add)
-  "Adds TO-ADD to LIST.
+  "Add TO-ADD to LIST.
 Allows for adding a sequence of items to the same list, rather
 than having to call `add-to-list' multiple times."
   (interactive)
@@ -755,7 +755,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;; Emacs Speaks Statistics
 (use-package ess
   :config (require 'ess-r-mode))
-;; (well also Python but that's not important right now)
+;; well also Python but that's not important right now
 (setq ess-ask-for-ess-directory t) ;; I actually like this feature!
 (setq ess-local-process-name "R")
 (setq ess-eval-visibly-p 'nowait) ;; No waiting whilst ESS is evaluating
@@ -767,6 +767,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; F-sharp
 (use-package fsharp-mode)
+
+;;;; Clojure
+(use-package cider)
 
 ;;  **************
 ;;; * Navigation *
@@ -1360,9 +1363,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (delete-other-windows))
 
 (define-derived-mode sh/code-red-mode org-mode "Code Red")
-(defun sh/code-red-exit () (interactive) (kill-buffer) (tab-close))
+(defun sh/code-red-exit ()
+  "Exit code red."
+  (interactive)
+  (kill-buffer) (tab-close))
 
-(defvar ascii-tortoise nil "An ascii tortoise")
+(defvar ascii-tortoise nil "An ascii tortoise.")
 (setq ascii-tortoise
 "
    _____________
@@ -1385,6 +1391,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ")
 
 (defun sh/tortoise (&optional task)
+  "Display a tortoise to help with TASK."
   (interactive)
   (sh/code-red-buffer)
   (when task
@@ -1425,7 +1432,10 @@ IF INPUT-TASK then just display that task."
                    #'sh/code-red-again)))
 (global-set-key (kbd "C-x C-r") #'sh/code-red)
 
-(defun sh/code-red-again () (interactive) (sh/code-red-exit) (sh/code-red t))
+(defun sh/code-red-again ()
+  "Pick another task."
+  (interactive)
+  (sh/code-red-exit) (sh/code-red t))
 (define-key sh/code-red-mode-map (kbd "a") #'sh/code-red-again)
 
 (defun sh/code-red-display-tasks ()

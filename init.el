@@ -867,6 +867,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; File navigation
 (recentf-mode 1)
+(setq read-file-name-completion-ignore-case t)
 (global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
                                      ("v" . view-file)
                                      ("l" . add-file-local-variable)

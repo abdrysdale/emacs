@@ -570,7 +570,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
-
 ;; Multi-file operations
 (global-set-key (kbd "C-c f c") #'fileloop-continue)
 
@@ -685,7 +684,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
               (setq flymake-args '("-interaction=nonstopmode" "%f"))))
   (add-to-list 'auto-mode-alist '("\\.TeX$" . LaTeX-mode))
   (setq TeX-auto-save t
-        TeX-parse-self t
+        TeX-parse-self nil
         TeX-electric-sub-and-superscript t
         ;; Disable variable font for sections
         font-latex-fontify-sectioning 'color
@@ -705,6 +704,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind (:map reftex-mode-map ("C-c [" . nil))
   :bind (:map LaTeX-mode-map ("C-c [" . #'ebib-latex-quick-cite))
   :bind (:map LaTeX-mode-map ("C-c l t" . #'latex-format-as-todo)))
+
+;; On windows, flyspell-mode causes .tex files to hang indefinitely.
+;; This is due aspell on windows causing issues.
+;; https://mail.gnu.org/archive/html/help-emacs-windows/2017-04/msg00017.html
+(when (eq system-type 'windows-nt)
+  (add-hook 'LaTeX-mode-hook (lambda () (flyspell-mode -1))))
 
 ;; TeX-command-list needs to be modified not pass extra metadata and options
 (let ((tex-list (assoc "TeX" TeX-command-list))

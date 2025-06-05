@@ -381,7 +381,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-M-l") #'tab-previous)
 
 ;; Programming UI
-(add-hook 'prog-mode-hook #'whitespace-mode)
+(when (display-graphic-p)
+    (add-hook 'prog-mode-hook #'whitespace-mode))
 (setq display-raw-bytes-as-hex t)
 
 ;; Line numbers
@@ -623,7 +624,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         "nix-shell --command \"tectonic -X compile -f plain %T\""
         tectonic-watch-command
         "nix-shell --command \"tectonic -X watch\""))
-(global-prettify-symbols-mode)
+
+(when (display-graphic-p)
+  (global-prettify-symbols-mode))
 
 (defun how-is-this-paper-looking? (BEG END)
   "Display number of todos and cites between BEG and END."
@@ -1144,7 +1147,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-keys-to-prefix "C-c u"
                            '(("u" . eww)
-                             ("b" . eww-list-bookmarks)))
+                             ("b" . browser-url-at-point-with-external-browser)
+                             ("C-b" . eww-list-bookmarks)))
 
 ;; Newsticker (RSS)
 (global-set-key (kbd "C-c m n") #'newsticker-show-news)
@@ -1633,6 +1637,7 @@ with some rough idea of what the papers were about."
 (windmove-default-keybindings 'none)
 (windmove-swap-states-default-keybindings 'shift)
 (windmove-mode)
+(global-set-key (kbd "C-c w m") #'windmove-mode)
 
 ;; Follow mode - for long files.
 (global-set-key (kbd "C-x o") #'follow-mode)

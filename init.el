@@ -218,6 +218,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; here.
 (require 'vc-dir)
 (define-key vc-dir-mode-map (kbd "C-o") nil)
+(setq vc-annotate-background-mode t)
 
 ;; Magit ;;
 (use-package magit

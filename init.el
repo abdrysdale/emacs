@@ -1643,7 +1643,6 @@ with some rough idea of what the papers were about."
 (windmove-default-keybindings 'none)
 (windmove-swap-states-default-keybindings 'shift)
 (windmove-mode)
-(global-set-key (kbd "C-c w m") #'windmove-mode)
 
 ;; Follow mode - for long files.
 (global-set-key (kbd "C-x o") #'follow-mode)
@@ -1651,10 +1650,11 @@ with some rough idea of what the papers were about."
 ;; Winner mode is handy for undo window changes.
 (setq winner-mode t)
 
-;; Toggle side windows
+;; Window related key bindings
 (global-set-keys-to-prefix "C-c w"
                            '(("t" . window-toggle-side-windows)
-                             ("s" . window-swap-states)))
+                             ("s" . window-swap-states)
+                             ("m" . windmove-mode)))
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties

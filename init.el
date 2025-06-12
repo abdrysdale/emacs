@@ -1009,13 +1009,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                          deepseek-ai/DeepSeek-R1
-                          deepseek-ai/DeepSeek-V3
-                          Qwen/QwQ-32B
-                          black-forest-labs/FLUX.1-schnell-Free))
+                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free      ;; 0.00/0.00 FJ
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct         ;; 0.18/0.59 FJ
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8 ;; 0.27/0.85 FJ
+                          deepseek-ai/DeepSeek-R1                           ;; 2.00/2.00 --
+                          deepseek-ai/DeepSeek-V3                           ;; 1.25/1.25 FJ
+                          Qwen/QwQ-32B                                      ;; 1.20/1.20 --
+                          Qwen/Qwen3-235B-A22B-fp8-tput))                   ;; 0.20/0.60 FJ
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
@@ -1652,7 +1652,9 @@ with some rough idea of what the papers were about."
 (setq winner-mode t)
 
 ;; Toggle side windows
-(global-set-key (kbd "C-c w t") #'window-toggle-side-windows)
+(global-set-keys-to-prefix "C-c w"
+                           '(("t" . window-toggle-side-windows)
+                             ("s" . window-swap-states)))
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties

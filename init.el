@@ -218,6 +218,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; here.
 (require 'vc-dir)
 (define-key vc-dir-mode-map (kbd "C-o") nil)
+(setq vc-annotate-background-mode t)
 
 ;; Magit ;;
 (use-package magit
@@ -231,11 +232,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Forge ;;
 (use-package forge
   :after magit)
-
-;; Git Time Machine ;;
-(use-package git-timemachine)
-(setq git-timemachine-abbreviation-length 6)
-(global-set-key (kbd "C-c g t") #'git-timemachine)
 
 ;; File modes ;;
 ;; No config needed - just needed for the file types.

@@ -422,7 +422,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
-(add-to-list 'default-frame-alist '(font . "Monospace 13"))
+(add-to-list 'default-frame-alist '(font . "Monospace 10"))
 (add-to-list 'default-frame-alist '(width . 79))
 
 ;; Highlighting changes

@@ -220,6 +220,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-key vc-dir-mode-map (kbd "C-o") nil)
 (setq vc-annotate-background-mode t)
 
+;; smerge-mode ;;
+;; The default smerge-mode prefix (C-c ^) is arthritic inducing
+;; for big conflicts.
+(setq smerge-command-prefix (kbd "C-c d"))
+
 ;; Magit ;;
 (use-package magit
   :commands (magit-status magit-get-current-branch)

@@ -1643,7 +1643,6 @@ with some rough idea of what the papers were about."
 (setq shift-select-mode nil)    ;; Shift + arrow keys overrides this anyway.
 (windmove-default-keybindings 'none)
 (windmove-swap-states-default-keybindings 'shift)
-(windmove-mode)
 
 ;; Follow mode - for long files.
 (global-set-key (kbd "C-x o") #'follow-mode)

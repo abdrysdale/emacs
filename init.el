@@ -990,6 +990,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; GPTel
+;;
+;; |----------------------------------------------------------------------|
+;; |                                        | $/1M Token  |    |    |     |
+;; | Model Name                             | In   | Out  | FJ | II | CW  |
+;; |----------------------------------------|------|------|----|----|-----|
+;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | FJ | 41 | 128 |
+;; | Llama-4-Scout-17B-16E-Instruct         | 0.18 | 0.59 | FJ | 43 | 328 |
+;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | FJ | 51 | 524 |
+;; | DeepSeek-R1                            | 3.00 | 7.00 | -- | 68 | 128 |
+;; | DeepSeek-V3                            | 1.25 | 1.25 | FJ | 53 | 128 |
+;; | QwQ-32B                                | 1.20 | 1.20 | -- | 58 | 131 |
+;; | Qwen3-235B-A22B-fp8-tput               | 0.20 | 0.60 | FJ | 62 |  41 |
+;; |----------------------------------------------------------------------|
+;;
 (use-package gptel
   :config
   (setq gptel-backend (gptel-make-openai "TogetherAI"
@@ -997,13 +1011,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free      ;; 0.00/0.00 FJ
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct         ;; 0.18/0.59 FJ
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8 ;; 0.27/0.85 FJ
-                          deepseek-ai/DeepSeek-R1                           ;; 2.00/2.00 --
-                          deepseek-ai/DeepSeek-V3                           ;; 1.25/1.25 FJ
-                          Qwen/QwQ-32B                                      ;; 1.20/1.20 --
-                          Qwen/Qwen3-235B-A22B-fp8-tput))                   ;; 0.20/0.60 FJ
+                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                          deepseek-ai/DeepSeek-R1
+                          deepseek-ai/DeepSeek-V3
+                          Qwen/QwQ-32B
+                          Qwen/Qwen3-235B-A22B-fp8-tput))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
@@ -1016,7 +1030,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'windows-nt)
     (setq gptel-use-curl nil))
 
-(nil gptel-directives
+(setq gptel-directives
       `((default
          ,(concat "I am in a conversation where I will ask you a series of"
                  " questions about any topic."

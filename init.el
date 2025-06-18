@@ -225,19 +225,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; for big conflicts.
 (setq smerge-command-prefix (kbd "C-c d"))
 
-;; Magit ;;
-(use-package magit
-  :commands (magit-status magit-get-current-branch)
-  :custom
-  (magit-display-buffer-function
-   #'magit-display-buffer-same-window-except-diff-v1))
-(setenv "GIT_ASKPASS" "git-gui--askpass")
-(global-set-key (kbd "C-c g g") #'magit)
-
-;; Forge ;;
-(use-package forge
-  :after magit)
-
 ;; File modes ;;
 ;; No config needed - just needed for the file types.
 (use-package csv-mode)

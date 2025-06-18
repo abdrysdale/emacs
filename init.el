@@ -255,6 +255,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq default-directory (in-home-dir nil))
 
 ;; Info
+(require 'info)
 (defvar info-custom-dir (in-home-dir ".emacs.d/info/")
   "Location of custom info directory.")
 (add-to-list 'Info-directory-list info-custom-dir)
@@ -1919,7 +1920,7 @@ with some rough idea of what the papers were about."
          (export-path (file-name-concat export-dir
                                         (format "%s_%s" tid template-file))))
     (org-entry-put nil "TEMPLATE" template-file)
-    (copy-file tempalte-path export-path)))
+    (copy-file template-path export-path)))
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)

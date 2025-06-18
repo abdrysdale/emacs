@@ -409,7 +409,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
-(add-to-list 'default-frame-alist '(font . "Monospace 10"))
+(add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
 (add-to-list 'default-frame-alist '(width . 79))
 
 ;; Highlighting changes
@@ -1011,7 +1011,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         gptel-include-reasoning "*gptel-thinking*")
   (load (concat user-emacs-directory "gptel-papers.el")))
 
-(setq gptel-directives
+;; Curl and gptel don't work well on windows
+;; https://github.com/karthink/gptel/issues/251
+(if (eq system-type 'windows-nt)
+    (setq gptel-use-curl nil))
+
+(nil gptel-directives
       `((default
          ,(concat "I am in a conversation where I will ask you a series of"
                  " questions about any topic."

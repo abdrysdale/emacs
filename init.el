@@ -1460,6 +1460,16 @@ IF INPUT-TASK then just display that task."
   (sh/code-red t (completing-read "Select a task: " sh/tasks)))
 (define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
 
+;; Dice Rolls
+(defun roll-dice (&optional sides)
+  "Roll an number between [1, SIDES]."
+  (interactive "nNumber of sides: ")
+  (unless sides
+    (error "roll-die: Sides argument is required in non-interactive calls"))
+  (when (< slides 1)    ;; This also checks if the number is an integer!
+    (error "roll-die: Sides argument must be a natural number"))
+  (message (format "d%i rolled: %i" sides (1+ (random sides)))))
+
 ;;  ********
 ;;; * Mail *
 ;;  ********

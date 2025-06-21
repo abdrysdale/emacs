@@ -225,19 +225,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; for big conflicts.
 (setq smerge-command-prefix (kbd "C-c d"))
 
-;; Magit ;;
-(use-package magit
-  :commands (magit-status magit-get-current-branch)
-  :custom
-  (magit-display-buffer-function
-   #'magit-display-buffer-same-window-except-diff-v1))
-(setenv "GIT_ASKPASS" "git-gui--askpass")
-(global-set-key (kbd "C-c g g") #'magit)
-
-;; Forge ;;
-(use-package forge
-  :after magit)
-
 ;; File modes ;;
 ;; No config needed - just needed for the file types.
 (use-package csv-mode)
@@ -268,6 +255,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq default-directory (in-home-dir nil))
 
 ;; Info
+(require 'info)
 (defvar info-custom-dir (in-home-dir ".emacs.d/info/")
   "Location of custom info directory.")
 (add-to-list 'Info-directory-list info-custom-dir)
@@ -422,7 +410,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
-(add-to-list 'default-frame-alist '(font . "Monospace 10"))
+(add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
 (add-to-list 'default-frame-alist '(width . 79))
 
 ;; Highlighting changes
@@ -1003,6 +991,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
 ;; GPTel
+;;
+;; |----------------------------------------------------------------------|
+;; |                                        | $/1M Token  |    |    |     |
+;; | Model Name                             | In   | Out  | FJ | II | CW  |
+;; |----------------------------------------|------|------|----|----|-----|
+;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | FJ | 41 | 128 |
+;; | Llama-4-Scout-17B-16E-Instruct         | 0.18 | 0.59 | FJ | 43 | 328 |
+;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | FJ | 51 | 524 |
+;; | DeepSeek-R1                            | 3.00 | 7.00 | -- | 68 | 128 |
+;; | DeepSeek-V3                            | 1.25 | 1.25 | FJ | 53 | 128 |
+;; | QwQ-32B                                | 1.20 | 1.20 | -- | 58 | 131 |
+;; | Qwen3-235B-A22B-fp8-tput               | 0.20 | 0.60 | FJ | 62 |  41 |
+;; |----------------------------------------------------------------------|
+;;
 (use-package gptel
   :config
   (setq gptel-backend (gptel-make-openai "TogetherAI"
@@ -1010,19 +1012,24 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free      ;; 0.00/0.00 FJ
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct         ;; 0.18/0.59 FJ
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8 ;; 0.27/0.85 FJ
-                          deepseek-ai/DeepSeek-R1                           ;; 2.00/2.00 --
-                          deepseek-ai/DeepSeek-V3                           ;; 1.25/1.25 FJ
-                          Qwen/QwQ-32B                                      ;; 1.20/1.20 --
-                          Qwen/Qwen3-235B-A22B-fp8-tput))                   ;; 0.20/0.60 FJ
+                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                          deepseek-ai/DeepSeek-R1
+                          deepseek-ai/DeepSeek-V3
+                          Qwen/QwQ-32B
+                          Qwen/Qwen3-235B-A22B-fp8-tput))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
         gptel-track-media t
         gptel-include-reasoning "*gptel-thinking*")
   (load (concat user-emacs-directory "gptel-papers.el")))
+
+;; Curl and gptel don't work well on windows
+;; https://github.com/karthink/gptel/issues/251
+(if (eq system-type 'windows-nt)
+    (setq gptel-use-curl nil))
 
 (setq gptel-directives
       `((default
@@ -1923,7 +1930,7 @@ with some rough idea of what the papers were about."
          (export-path (file-name-concat export-dir
                                         (format "%s_%s" tid template-file))))
     (org-entry-put nil "TEMPLATE" template-file)
-    (copy-file tempalte-path export-path)))
+    (copy-file template-path export-path)))
 
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)

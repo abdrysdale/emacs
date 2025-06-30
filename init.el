@@ -273,7 +273,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Saves session
 ;; Works with daemons but not remotely running Emacs sessions.
 (desktop-save-mode 1)
-(add-hook 'server-after-make-frame-hook #'desktop-read)
 (setq desktop-load-locked-desktop 'check-pid)
 
 ;;  ******
@@ -2153,6 +2152,8 @@ same `major-mode'."
       ))
 
 (setq server-after-make-frame-hook #'startup)
+(when (<= (length (frame-list)) 1)
+  (startup))
 (global-set-key (kbd "C-c b b") #'startup)
 
 ;;  ***************

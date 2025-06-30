@@ -12,6 +12,7 @@
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
 
+
 (defmacro setq-if-defined (var val &optional arg)
   "Set VAR to VAL if it is defined else warn if ARG else raise an error."
   (if (boundp var)
@@ -214,10 +215,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; such as waiting for Emacs to close the commit editor.
 ;; I also feel that Emacs' vc encourages me to make small commits on the file
 ;; regularly without getting in my way.
-;; I digress, C-o is used to globally to switch active windows so I unbind that
-;; here.
+;; I digress.
 (require 'vc-dir)
-(define-key vc-dir-mode-map (kbd "C-o") nil)
 (setq vc-annotate-background-mode t)
 
 ;; smerge-mode ;;
@@ -1473,7 +1472,7 @@ IF INPUT-TASK then just display that task."
   (interactive "nNumber of sides: ")
   (unless sides
     (error "roll-die: Sides argument is required in non-interactive calls"))
-  (when (< slides 1)    ;; This also checks if the number is an integer!
+  (when (< sides 1)    ;; This also checks if the number is an integer!
     (error "roll-die: Sides argument must be a natural number"))
   (message (format "d%i rolled: %i" sides (1+ (random sides)))))
 
@@ -1646,23 +1645,19 @@ with some rough idea of what the papers were about."
 (global-set-key (kbd "C-M-w") 'scroll-other-window-down)
 
 ;; Default window navigation – simply switch to the next window in order.
-;; Added for convenience; the default keybinding is "C-x o"
-;; Which we'll rebind to follow-mode
-;; Dired uses "C-o" to open file in other window so we'll need to unset that.
-(add-hook 'dired-mode-hook
-          (lambda ()
-            (local-unset-key (kbd "C-o"))))
-(global-set-key (kbd "C-o") #'other-window)
+;; This can become tedious without repeat-mode
+(repeat-mode)
+(global-set-key (kbd "C-x o") #'other-window)
 (global-set-key (kbd "M-o") #'previous-window-any-frame)
 (global-set-key (kbd "C-M-o") #'other-frame)
+
+;; I regularly make use of follow mode
+(global-set-key (kbd "C-c f f") #'follow-mode)
 
 ;; Move to window with arrow keys, swap windows with shift + arrow keys
 (setq shift-select-mode nil)    ;; Shift + arrow keys overrides this anyway.
 (windmove-default-keybindings 'none)
 (windmove-swap-states-default-keybindings 'shift)
-
-;; Follow mode - for long files.
-(global-set-key (kbd "C-x o") #'follow-mode)
 
 ;; Winner mode is handy for undo window changes.
 (setq winner-mode t)

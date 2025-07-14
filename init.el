@@ -1,5 +1,4 @@
-;; -*- lexical-binding: t -*-
-;;; MyEmacsConfig --- a minimal cross platform config
+;;; MyEmacsConfig --- a minimal cross platform config -*- lexical-binding: t -*-
 ;;
 ;;; Commentary:
 ;; It is meant to provide a decent working environment
@@ -26,6 +25,12 @@
   "Set VAR to VAL if it is not defined."
   (unless (boundp var)
       (list 'setq var val)))
+
+(defmacro setv (var val &optional desc)
+  "defvar VAR to VAL with DESC if not define - else setq"
+  (if (boundp var)
+      (list 'setq var val)
+    (list 'defvar var val desc)))
 
 (defmacro setq-if-nil (var val)
   "Set VAR to VAL if VAR is nil."
@@ -218,6 +223,50 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; I digress.
 (require 'vc-dir)
 (setq vc-annotate-background-mode t)
+
+; Conventional Commit Templates
+(setv conventional-commit/types
+  '("fix"
+    "feat"
+    "build"
+    "chore"
+    "ci"
+    "docs"
+    "style"
+    "refactor"
+    "perf"
+    "test"
+    "revert"
+    "release"
+    "deps"
+    "security"
+    "config"
+    "data"
+    "analysis")
+  "Allowed conventional commit types.")
+
+(defun conventional-commit/insert-template ()
+  "Insert conventional commit message."
+  (interactive)
+  (let* ((type-possibly-braking (completing-read
+                                 "Type: " conventional-commit/types nil t))
+         (is-breaking (yes-or-no-p "Breaking? "))
+         (breaking-desc (if is-breaking
+                            (format "BREAKING CHANGE: %s"
+                                    (read-string
+                                     "Breaking Change Description: "))
+                          ""))
+         (type (if is-breaking
+                   (format "%s!" type-possibly-braking)
+                 type-possibly-braking))
+         (possible-scope (read-string "Scope (optional): "))
+         (scope (if (string-empty-p possible-scope)
+                    ""
+                  (format "(%s)" possible-scope)))
+         (description (read-string "Description: ")))
+    (insert (format "%s%s: %s\n\n%s" type scope description breaking-desc))))
+(define-key vc-git-log-edit-mode-map (kbd "C-c C-t")
+            #'conventional-commit/insert-template)
 
 ;; smerge-mode ;;
 ;; The default smerge-mode prefix (C-c ^) is arthritic inducing
@@ -563,6 +612,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  *************************
 ;;; * Programming Languages *
 ;;  *************************
+
+;; Generating tags
 
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
@@ -998,6 +1049,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; | Llama-4-Scout-17B-16E-Instruct         | 0.18 | 0.59 | FJ | 43 | 328 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | FJ | 51 | 524 |
 ;; | DeepSeek-R1                            | 3.00 | 7.00 | -- | 68 | 128 |
+;; | DeepSeek-R1-0528-tput                  | 0.55 | 2.19 | -- | 68 | 128 |
 ;; | DeepSeek-V3                            | 1.25 | 1.25 | FJ | 53 | 128 |
 ;; | QwQ-32B                                | 1.20 | 1.20 | -- | 58 | 131 |
 ;; | Qwen3-235B-A22B-fp8-tput               | 0.20 | 0.60 | FJ | 62 |  41 |
@@ -1010,18 +1062,19 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                        '(deepseek-ai/DeepSeek-R1-0528-tput
                           deepseek-ai/DeepSeek-R1
                           deepseek-ai/DeepSeek-V3
+                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           Qwen/QwQ-32B
                           Qwen/Qwen3-235B-A22B-fp8-tput))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
         gptel-track-media t
-        gptel-include-reasoning "*gptel-thinking*")
+        gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el")))
 
 ;; Curl and gptel don't work well on windows

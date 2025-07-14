@@ -248,23 +248,38 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun conventional-commit/insert-template ()
   "Insert conventional commit message."
   (interactive)
-  (let* ((type-possibly-braking (completing-read
+  (let* ((type-possibly-breaking (completing-read
                                  "Type: " conventional-commit/types nil t))
          (is-breaking (yes-or-no-p "Breaking? "))
          (breaking-desc (if is-breaking
-                            (format "BREAKING CHANGE: %s"
+                            (format "\nBREAKING CHANGE: %s"
                                     (read-string
                                      "Breaking Change Description: "))
                           ""))
+         (fixes (if (string= type-possibly-breaking "fix")
+                    (format "\nFixes: %s" (read-string "Bug issue: "))
+                  ""))
+         (issue-closed? (read-string "Issue closed? "))
+         (closes (if (string-empty-p issue-closed?)
+                     ""
+                   (format "\nCloses: %s issue-closed?")))
+         (related-to? (read-string "Related to: "))
+         (related-to (if (string-empty related-to?)
+                         ""
+                       (format "\nRelated to %s" related-to?)))
+         (footer (concat breaking-desc related-to fixes closes))
          (type (if is-breaking
-                   (format "%s!" type-possibly-braking)
-                 type-possibly-braking))
+                   (format "%s!" type-possibly-breaking)
+                 type-possibly-breaking))
          (possible-scope (read-string "Scope (optional): "))
          (scope (if (string-empty-p possible-scope)
                     ""
                   (format "(%s)" possible-scope)))
          (description (read-string "Description: ")))
-    (insert (format "%s%s: %s\n\n%s" type scope description breaking-desc))))
+    (insert (format "%s%s: %s\n\n%s" type scope description footer)))
+  ;; Moves to the correct position after template insertion
+  (beginning-of-buffer)
+  (next-line 2))
 (define-key vc-git-log-edit-mode-map (kbd "C-c C-t")
             #'conventional-commit/insert-template)
 

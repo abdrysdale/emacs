@@ -264,7 +264,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                      ""
                    (format "\nCloses: %s issue-closed?")))
          (related-to? (read-string "Related to: "))
-         (related-to (if (string-empty related-to?)
+         (related-to (if (string-empty-p related-to?)
                          ""
                        (format "\nRelated to %s" related-to?)))
          (footer (concat breaking-desc related-to fixes closes))
@@ -280,6 +280,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   ;; Moves to the correct position after template insertion
   (beginning-of-buffer)
   (next-line 2))
+(require 'vc-git)
 (define-key vc-git-log-edit-mode-map (kbd "C-c C-t")
             #'conventional-commit/insert-template)
 
@@ -941,6 +942,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                              ("v" . view-buffer-other-window)
                              ("a" . append-to-buffer)
                              ("n" . next-buffer)
+                             ("m" . (lambda () (interactive)
+                                      (switch-to-buffer "*Messages*")))
+                             ("t" . (lambda () (interactive)
+                                      (switch-to-buffer "*TogetherAI*")))
                              ("p" . previous-buffer)))
 
 (global-set-key (kbd "C-x C-b") #'ibuffer)

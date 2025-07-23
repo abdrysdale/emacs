@@ -1082,14 +1082,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(deepseek-ai/DeepSeek-R1-0528-tput
+                        '(Qwen/Qwen3-235B-A22B-fp8-tput
+                          Qwen/QwQ-32B
+                          deepseek-ai/DeepSeek-R1-0528-tput
                           deepseek-ai/DeepSeek-R1
                           deepseek-ai/DeepSeek-V3
-                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                          Qwen/QwQ-32B
-                          Qwen/Qwen3-235B-A22B-fp8-tput))
+                          meta-llama/Llama-4-Scout-17B-16E-Instruct
+                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
@@ -1244,6 +1244,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       '(("npj imaging" "https://www.nature.com/npjimaging.rss")
         ("npj ml" "https://www.nature.com/natmachintell.rss")
         ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph")
+        ("MHRA Device Safety Information"
+         "https://www.gov.uk/drug-device-alerts.atom?alert_type%5B%5D=device-safety-information")
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")))
 
 (unless (eq system-type 'windows-nt)

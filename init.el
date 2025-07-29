@@ -262,7 +262,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          (issue-closed? (read-string "Issue closed? "))
          (closes (if (string-empty-p issue-closed?)
                      ""
-                   (format "\nCloses: %s issue-closed?")))
+                   (format "\nCloses: %s" issue-closed?)))
          (related-to? (read-string "Related to: "))
          (related-to (if (string-empty-p related-to?)
                          ""

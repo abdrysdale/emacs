@@ -1843,8 +1843,8 @@ with some rough idea of what the papers were about."
 
 (setq org-todo-keywords
       '((sequence
-         "TODO(t)" "STARTED(s!)" "WAITING(w@/!)"
-         "|" "DONE(d!)" "CANCELLED(c@)")))
+         "TODO(t!)" "STARTED(s!)" "WAITING(w@/!)"
+         "|" "DONE(d!)" "CANCELLED(c@)" "ABORT(a)")))
 
 (require 'ox-md)
 

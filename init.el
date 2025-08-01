@@ -629,11 +629,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Programming Languages *
 ;;  *************************
 
-;; Generating tags
-
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
+
+;;;; Compilation
+(setq compilation-scroll-output 'first-error)
+(add-hook 'prog-mode-hook
+          (lambda () (local-set-key (kbd "C-c c c") #'compile)))
 
 ;;;; Python
 (defun python-imenu-use-flat-index
@@ -646,7 +649,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
           #'python-imenu-use-flat-index)
 
 (global-set-key (kbd "C-c g d") #'pdb)
-(setq gud-pdb-command-name "poetry run python -m pdb")
+(setq gud-pdb-command-name "uv run python -m pdb")
 (setq python-shell-interpreter "python")
 
 ;;;; Perl

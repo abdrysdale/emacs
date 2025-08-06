@@ -635,8 +635,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; Compilation
 (setq compilation-scroll-output 'first-error)
-(add-hook 'prog-mode-hook
-          (lambda () (local-set-key (kbd "C-c c c") #'compile)))
+(global-set-key (kbd "C-c c c") #'compile)
 
 ;;;; Python
 (defun python-imenu-use-flat-index
@@ -1064,19 +1063,21 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; GPTel
 ;;
-;; |----------------------------------------------------------------------|
-;; |                                        | $/1M Token  |    |    |     |
-;; | Model Name                             | In   | Out  | FJ | II | CW  |
-;; |----------------------------------------|------|------|----|----|-----|
-;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | FJ | 41 | 128 |
-;; | Llama-4-Scout-17B-16E-Instruct         | 0.18 | 0.59 | FJ | 43 | 328 |
-;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | FJ | 51 | 524 |
-;; | DeepSeek-R1                            | 3.00 | 7.00 | -- | 68 | 128 |
-;; | DeepSeek-R1-0528-tput                  | 0.55 | 2.19 | -- | 68 | 128 |
-;; | DeepSeek-V3                            | 1.25 | 1.25 | FJ | 53 | 128 |
-;; | QwQ-32B                                | 1.20 | 1.20 | -- | 58 | 131 |
-;; | Qwen3-235B-A22B-fp8-tput               | 0.20 | 0.60 | FJ | 62 |  41 |
-;; |----------------------------------------------------------------------|
+;; |------------------------------------------------------------------------|
+;; |                                        | $/1M Token  |     |    |      |
+;; | Model Name                             | In   | Out  | TFJ | II |  CW  |
+;; |----------------------------------------|------|------|-----|----|------|
+;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 31 |  131 |
+;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 42 | 1050 |
+;; | deepseek-ai/DeepSeek-R1-0528-tput      | 0.55 | 2.19 | TF- | 59 |  164 |
+;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 64 |  262 |
+;; | openai/gpt-oss-120b                    | 0.15 | 0.60 | T-- | 58 |  131 |
+;; | moonshotai/Kimi-K2-Instruct            | 1.00 | 3.00 | -FJ | 49 |  131 |
+;; |------------------------------------------------------------------------|
+;;
+;; FJ = Thinking, Function Calling, JSON Ouptut
+;; II = Artificial Intelligence Index v2.2
+;; CW = Context Window (kTokens)
 ;;
 (use-package gptel
   :config
@@ -1085,14 +1086,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(Qwen/Qwen3-235B-A22B-fp8-tput
-                          Qwen/QwQ-32B
+                        '(openai/gpt-oss-120b
+                          Qwen/Qwen3-235B-A22B-Thinking-2507
                           deepseek-ai/DeepSeek-R1-0528-tput
-                          deepseek-ai/DeepSeek-R1
-                          deepseek-ai/DeepSeek-V3
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                          meta-llama/Llama-4-Scout-17B-16E-Instruct
-                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
+                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          moonshotai/Kimi-K2-Instruct))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode

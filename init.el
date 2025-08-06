@@ -1079,6 +1079,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; II = Artificial Intelligence Index v2.2
 ;; CW = Context Window (kTokens)
 ;;
+;; Purpose of each model?
+;;  openai/gpt-oss-120b :: General Purpose (balance of cost and intelligence)
+;;  Qwen3-235B-A22B     :: Best
+;;  Llama-4-Maverick    :: Summaries, long tasks and quick responses
+;;  Llama-3.3           :: Free
+;;  DeepSeek-R1         :: Best with Function Calling
+;;  Kimi-K2             :: Best with Function Calling and JSON output
+;;
 (use-package gptel
   :config
   (setq gptel-backend (gptel-make-openai "TogetherAI"
@@ -1088,9 +1096,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :models
                         '(openai/gpt-oss-120b
                           Qwen/Qwen3-235B-A22B-Thinking-2507
-                          deepseek-ai/DeepSeek-R1-0528-tput
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
+                          deepseek-ai/DeepSeek-R1-0528-tput
                           moonshotai/Kimi-K2-Instruct))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7

@@ -948,6 +948,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                       (switch-to-buffer "*Messages*")))
                              ("t" . (lambda () (interactive)
                                       (switch-to-buffer "*TogetherAI*")))
+                             ("g" . (lambda () (interactive)
+                                      (switch-to-buffer "*gud-run*")))
                              ("p" . previous-buffer)))
 
 (global-set-key (kbd "C-x C-b") #'ibuffer)
@@ -1071,7 +1073,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 42 | 1050 |
 ;; | deepseek-ai/DeepSeek-R1-0528-tput      | 0.55 | 2.19 | TF- | 59 |  164 |
 ;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 64 |  262 |
-;; | openai/gpt-oss-120b                    | 0.15 | 0.60 | T-- | 58 |  131 |
+;; | openai/gpt-oss-120b                    | 0.15 | 0.60 | T-- | 61 |  131 |
 ;; | moonshotai/Kimi-K2-Instruct            | 1.00 | 3.00 | -FJ | 49 |  131 |
 ;; |------------------------------------------------------------------------|
 ;;
@@ -1112,27 +1114,43 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'windows-nt)
     (setq gptel-use-curl nil))
 
-(setq gptel-directives
-      `((default
-         ,(concat "I am in a conversation where I will ask you a series of"
-                 " questions about any topic."
-                 " Respond helpfully and with as much information as needed."))
-        (programming
-         ,(concat "I am a programmer who will ask you a series of questions"
-                 " related to coding and programming. I need clear explanations"
-                 " and example code where applicable."
-                 " I am using various programming languages including but"
-                 " not limited to Python, R, Fortran, Emacs-lisp."
-                 " Provide full function templates where applicable."))
-        (writing
-         ,(concat "I am a writer who will ask you a series of questions related"
-                  " to writing and language including grammar, style and"
-                 " context. Provide helpful tips and feedback"
-                 " where applicable."))
-        (chat
-         ,(concat "I am in an informal conversation and will ask you a series"
-                 " of questions. Respond in a friendly and diplomatic"
-                 " manner."))))
+(setq default-llm-prompt
+      (concat
+       "Begin by enclosing all thoughts within \<thinking\> tags,"
+       " exploring multiple angles and approaches."
+       " Break down the solution into clear steps within \<step\> tags."
+       " Start with a 20-step budget,"
+       " requesting more for complex problems if needed."
+       " Use \<count\> tags after each step to show the remaining budget."
+       " Stop when reaching 0."
+       " Continuously adjust your reasoning"
+       " based on intermediate results and reflections,"
+       " adapting your strategy as you progress."
+       " Regularly evaluate progress using \<reflection\> tags."
+       " Be critical and honest about your reasoning process."
+       " Assign a quality score between 0.0 and 1.0"
+       " using \<reward\> tags after each reflection."
+       " Use this to guide your approach:"
+       " 0.8+: Continue current approach"
+       " 0.5-0.7: Consider minor adjustments"
+       " Below 0.5: Seriously consider backtracking"
+       " and trying a different approach."
+       " If unsure or if reward score is low,"
+       " backtrack and try a different approach,"
+       " explaining your decision within \<thinking\> tags."
+       " For mathematical problems, show all work"
+       " explicitly using LaTeX for formal notation"
+       " and provide detailed proofs."
+       " Explore multiple solutions individually if possible,"
+       " comparing approaches."
+       " Do not include any of these tags in your final output"
+       " only in your reasoning/thinking."
+       " Your output MUST ONLY CONTAIN valid ASCII."
+       " Lines MUST be less than 120 characters in length"
+       " unless line wrapping will have no effect on readability."
+       "Avoid using tables"
+       " and just use bullet points and hierarchy to structure your output."))
+(setq gptel--system-prompt default-llm-prompt)
 
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
@@ -1768,15 +1786,15 @@ with some rough idea of what the papers were about."
 ;;     ___________________________________
 ;;    |     *Buffer List*/*Ibuffer*       |
 ;;    |___________________________________|
-;;    |     |                       |     |
-;;    |  *  |                       |  *  |
-;;    |  d  |                       |  T  |
-;;    |  i  |                       |  a  |
-;;    |  r  |   Main Window Area    |  g  |
-;;    |  e  |                       |  s  |
-;;    |  d  |                       |  *  |
-;;    |  *  |                       |     |
-;;    |_____|_______________________|_____|
+;;    |      |                     |      |
+;;    |  * * |                     |  * * |
+;;    |  d v |                     |  T l |
+;;    |  i c |                     |  a l |
+;;    |  r d |  Main Window Area   |  g m |
+;;    |  e i |                     |  s s |
+;;    |  d r |                     |  * * |
+;;    |  * * |                     |      |
+;;    |______|_____________________|______|
 ;;    | *help*/*grep*/  |  *shell*/       |
 ;;    | *Completions*/  |  *compilation*/ |
 ;;    | *Calendar*      |                 |
@@ -1795,9 +1813,17 @@ with some rough idea of what the papers were about."
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*Tags List\\*"
+        ("\\*\\(?:Tags List\\|TogetherAI\\)\\*"
          display-buffer-in-side-window
          (side . right)
+         (slot . 1)
+         (window-parameters . ((window-height . fit-window-to-buffer)
+                               (window-width . fit-window-to-buffer)
+                               (preserve-size . (t . nil))
+                               (no-other-window . nil))))
+        ("\\*\\(?:vc-dir\\|gud-run\\)\\*"
+         display-buffer-in-side-window
+         (side . left)
          (slot . 1)
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (window-width . fit-window-to-buffer)

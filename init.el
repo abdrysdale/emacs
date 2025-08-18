@@ -7,6 +7,7 @@
 ;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
+;;
 ;;  *****************************************
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
@@ -929,6 +930,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("l" . add-file-local-variable)
                                      ("r" . recentf-open-files)))
 
+;; grep
+(global-set-keys-to-prefix "C-c g" '(("g" . grep)
+                                     ("l" . lgrep)
+                                     ("r" . rgrep)
+                                     ("z" . zgrep)
+                                     ("k" . kill-grep)))
+
 ;; Projects
 (defun edit-projects ()
   "Edit the list of projects."
@@ -948,6 +956,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                       (switch-to-buffer "*Messages*")))
                              ("t" . (lambda () (interactive)
                                       (switch-to-buffer "*TogetherAI*")))
+                             ("e" . (lambda () (interactive)
+                                      (switch-to-buffer "*elysium*")))
                              ("g" . (lambda () (interactive)
                                       (switch-to-buffer "*gud-run*")))
                              ("p" . previous-buffer)))
@@ -1152,13 +1162,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        " and just use bullet points and hierarchy to structure your output."))
 (setq gptel--system-prompt default-llm-prompt)
 
+;; Elysium
+(use-package elysium
+  :custom
+  (elysium-window-style nil))
+
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
-                                     ("p" . gptel-system-prompt)
                                      ("c" . gptel-context-quit)
                                      ("a" . gptel-abort)
                                      ("m" . gptel-menu)
                                      ("o" . gptel-papers-summarise)
+                                     ("e" . elysium-query)
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
 
@@ -1813,7 +1828,7 @@ with some rough idea of what the papers were about."
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:Tags List\\|TogetherAI\\)\\*"
+        ("\\*\\(?:Tags List\\|TogetherAI\\|elysium\\)\\*"
          display-buffer-in-side-window
          (side . right)
          (slot . 1)

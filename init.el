@@ -117,6 +117,22 @@ than having to call `add-to-list' multiple times."
 ;;; * Package Management *
 ;;  **********************
 
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
 ;; Ensure that Emacs can verify SSL/TLS certificates
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
@@ -1138,8 +1154,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq default-llm-prompt
       (concat
-       "Begin by enclosing all thoughts within \<thinking\> tags,"
-       " exploring multiple angles and approaches."
+       "During reasoning,"
+       " explore multiple angles and approaches."
        " Break down the solution into clear steps within \<step\> tags."
        " Start with a 20-step budget,"
        " requesting more for complex problems if needed."
@@ -1159,7 +1175,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        " and trying a different approach."
        " If unsure or if reward score is low,"
        " backtrack and try a different approach,"
-       " explaining your decision within \<thinking\> tags."
+       " explaining your decision during reasoning."
        " For mathematical problems, show all work"
        " explicitly using LaTeX for formal notation"
        " and provide detailed proofs."
@@ -1172,7 +1188,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        " unless line wrapping will have no effect on readability."
        "Avoid using tables"
        " and just use bullet points and hierarchy to structure your output."))
-(setq gptel--system-prompt default-llm-prompt)
+(setq gptel--system-message default-llm-prompt)
 
 
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
@@ -1186,6 +1202,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("o" . gptel-papers-summarise)
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
+
+;; Emigo
+(use-package emigo
+  :straight (:host github :repo "MatthewZMD/emigo" :files (:defaults "*.py" "*.el"))
+  :config
+  (emigo-enable) ;; Starts the background process automatically
+  :custom
+  (emigo-model "together_ai/openai/gpt-oss-120b")
+  (emigo-base-url "https://api.together.xyz/v1")
+  (emigo-api-key together-ai-api-key))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

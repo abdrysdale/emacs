@@ -336,8 +336,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       epa-pinentry-mode 'loopback)
 
 ;; Saves session
+;; In general, I like option to load a previously saved session
+;; in the event of crashes or when I need to jump right back into
+;; where I was.
+;; But I don't like this behavior by default as I feel it prevents me from
+;; properly planning.
+;; Hence, I'll disable desktop-save-mode but call it in the startup hook.
+;; That way I get desktop auto-saving without loading previous desktops
+;; by default.
+(global-set-key (kbd "C-c b d") #'desktop-read)
+
+;; Auto-save is turned on in the startup hook.
+(desktop-save-mode nil)
+
 ;; Works with daemons but not remotely running Emacs sessions.
-(desktop-save-mode 1)
 (setq desktop-load-locked-desktop 'check-pid)
 
 ;;  ******
@@ -1162,10 +1174,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        " and just use bullet points and hierarchy to structure your output."))
 (setq gptel--system-prompt default-llm-prompt)
 
-;; Elysium
-(use-package elysium
-  :custom
-  (elysium-window-style nil))
 
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
@@ -1176,7 +1184,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("C-g" . gptel-abort)
                                      ("m" . gptel-menu)
                                      ("o" . gptel-papers-summarise)
-                                     ("e" . elysium-query)
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
 
@@ -2272,11 +2279,11 @@ same `major-mode'."
       (split-window-vertically)
       (other-window 1)
       (switch-to-buffer (get-buffer buffer-agenda))
-      (org-agenda-redo-all)
-      ))
+      (org-agenda-redo-all)))
 
 (setq server-after-make-frame-hook #'startup)
 (when (<= (length (frame-list)) 1)
+  (desktop-clear)
   (startup))
 (global-set-key (kbd "C-c b b") #'startup)
 

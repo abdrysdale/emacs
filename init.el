@@ -1248,6 +1248,22 @@ The timer can be canceled with `my-cancel-gc-timer'.")
           (delete-region (car bounds) (cdr bounds))
           (insert (format "%f" temp-C)))))))
 
+;; Starling.el
+(use-package plz
+  :straight t)
+(use-package starling
+  :straight `(starling :type git :host github :repo "abdrysdale/starling-el"))
+
+(defun starling ()
+  "Launch starling dashboard."
+  (interactive)
+  (starling-spaces)
+  (delete-other-windows)
+  (split-window-horizontally)
+  (starling-insights)
+  (split-window-vertically)
+  (previous-window-any-frame))
+
 ;; Doc view
 (require 'doc-view)
 (setq doc-view-resolution 200

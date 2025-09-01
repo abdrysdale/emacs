@@ -1090,6 +1090,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Tools *
 ;;  *********
 
+;; Habitica
+(use-package habitica)
+
 ;; Shell/Eshell
 (require 'em-banner)
 (setq eshell-banner-message "")

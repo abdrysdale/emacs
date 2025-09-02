@@ -1980,6 +1980,12 @@ with some rough idea of what the papers were about."
       org-clock-clocktable-default-properties '(:maxlevel 2 :scope subtree))
 (org-clock-persistence-insinuate)
 
+(defun insert-time-rfc-822 ()
+  "Insert the current RFC 822 time."
+  (interactive)
+  (insert
+   (format-time-string "%a, %d %b %Y %T %Z" nil t)))
+
 ;; Bind to slightly nicer key bindings
 (global-set-keys-to-prefix "C-c c"
                            '(("r" . org-clock-report)
@@ -1991,6 +1997,7 @@ with some rough idea of what the papers were about."
                              ("p" . org-timer-pause-or-continue)
                              ("s" . org-timer-stop)
                              ("." . org-timer)
+                             ("," . insert-time-rfc-822)
                              ("d" .(lambda () (interactive)
                                      (insert
                                       (format-time-string "%Y-%m-%d"))))

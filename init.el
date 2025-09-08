@@ -863,6 +863,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; Clojure
 (use-package cider)
+(use-package paredit)
 
 ;;  **************
 ;;; * Navigation *
@@ -1110,12 +1111,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |                                        | $/1M Token  |     |    |      |
 ;; | Model Name                             | In   | Out  | TFJ | II |  CW  |
 ;; |----------------------------------------|------|------|-----|----|------|
-;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 31 |  131 |
-;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 42 | 1050 |
-;; | deepseek-ai/DeepSeek-R1-0528-tput      | 0.55 | 2.19 | TF- | 59 |  164 |
-;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 64 |  262 |
-;; | openai/gpt-oss-120b                    | 0.15 | 0.60 | T-- | 61 |  131 |
-;; | moonshotai/Kimi-K2-Instruct            | 1.00 | 3.00 | -FJ | 49 |  131 |
+;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 28 |  131 |
+;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 36 | 1050 |
+;; | deepseek-ai/DeepSeek-R1-0528-tput      | 0.55 | 2.19 | TF- | 52 |  164 |
+;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 57 |  262 |
+;; | zai-org/GLM-4.5-Air-FP8                | 0.20 | 1.10 | -FJ | 48 |  131 |
 ;; |------------------------------------------------------------------------|
 ;;
 ;; FJ = Thinking, Function Calling, JSON Ouptut
@@ -1123,12 +1123,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  openai/gpt-oss-120b :: General Purpose (balance of cost and intelligence)
+;;  GLM-4.5-Air-FP8     :: Balance of cost, intelligence and response time.
 ;;  Qwen3-235B-A22B     :: Best
-;;  Llama-4-Maverick    :: Summaries, long tasks and quick responses
+;;  Llama-4-Maverick    :: Huge context.
 ;;  Llama-3.3           :: Free
 ;;  DeepSeek-R1         :: Best with Function Calling
-;;  Kimi-K2             :: Best with Function Calling and JSON output
 ;;
 (use-package gptel
   :config
@@ -1137,12 +1136,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(openai/gpt-oss-120b
+                        '(zai-org/GLM-4.5-Air-FP8
                           Qwen/Qwen3-235B-A22B-Thinking-2507
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
-                          deepseek-ai/DeepSeek-R1-0528-tput
-                          moonshotai/Kimi-K2-Instruct))
+                          deepseek-ai/DeepSeek-R1-0528-tput))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
@@ -1335,6 +1333,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                '(("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
                  ("Ruslan" "https://codelearn.me/feed.xml")
                  ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
+                 ("SachaChau" "https://sachachua.com/blog/feed/index.xml")
                  ("abdrysdale" "https://abdrysdale.phd/feed.xml"))))
 
 ;; IRC
@@ -2043,8 +2042,6 @@ with some rough idea of what the papers were about."
       (error "No URL found"))))
 
 (define-key org-mode-map (kbd "C-c u t") #'org-toggle-link-display)
-(define-key org-mode-map (kbd "C-c u p")
-            #'browser-url-at-point-with-external-browser)
 
 ;; Agenda ;;
 (setq org-agenda-files `(,local/agenda-file ,local/reading-list))

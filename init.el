@@ -664,7 +664,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; Compilation
 (setq compilation-scroll-output 'first-error)
-(global-set-key (kbd "C-c c c") #'compile)
+(setq compilation-python-type-check-cmd
+      "uvx pyrefly check -j 0 --output-format min-text")
+(global-set-keys-to-prefix "C-c c"
+                           `(("c" . compile)
+                             ("C-c" . (compile ,compilation-python-type-check-cmd))))
 
 ;;;; Python
 (defun python-imenu-use-flat-index
@@ -1334,6 +1338,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                  ("Ruslan" "https://codelearn.me/feed.xml")
                  ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
                  ("SachaChau" "https://sachachua.com/blog/feed/index.xml")
+                 ("Freya Vie" "https://freyavie.blog/feed/?type=rss")
+                 ("Marius Masalar" "https://marius.ink/feed.atom")
                  ("abdrysdale" "https://abdrysdale.phd/feed.xml"))))
 
 ;; IRC

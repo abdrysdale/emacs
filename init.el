@@ -869,6 +869,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package cider)
 (use-package paredit)
 
+;;;; gleam
+(use-package gleam-ts-mode
+  :mode (rx ".gleam" eos))
+
+
 ;;  **************
 ;;; * Navigation *
 ;;  **************
@@ -886,6 +891,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             (lookup-key hs-minor-mode-map (kbd "C-c @")))
 (setq hs-isearch-open t)    ;; Unhides comments and code when using isearch
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+
+;; hs-minor-mode not supported by gleam-ts-mode
+(remove-hook 'gleam-ts-mode-hook #'hs-minor-mode)
 
 ;; Semantic mode
 ;; Language aware editing commands for:
@@ -1117,9 +1125,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |----------------------------------------|------|------|-----|----|------|
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 28 |  131 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 36 | 1050 |
-;; | deepseek-ai/DeepSeek-R1-0528-tput      | 0.55 | 2.19 | TF- | 52 |  164 |
+;; | Qwen/Qwen3-Next-80B-A3B-Instruct       | 0.15 | 1.50 | --- | 54 |  262 |
+;; | Qwen/Qwen3-Next-80B-A3B-Thinking       | 0.15 | 1.50 | TFJ | 54 |  262 |
 ;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 57 |  262 |
-;; | zai-org/GLM-4.5-Air-FP8                | 0.20 | 1.10 | -FJ | 48 |  131 |
 ;; |------------------------------------------------------------------------|
 ;;
 ;; FJ = Thinking, Function Calling, JSON Ouptut
@@ -1127,11 +1135,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  GLM-4.5-Air-FP8     :: Balance of cost, intelligence and response time.
-;;  Qwen3-235B-A22B     :: Best
-;;  Llama-4-Maverick    :: Huge context.
-;;  Llama-3.3           :: Free
-;;  DeepSeek-R1         :: Best with Function Calling
+;;  Qwen3-Next-80B-A3B-Instruct     :: Balanced
+;;  Qwen3-235B-A22B                 :: Best
+;;  Llama-4-Maverick                :: Huge context
+;;  Llama-3.3                       :: Free
+;;  Qwen3-Next-80B-A3B-Thinking     :: Function Calling
 ;;
 (use-package gptel
   :config
@@ -1140,11 +1148,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(zai-org/GLM-4.5-Air-FP8
+                        '(Qwen/Qwen3-Next-80B-A3B-Instruct
                           Qwen/Qwen3-235B-A22B-Thinking-2507
+                          Qwen/Qwen3-Next-80B-A3B-Thinking
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
-                          deepseek-ai/DeepSeek-R1-0528-tput))
+                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
@@ -2232,6 +2240,19 @@ same `major-mode'."
 ;;  *******************
 ;;; * Niche Functions *
 ;;  *******************
+
+;; Government Digital Skill Level
+(defun skill-level-summary (BEG END)
+  "Display the number of occurrences of each skill level between BEG and END."
+  (interactive "r")
+  (let ((levels '("Awareness" "Working" "Practitioner" "Expert"))
+        (RSTART (if (= BEG END) nil BEG))
+        (REND (if (= BEG END) nil END)))
+    (message (mapconcat
+              (lambda (level) (format "%s: %i "
+                                 level
+                                 (count-matches level RSTART REND t)))
+              levels))))
 
 ;; Mostly MRI related...
 

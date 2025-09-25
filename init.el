@@ -1942,7 +1942,22 @@ with some rough idea of what the papers were about."
       org-latex-caption-above nil
       org-html-table-caption-above nil
       org-agenda-skip-deadline-prewarning-if-scheduled t
+      org-footnote-auto-adjust t
+      org-footnote-auto-label 'confirm
       org-startup-indented t)
+
+;; Local key bindings
+
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-x C-<return>")
+              (lambda ()
+                (interactive)
+                (end-of-line)
+                (newline)
+                (org-insert-item)
+                (let ((current-prefix-arg '(4)))
+                  (call-interactively #'org-toggle-checkbox))
+                (end-of-line))))
 
 (setq org-todo-keywords
       '((sequence

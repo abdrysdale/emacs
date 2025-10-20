@@ -1349,22 +1349,23 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       newsticker-automatically-mark-items-as-old nil
       newsticker-hide-old-items-in-newsticker-buffer t)
 (setq newsticker-url-list
+      ;; Scientific
       '(("npj imaging" "https://www.nature.com/npjimaging.rss")
         ("npj ml" "https://www.nature.com/natmachintell.rss")
         ("arxiv medphys" "https://rss.arxiv.org/rss//physics.med-ph")
         ("MHRA Device Safety Information"
          "https://www.gov.uk/drug-device-alerts.atom?alert_type%5B%5D=device-safety-information")
-        ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")))
-
-(unless (eq system-type 'windows-nt)
-  (add-to-list-multiple 'newsticker-url-list
-               '(("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
-                 ("Ruslan" "https://codelearn.me/feed.xml")
-                 ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
-                 ("SachaChau" "https://sachachua.com/blog/feed/index.xml")
-                 ("Freya Vie" "https://freyavie.blog/feed/?type=rss")
-                 ("Marius Masalar" "https://marius.ink/feed.atom")
-                 ("abdrysdale" "https://abdrysdale.phd/feed.xml"))))
+        ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")
+        ;; Personal
+        ("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
+        ("Ruslan" "https://codelearn.me/feed.xml")
+        ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
+        ("SachaChau" "https://sachachua.com/blog/feed/index.xml")
+        ("Freya Vie" "https://freyavie.blog/feed/?type=rss")
+        ("Marius Masalar" "https://marius.ink/feed.atom")
+        ("Nothing is Simple"
+         "https://nothingissimple.ablatedsprocket.com/rss.xml")
+        ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC
 (require 'erc)
@@ -2160,6 +2161,7 @@ with some rough idea of what the papers were about."
          ,(concat
           "* TODO %^{Title: } %(oc/safety-ticket-template 'st-url 'st-id)"
           " [0/1]\n"
+          ":DEADLINE: %^t\n"
           ":PROPERTIES:\n"
           ":ID: %(progn st-id)\n"
           ":URL: %(progn st-url)\n"
@@ -2169,7 +2171,18 @@ with some rough idea of what the papers were about."
           ":END:\n"
           "** Info\n%?\n"
           "- [[%(progn st-url)][Link to Ticket]]\n"
-          "** TODO Respond to email.\n"))
+          "** TODO Add caller files to AP\n"
+          "** TODO Add patient details to AP\n"
+          "** TODO Respond to email.\n"
+          "** TODO Is the device MR safe before asking about an RA?\n"
+          "** TODO Send RA [0/3]\n"
+          "*** TODO Check correct [/]\n"
+          "**** TODO NHS Number\n"
+          "**** TODO Name\n"
+          "**** TODO D.O.B.\n"
+          "**** TODO Risk level\n"
+          "**** TODO Version number\n"
+          "** TODO Add resolution files to AP\n"))
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

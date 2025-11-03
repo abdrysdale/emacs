@@ -1143,27 +1143,29 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;
 (use-package gptel
   :config
-  (setq gptel-backend (gptel-make-openai "TogetherAI"
-                        :host "api.together.xyz"
-                        :key together-ai-api-key
-                        :stream t
-                        :models
-                        '(Qwen/Qwen3-Next-80B-A3B-Instruct
-                          Qwen/Qwen3-235B-A22B-Thinking-2507
-                          Qwen/Qwen3-Next-80B-A3B-Thinking
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
-        gpt-model (car (gptel-openai-models gptel-backend))
-        gptel-temperature 0.7
+  (if (eq system-type 'windows-nt)
+      (progn
+        (gptel-make-gh-copilot "Copilot")
+        ;; Curl and gptel don't work well on windows
+        ;; https://github.com/karthink/gptel/issues/251
+        (setq gptel-use-curl nil))
+    (setq gptel-backend (gptel-make-openai "TogetherAI"
+                          :host "api.together.xyz"
+                          :key together-ai-api-key
+                          :stream t
+                          :models
+                          '(Qwen/Qwen3-Next-80B-A3B-Instruct
+                            Qwen/Qwen3-235B-A22B-Thinking-2507
+                            Qwen/Qwen3-Next-80B-A3B-Thinking
+                            meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                            meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
+          gpt-model (car (gptel-openai-models gptel-backend))))
+  (setq gptel-temperature 0.7
         gptel-default-mode 'org-mode
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el")))
 
-;; Curl and gptel don't work well on windows
-;; https://github.com/karthink/gptel/issues/251
-(if (eq system-type 'windows-nt)
-    (setq gptel-use-curl nil))
 
 (setq default-llm-prompt
       (concat
@@ -1216,15 +1218,24 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ;; Sometimes just a dictionary is required
                                      ("d" . dictionary-lookup-definition)))
 
-;; Emigo
-(use-package emigo
-  :straight (:host github :repo "MatthewZMD/emigo" :files (:defaults "*.py" "*.el"))
+;; Aider.el
+;; External dependencies :: aider
+;; Emacs dependencies :: transient, magit, markdown-mode
+(use-package aider
   :config
-  (emigo-enable) ;; Starts the background process automatically
-  :custom
-  (emigo-model "together_ai/openai/gpt-oss-120b")
-  (emigo-base-url "https://api.together.xyz/v1")
-  (emigo-api-key together-ai-api-key))
+  (require 'transient)
+  (require 'magit)
+  (require 'markdown-mode)
+  (setq aider-args '("--architect"
+                     "--model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Thinking"
+                     "--reasoning-effort" "high"
+                     "--no-auto-accept-architect"
+                     "--editor-model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Instruct"
+                     "--weak-model" "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
+                     "--show-diffs"))
+  (setenv "OPENAI_API_BASE" "https://api.together.xyz")
+  (setenv "OPENAI_API_KEY" together-ai-api-key)
+  (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()
@@ -1348,6 +1359,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq newsticker-frontend #'newsticker-treeview
       newsticker-automatically-mark-items-as-old nil
       newsticker-hide-old-items-in-newsticker-buffer t)
+
 (setq newsticker-url-list
       ;; Scientific
       '(("npj imaging" "https://www.nature.com/npjimaging.rss")
@@ -1365,6 +1377,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("Marius Masalar" "https://marius.ink/feed.atom")
         ("Nothing is Simple"
          "https://nothingissimple.ablatedsprocket.com/rss.xml")
+        ("Hoagie's corner of the internet"
+         "https://site.sebasmonia.com/feed.xml")
         ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC

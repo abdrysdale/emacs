@@ -965,6 +965,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; File navigation
 (recentf-mode 1)
+(ffap-bindings) ;; Better defaults for file finding
 (setq read-file-name-completion-ignore-case t)
 (global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
                                      ("v" . view-file)
@@ -1232,9 +1233,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                      "--no-auto-accept-architect"
                      "--editor-model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Instruct"
                      "--weak-model" "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
-                     "--show-diffs"))
-  (setenv "OPENAI_API_BASE" "https://api.together.xyz")
-  (setenv "OPENAI_API_KEY" together-ai-api-key)
+                     "--show-diffs"
+                     "--install-main-branch"))
+  (setenv "TOGETHER_API_KEY" together-ai-api-key)
   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 ;; Visit init file

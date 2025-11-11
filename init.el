@@ -1222,10 +1222,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; External dependencies :: aider
 ;; Emacs dependencies :: transient, magit, markdown-mode
 (use-package aider
-  :config
+  :init
   (require 'transient)
   (require 'magit)
   (require 'markdown-mode)
+  :config
   (setq aider-args '("--architect"
                      "--model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Thinking"
                      "--reasoning-effort" "high"
@@ -1311,7 +1312,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Browser
 (require 'eww)
-(setq shr-width 70
+(setq eww-search-prefix "https://duckduckgo.com/html/?kd=-1&q="
+      shr-width 70
       shr-cookie-policy nil
       shr-max-image-proportion 0.7
       shr-inhibit-images t

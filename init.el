@@ -241,6 +241,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'vc-dir)
 (setq vc-annotate-background-mode t)
 
+(defun my/vc-diff-against-main ()
+  "Diff current project against main branch."
+  (interactive)
+  (vc-root-version-diff t "main" (car (vc-git-branches))))
+
+(global-set-key (kbd "C-c d m") #'my/vc-diff-against-main)
+
 ; Conventional Commit Templates
 (setv conventional-commit/types
   '("fix"

@@ -35,7 +35,9 @@
                :description "name of the buffer whose contents are to be retrieved"))
  :category "emacs")
 
-;; Web ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Web ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun gptel-tool--fetch-rendered-url-content (url)
   "Fetch and render the html content of a URL."
    (let ((buffer (url-retrieve-synchronously url)))
@@ -75,7 +77,8 @@
  :category "web")
 
 
-;; File System
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; File System ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (gptel-make-tool
  :name "ls"
  :function (lambda (&optional relative-dir)
@@ -130,7 +133,8 @@
  :category "filesystem")
 
 
-;; Project
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Project ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun gptel-tool--flymake-diagnostics (&optional all)
   "Collect flymake errors across all open buffers in the current project.
 
@@ -173,7 +177,35 @@ too."
                 :optional t))
  :category "project")
 
-;; Python ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Git ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(gptel-make-tool
+ :name "status"
+ :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
+                   (shell-command-to-string
+                    (concat "cd " root " && git status"))))
+ :description "Git status at the project root"
+ :category "git")
+
+(gptel-make-tool
+ :name "branch"
+ :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
+                   (shell-command-to-string
+                    (concat "cd " root " && git branch"))))
+ :description "Git branch at the project root"
+ :category "git")
+
+(gptel-make-tool
+ :name "log"
+ :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
+                   (shell-command-to-string
+                    (concat "cd " root " && git log --oneline"))))
+ :description "Git branch at the project root"
+ :category "git")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Python ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (gptel-make-tool
  :name "pytest"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))

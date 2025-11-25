@@ -32,3 +32,5 @@ custom.el
 tramp
 .org-id-locations
 semanticdb/
+.aider*
+/tree-sitter/

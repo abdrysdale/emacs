@@ -244,7 +244,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun my/vc-diff-against-main ()
   "Diff current project against main branch."
   (interactive)
-  (vc-root-version-diff t "main" (car (vc-git-branches))))
+  (let ((default-branch "main")
+        (current-branch (car (vc-git-branches))))
+    (vc-root-version-diff t default-branch current-branch)))
 
 (global-set-key (kbd "C-c d m") #'my/vc-diff-against-main)
 

@@ -1153,29 +1153,33 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;
 (use-package gptel
   :config
-  (if (eq system-type 'windows-nt)
-      (progn
-        (gptel-make-gh-copilot "Copilot")
-        ;; Curl and gptel don't work well on windows
-        ;; https://github.com/karthink/gptel/issues/251
-        (setq gptel-use-curl nil))
-    (setq gptel-backend (gptel-make-openai "TogetherAI"
-                          :host "api.together.xyz"
-                          :key together-ai-api-key
-                          :stream t
-                          :models
-                          '(Qwen/Qwen3-Next-80B-A3B-Instruct
-                            Qwen/Qwen3-235B-A22B-Thinking-2507
-                            Qwen/Qwen3-Next-80B-A3B-Thinking
-                            meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-                            meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
-          gpt-model (car (gptel-openai-models gptel-backend))))
-  (setq gptel-temperature 0.7
+  (when (eq system-type 'windows-nt)
+    ;; Curl and gptel don't work well on windows
+    ;; https://github.com/karthink/gptel/issues/251
+    (setq gptel-use-curl nil))
+  (setq gptel-backend (gptel-make-openai "TogetherAI"
+                        :host "api.together.xyz"
+                        :key together-ai-api-key
+                        :stream t
+                        :models
+                        '(Qwen/Qwen3-Next-80B-A3B-Instruct
+                          Qwen/Qwen3-235B-A22B-Thinking-2507
+                          Qwen/Qwen3-Next-80B-A3B-Thinking
+                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
+        gpt-model (car (gptel-openai-models gptel-backend))
+        gptel-expert-commands t
+        gptel-temperature 0.7
         gptel-default-mode 'org-mode
         gptel-track-media t
         gptel-include-reasoning t)
-  (load (concat user-emacs-directory "gptel-papers.el")))
+  (load (concat user-emacs-directory "gptel-papers.el"))
+  (load (concat user-emacs-directory "gptel-tools.el")))
 
+(use-package gptel-fn-complete)
+(global-set-key (kbd "C-c l c") #'gptel-fn-complete)
+
+(use-package gptel-commit)
 
 (setq default-llm-prompt
       (concat

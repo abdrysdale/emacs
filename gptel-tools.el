@@ -1,9 +1,24 @@
+;;; gptel-tools.el --- Tools for use with gptel -*- lexical-binding: t -*-
+
+;; Copyright (C) 2025 Alex Drysdale
+
+;; Author: Alex Drysdale <alexander.drysdale@wales.nhs.uk>
+;; Created: 25 Nov 2025
+;; Version: 1.0
+;; Keywords: ai gptel tools
+;; X-URL: https://github.com/abdrysdale/emacs
+
+;;; Commentary:
+
+;;; Code:
+
 (require 'gptel)
 
 (defun gptel-tool-utils--get-project-root ()
+  "Get the root for the currently active project."
   (let ((project (project-current)))
     (unless project
-      (error "Not in a project. Cannot list directory contents"))
+      (error "Not in a project.  Cannot list directory contents"))
     (file-name-as-directory (project-root project))))
 
 ;; Emacs ;;
@@ -22,6 +37,7 @@
 
 ;; Web ;;
 (defun gptel-tool--fetch-rendered-url-content (url)
+  "Fetch and render the html content of a URL."
    (let ((buffer (url-retrieve-synchronously url)))
     (if  buffer
         (with-current-buffer buffer
@@ -40,6 +56,7 @@
  :category "web")
 
 (defun gptel-tool--fetch-search-engine-query (query)
+  "Fetch the results returned by the default search engine for QUERY."
   (let* ((search-prefix eww-search-prefix)
          (search-term (replace-regexp-in-string " " "+" query))
          (url (concat search-prefix search-term)))
@@ -239,7 +256,7 @@ relevant heading and its content. Query should be a natural language phrase, e.g
 
 ;; Helper: Find first heading containing any keyword
 (defun gptel--find-section-headings (text keywords)
-  "Find the first section heading in TEXT that contains any keyword from KEYWORDS.
+  "Find the first section heading in TEXT that contain any keyword from KEYWORDS.
 Assumes headings are prefixed with '## ' or '### ' or are on their own line with capitalization."
   (let ((headings '())
         (lines (split-string text "\n" t)))
@@ -253,3 +270,5 @@ Assumes headings are prefixed with '## ' or '### ' or are on their own line with
             (push line headings)))))
     (nreverse headings)))
 
+(provide 'gptel-tools)
+;;; gptel-tools.el ends here

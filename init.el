@@ -2140,34 +2140,6 @@ with some rough idea of what the papers were about."
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)
-        ("s" "Safety Ticket" entry
-         (file+headline ,(in-home-dir "Documents/notes/agenda.org")
-                        "Safety Tickets")
-         ,(concat
-          "* TODO %^{Title: } %(oc/safety-ticket-template 'st-url 'st-id)"
-          " [0/1]\n"
-          ":DEADLINE: %^t\n"
-          ":PROPERTIES:\n"
-          ":ID: %(progn st-id)\n"
-          ":URL: %(progn st-url)\n"
-          ":EXPORT_DIR: %(file-name-concat st-export-dir st-id)\n"
-          ":EXPORT_FILE_NAME: "
-          "%(file-name-concat st-export-dir st-id \"notes\")\n"
-          ":END:\n"
-          "** Info\n%?\n"
-          "- [[%(progn st-url)][Link to Ticket]]\n"
-          "** TODO Add caller files to AP\n"
-          "** TODO Add patient details to AP\n"
-          "** TODO Respond to email.\n"
-          "** TODO Is the device MR safe before asking about an RA?\n"
-          "** TODO Send RA [0/3]\n"
-          "*** TODO Check correct [/]\n"
-          "**** TODO NHS Number\n"
-          "**** TODO Name\n"
-          "**** TODO D.O.B.\n"
-          "**** TODO Risk level\n"
-          "**** TODO Version number\n"
-          "** TODO Add resolution files to AP\n"))
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

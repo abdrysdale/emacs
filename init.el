@@ -2135,11 +2135,15 @@ with some rough idea of what the papers were about."
            "* TODO ("
            "%(buffer-name (plist-get org-capture-plist :original-buffer))"
            ") %?\n"))
-        ("i" "Interrupting task" entry
+        ("i" "Interrupting Task" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume
          :prepend t)
+        ("s" "Sub Task" entry
+         (clock)
+         "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
+         :clock-in :clock-resume)
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

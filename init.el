@@ -1467,83 +1467,33 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             emms-info-functions '(emms-info-native)
             emms-player-mpv-parameters '("--no-video")))))
 
-(defvar emms-content-classic
-  "http://relax.stream.publicradio.org/relax.mp3"
-  "URL for a classical music radio station.")
-(defun emms-play-classic ()
-  "Play the ClassicFM radio."
+(setv emms-radio-addr
+      '(("Classic - Relax" . "http://relax.stream.publicradio.org/relax.mp3")
+        ("ClassicFM" . "http://media-the.musicradio.com/ClassicFM")
+        ("ClassicFM @ Movies" . "http://media-sov.musicradio.com/ClassicFM-M-Movies")
+        ("Lofi" . "https://lofi.stream.laut.fm/lofi")
+        ("Bosa" . "https://centova5.transmissaodigital.com:20104/live")
+        ("Smooth" . "http://playerservices.streamtheworld.com/pls/977_SMOOJAZZ.pls")
+        ("Trad Jazz" . "https://icecast.walmradio.com:8443/classic")
+        ("Jazz" . "https://icecast.walmradio.com:8443/jazz")
+        ("Talk News" . "https://media-ssl.musicradio.com/LBCUKMP3")
+        ("Funk" . "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3")
+        ("BBC World" . "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service")
+        ("Ambient" . "https://isekoi-radio.com/listen/ambient/ambientradio.flac")
+        )
+      "A list of internet radio addresses.")
+
+
+(defun emms-play-from-radio-addr ()
+  "Play a url from 'emms-radio-addr'."
   (interactive)
-  (emms-play-url emms-content-classic))
-
-(defvar emms-content-lofi
-  "https://lofi.stream.laut.fm/lofi"
-  "URL for a lofi music radio station.")
-(defun emms-play-lofi ()
-  "Play a LoFi radio station."
-  (interactive)
-  (emms-play-url emms-content-lofi))
+  (let* ((radio (completing-read "Radio: " emms-radio-addr nil t))
+         (addr (cdr (assoc radio emms-radio-addr))))
+    (emms-play-url addr)))
 
 
-(defvar emms-content-bosa
-  "https://centova5.transmissaodigital.com:20104/live"
-  "URL for a bosa nova radio station.")
-(defun emms-play-bosa ()
-  "Play a Bosa Nova radio station."
-  (interactive)
-  (emms-play-url emms-content-bosa))
-
-(defvar emms-content-smooth
-  "http://playerservices.streamtheworld.com/pls/977_SMOOJAZZ.pls"
-  "URL for a Smooth Jazz radio station.")
-(defun emms-play-smooth ()
-  "Play a smooth jazz radio station."
-  (interactive)
-  (emms-play-url emms-content-smooth))
-
-(defvar emms-content-tradjazz
-  "https://icecast.walmradio.com:8443/classic"
-  "URL for a traditional Jazz radio station.")
-(defun emms-play-tradjazz ()
-  "Play a Traditional Jazz radio station."
-  (interactive)
-  (emms-play-url emms-content-tradjazz))
-
-(defvar emms-content-jazz
-  "https://icecast.walmradio.com:8443/jazz"
-  "URL for a Jazz radio station.")
-(defun emms-play-jazz ()
-  "Play a Jazz radio station."
-  (interactive)
-  (emms-play-url emms-content-jazz))
-
-(defvar emms-content-news
-  "https://media-ssl.musicradio.com/LBCUKMP3"
-  "URL for a news radio station.")
-(defun emms-play-news ()
-  "Play a news radio station."
-  (interactive)
-  (emms-play-url emms-content-news))
-
-(defvar emms-content-funk
-  "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3"
-  "URL for a funk radio station.")
-(defun emms-play-funk ()
-  "Play a funk radio station."
-  (interactive)
-  (emms-play-url emms-content-funk))
-
-
-
-(global-set-keys-to-prefix "C-c m r" '(("b" . emms-play-bosa)
-                                       ("c" . emms-play-classic)
-                                       ("f" . emms-play-funk)
-                                       ("j" . emms-play-jazz)
-                                       ("l" . emms-play-lofi)
-                                       ("n" . emms-play-news)
-                                       ("s" . emms-play-smooth)
-                                       ("t" . emms-play-tradjazz)))
-
-(global-set-key (kbd "C-c m r C-s") #'emms-stop)
+(global-set-keys-to-prefix "C-c m r" '(("r" . emms-play-from-radio-addr)
+                                       ("C-s" . emms-stop)))
 
 ;; Self Help
 (setq sh/tasks

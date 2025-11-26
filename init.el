@@ -1179,7 +1179,29 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package gptel-fn-complete)
 (global-set-key (kbd "C-c l c") #'gptel-fn-complete)
 
-(use-package gptel-commit)
+(setq gptel-commit--prompt
+      (concat
+       "Write a conventional commit message for the following diff."
+       "ONLY return the commit message!\n"))
+
+(defun gptel-commit ()
+  "Write a commit message for the current diff."
+  (interactive)
+  (unless (eq major-mode 'vc-dir-mode)
+    (error "gptel-commit must be used in a vc-dir buffer"))
+  (vc-diff)
+  (let ((diff (buffer-string))
+        (gptel--system-message nil))
+    (gptel-request
+        (concat gptel-commit--prompt  diff)
+      :callback
+      (lambda (response info)
+        (kill-new response)
+        (message "gptel-commit message in the kill ring!"))))
+  (vc-next-action))
+
+(add-hook 'vc-dir-mode-hook
+          (lambda () (local-set-key (kbd "c") #'gptel-commit)))
 
 (setq default-llm-prompt
       (concat

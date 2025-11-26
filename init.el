@@ -1468,18 +1468,23 @@ The timer can be canceled with `my-cancel-gc-timer'.")
             emms-player-mpv-parameters '("--no-video")))))
 
 (setv emms-radio-addr
-      '(("Classic - Relax" . "http://relax.stream.publicradio.org/relax.mp3")
+      '(
+        ;; Classical
+        ("Classic - Relax" . "http://relax.stream.publicradio.org/relax.mp3")
         ("ClassicFM" . "http://media-the.musicradio.com/ClassicFM")
-        ("ClassicFM @ Movies" . "http://media-sov.musicradio.com/ClassicFM-M-Movies")
-        ("Lofi" . "https://lofi.stream.laut.fm/lofi")
+        ("ClassicFM Movies" . "http://media-sov.musicradio.com/ClassicFM-M-Movies")
+        ;; Jazz
+        ("Jazz" . "https://icecast.walmradio.com:8443/jazz")
+        ("Trad Jazz" . "https://icecast.walmradio.com:8443/classic")
         ("Bosa" . "https://centova5.transmissaodigital.com:20104/live")
         ("Smooth" . "http://playerservices.streamtheworld.com/pls/977_SMOOJAZZ.pls")
-        ("Trad Jazz" . "https://icecast.walmradio.com:8443/classic")
-        ("Jazz" . "https://icecast.walmradio.com:8443/jazz")
-        ("Talk News" . "https://media-ssl.musicradio.com/LBCUKMP3")
         ("Funk" . "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3")
-        ("BBC World" . "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service")
+        ;; Atmospheric
+        ("Lofi" . "https://lofi.stream.laut.fm/lofi")
         ("Ambient" . "https://isekoi-radio.com/listen/ambient/ambientradio.flac")
+        ;; News
+        ("Talk News" . "https://media-ssl.musicradio.com/LBCUKMP3")
+        ("BBC World" . "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service")
         )
       "A list of internet radio addresses.")
 

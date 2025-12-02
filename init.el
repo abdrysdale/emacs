@@ -1202,7 +1202,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (lambda (response info)
         (kill-new response)
         (message "gptel-commit message in the kill ring!"))))
-  (vc-next-action))
+  (vc-next-action nil))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))
@@ -1976,6 +1976,7 @@ with some rough idea of what the papers were about."
       org-agenda-skip-deadline-prewarning-if-scheduled t
       org-footnote-auto-adjust t
       org-footnote-auto-label 'confirm
+      org-enforce-todo-dependencies t
       org-startup-indented t)
 
 (setq org-todo-keywords

@@ -1756,10 +1756,35 @@ IF INPUT-TASK then just display that task."
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
 
+(defun ebib-create-key (key _db)
+  "Return the KEY in DB."
+  (format "%s" key))
+
+(add-to-list 'ebib-reading-list-template-specifiers '(?k . ebib-create-key))
 (setq ebib-notes-directory local/paper-notes-dir
       ebib-reading-list-file local/reading-list
+      ebib-reading-list-template (concat
+                                  "* %M [[ebib:%k][%T]] [/]\n"
+                                  ":PROPERTIES:\n"
+                                  "%K\n"
+                                  ":FILE: %F\n"
+                                  ":DOI: %D\n"
+                                  ":URL: %U\n"
+                                  ":END:\n"
+                                  "** TODO Read Abstract\n"
+                                  "** TODO Read Conclusion\n"
+                                  "** TODO Thorough Read\n"
+                                  "** TODO Critique\n")
       ebib-preload-bib-files `(,local/bib-file)
       ebib-file-search-dirs `(,local/paper-dir))
+
+(setq ebib-reading-list-new-item-hook
+          (lambda ()
+                                                ;; Position in kill ring
+            (ebib-copy-field-contents "title")  ;; 2nd
+            (ebib-copy-citation-as-kill)        ;; 1st
+            (ebib-copy-key-as-kill)             ;; 0th
+            (org-capture nil "p")))
 
 ;; Tries to download a paper associated with the url
 ;; Supports:
@@ -2109,45 +2134,7 @@ with some rough idea of what the papers were about."
 
 ;; Capture ;;
 
-;; Safety ticket template
-(defvar oc-capture-prmt-history nil
-  "History of prompt answers for org capture.")
-(defun oc/safety-ticket-template (url-var tid-var)
-  "Capture URL-VAR and TID-VAR of safety ticket."
-  (make-local-variable url-var)
-  (make-local-variable tid-var)
-  (let* ((url (read-string "URL: " nil oc-capture-prmt-history))
-         (url (if (string-suffix-p "&edit" url)
-                  (substring url 0 -5)
-                url))
-         (tid (substring url -7)))
-    (set url-var url)
-    (set tid-var tid)
-    (format "[[%s][%s]]" url tid)))
-
 ;; Capture templates
-(setq-if-not-defined st-export-dir nil)
-(defun st/export-notes ()
-  "Export Safety Ticket Notes."
-  (interactive)
-  (make-directory (org-entry-get nil "EXPORT_DIR") t)
-  (org-latex-export-to-pdf nil t nil nil))
-
-(setq-if-not-defined st-off-label-templates-dir nil)
-(defun st/set-template ()
-  "Set the template used for the ticket."
-  (interactive)
-  (let* ((tid (org-entry-get nil "ID"))
-         (template-dir st-off-label-templates-dir)
-         (template-file (completing-read "Select a template: "
-                                         (directory-files template-dir)))
-         (template-path (file-name-concat template-dir template-file))
-         (export-dir (org-entry-get nil "EXPORT_DIR"))
-         (export-path (file-name-concat export-dir
-                                        (format "%s_%s" tid template-file))))
-    (org-entry-put nil "TEMPLATE" template-file)
-    (copy-file template-path export-path)))
-
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)
   (define-key org-mode-map (kbd "C-c n t") #'st/set-template))
@@ -2175,13 +2162,14 @@ with some rough idea of what the papers were about."
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume)
         ("p" "Paper" entry
-         (file+headline ,(in-home-dir "Documents/Notes/Agenda.Org") "Inbox")
+         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          ,(concat
-           "* TODO %(ebib-insert-citation) [/]\n"
-           "** TODO Abstract\n"
-           "** TODO Conclusion\n"
-           "** TODO Thorough Read\n"
-           "** TODO Critique\n"))
+           "* TODO [[file:"
+           ebib-reading-list-file
+           "::#reading_%c][%(nth 2 kill-ring) (%(nth 1 kill-ring))]]\n"
+           "- [[file:"
+           (file-name-as-directory ebib-notes-directory)
+           "%c.org][Notes]]"))
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

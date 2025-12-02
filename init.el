@@ -1421,6 +1421,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
          "https://nothingissimple.ablatedsprocket.com/rss.xml")
         ("Hoagie's corner of the internet"
          "https://site.sebasmonia.com/feed.xml")
+        ("Yann Herklotz" "https://yannherklotz.com/index.xml")
+        ("Steven Bonner" "https://sbonner0.github.io/feed.xml")
         ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC

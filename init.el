@@ -1717,6 +1717,11 @@ IF INPUT-TASK then just display that task."
   (ebib-next-entry))
 
 (use-package ebib
+  ;; Occasionally launching ebib will return:
+  ;; display-buffer-assq-regexp: Wrong type argument: stringp, nil
+  ;; So far, this can be solved either by:
+  ;;    - Restarting emacs.
+  ;;    - Deleting and reinstalling ebib.
   :after org
   :config
   (require 'org-ebib)
@@ -1755,7 +1760,6 @@ IF INPUT-TASK then just display that task."
       ebib-reading-list-file local/reading-list
       ebib-preload-bib-files `(,local/bib-file)
       ebib-file-search-dirs `(,local/paper-dir))
-
 
 ;; Tries to download a paper associated with the url
 ;; Supports:
@@ -2148,7 +2152,6 @@ with some rough idea of what the papers were about."
   (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)
   (define-key org-mode-map (kbd "C-c n t") #'st/set-template))
 
-
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
@@ -2171,6 +2174,14 @@ with some rough idea of what the papers were about."
          (clock)
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
          :clock-in :clock-resume)
+        ("p" "Paper" entry
+         (file+headline ,(in-home-dir "Documents/Notes/Agenda.Org") "Inbox")
+         ,(concat
+           "* TODO %(ebib-insert-citation) [/]\n"
+           "** TODO Abstract\n"
+           "** TODO Conclusion\n"
+           "** TODO Thorough Read\n"
+           "** TODO Critique\n"))
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
@@ -2185,7 +2196,7 @@ with some rough idea of what the papers were about."
            "*** /So What?/\n%^{So What: }\n"
            "*** /Now What?/\n%^{Now What: }\n"
            "*** /3 month update:/\n"))
-        ("p" "Continuous Personal Development" entry
+        ("d" "Continuous Personal Development" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "CPD")
          ,(concat
            "* %^{Title: }%?\t"

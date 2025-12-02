@@ -511,8 +511,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
-(add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
-(add-to-list 'default-frame-alist '(width . 79))
+(if (eq system-type 'windows-nt)
+    (set-face-attribute 'default nil
+                        :family "Consolas" :height 110)
+  (progn
+    (add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
+    (add-to-list 'default-frame-alist '(width . 79))))
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)

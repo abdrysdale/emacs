@@ -1890,7 +1890,7 @@ with some rough idea of what the papers were about."
 (windmove-swap-states-default-keybindings 'shift)
 
 ;; Winner mode is handy for undo window changes.
-(setq winner-mode t)
+(winner-mode t)
 
 ;; Window related key bindings
 (global-set-keys-to-prefix "C-c w"

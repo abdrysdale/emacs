@@ -2171,7 +2171,10 @@ with some rough idea of what the papers were about."
            "::#reading_%c][%(nth 2 kill-ring) (%(nth 1 kill-ring))]]\n"
            "- [[file:"
            (file-name-as-directory ebib-notes-directory)
-           "%c.org][Notes]]"))
+           "%c.org][Notes]]")
+         :immediate-finish t
+         :jump-to-captured nil
+         :kill-buffer t)
         ("r" "Reflection" entry
          (file+headline
           ,(in-home-dir "Documents/notes/agenda.org") "Reflections")

@@ -1410,6 +1410,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         ("MHRA Device Safety Information"
          "https://www.gov.uk/drug-device-alerts.atom?alert_type%5B%5D=device-safety-information")
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")
+        ("Practical fMRI"
+         "https://practicalfmri.blogspot.com/feeds/posts/default")
         ;; Personal
         ("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
         ("Ruslan" "https://codelearn.me/feed.xml")

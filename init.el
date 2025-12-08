@@ -1179,9 +1179,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq gptel-commit--prompt
       (concat
-       "Write a conventional commit message for the following diff."
-       "ONLY return the commit message!\n"))
+       "Write a conventional commit message for the following diff making sure"
+       "to ONLY return the commit message!\nHere is the diff:\n"))
 
+(setq gptel-commit-model 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
@@ -1189,7 +1190,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (error "gptel-commit must be used in a vc-dir buffer"))
   (vc-diff)
   (let ((diff (buffer-string))
-        (gptel--system-message nil))
+        (gptel--system-message nil)
+        (gptel-model gptel-commit-model))
     (gptel-request
         (concat gptel-commit--prompt  diff)
       :callback

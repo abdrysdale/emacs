@@ -1139,9 +1139,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |----------------------------------------|------|------|-----|----|------|
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 28 |  131 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 36 | 1050 |
-;; | Qwen/Qwen3-Next-80B-A3B-Instruct       | 0.15 | 1.50 | --- | 54 |  262 |
-;; | Qwen/Qwen3-Next-80B-A3B-Thinking       | 0.15 | 1.50 | TFJ | 54 |  262 |
-;; | Qwen/Qwen3-235B-A22B-Thinking-2507     | 0.65 | 3.00 | T-- | 57 |  262 |
+;; | moonshotai/Kimi-K2-Thinking            | 1.20 | 3.00 | TTJ | 67 |  262 |
 ;; |------------------------------------------------------------------------|
 ;;
 ;; FJ = Thinking, Function Calling, JSON Ouptut
@@ -1149,11 +1147,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  Qwen3-Next-80B-A3B-Instruct     :: Balanced
-;;  Qwen3-235B-A22B                 :: Best
+;;  moonshotai/Kimi-K2-Thinking     :: Best
 ;;  Llama-4-Maverick                :: Huge context
 ;;  Llama-3.3                       :: Free
-;;  Qwen3-Next-80B-A3B-Thinking     :: Function Calling
 ;;
 (use-package gptel
   :config
@@ -1166,9 +1162,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(Qwen/Qwen3-Next-80B-A3B-Instruct
-                          Qwen/Qwen3-235B-A22B-Thinking-2507
-                          Qwen/Qwen3-Next-80B-A3B-Thinking
+                        '(moonshotai/Kimi-K2-Thinking
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))

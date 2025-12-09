@@ -595,7 +595,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       icomplete-hide-common-prefix nil
       read-buffer-completion-ignore-case t
       completion-ignore-case t
-      completion-auto-help nil
+      completion-auto-help t
       completion-styles '(basic partial-completion initials substring))
 ;; Used to use fido-vertical but that has difficulty when not selecting an item
 ;; from the completion list.  That is, when rather than selecting "fo" if "foo"
@@ -603,6 +603,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Hence I switched to icomplete.
 ;; Similarly, flex is too aggressive a completion match so I've removed that.
 ;; The vertical completion takes up more screen real estate so I ignored that.
+
 
 ;; For some reason icomplete doesn't always load after initialisation
 (icomplete-mode)

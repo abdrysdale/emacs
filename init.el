@@ -7,7 +7,8 @@
 ;; and tend to only use external package when it's much more convenient.
 
 ;;; Code:
-;;
+
+
 ;;  *****************************************
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
@@ -89,6 +90,7 @@ than having to call `add-to-list' multiple times."
 (setq-if-nil local/paper-dir (in-home-dir "Documents/resources/papers"))
 (setq-if-nil local/paper-notes-dir (in-home-dir "Documents/notes/paper-notes"))
 
+
 ;;  **********
 ;;; * Server *
 ;;  **********
@@ -152,9 +154,9 @@ than having to call `add-to-list' multiple times."
   (setq use-package-always-ensure t
         use-package-expand-minimally t))
 
-
 ;; Natively compile packages immediately after installation
 (setq package-native-compile t)
+
 
 ;;  ********************
 ;;; * Usage Statistics *
@@ -314,6 +316,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package json-mode)
 (use-package markdown-mode)
 
+
 ;;  **********
 ;;; * System *
 ;;  **********
@@ -365,6 +368,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Works with daemons but not remotely running Emacs sessions.
 (setq desktop-load-locked-desktop 'check-pid)
+
 
 ;;  ******
 ;;; * UI *
@@ -471,7 +475,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 	      indent-tabs-mode nil
           tab-always-indent 'complete)
 
-
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
 (electric-indent-mode 0)
@@ -504,6 +507,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)
+
 
 ;;  *****************
 ;;; * Basic Editing *
@@ -547,6 +551,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (if (stringp file-name)
         (kill-new (buffer-file-name))
       (message "Current buffer is not a file."))))
+
 
 ;;  ********************
 ;;; * Advanced Editing *
@@ -600,10 +605,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (lambda (&rest args)
         (apply #'completion--in-region args)))
 
-
 ;; Enables advanced editing modes
 (put 'set-goal-column 'disabled nil)    ;; Enables setting a goal column
 (put 'narrow-to-region 'disabled nil)   ;; Enables narrowing
+(put 'narrow-to-page 'disabled nil)
+(add-hook 'prog-mode-hook #'(lambda () (setq-local page-delimiter "^\n\n")))
 
 (put 'upcase-region 'disabled nil)      ;; Enables up case a region
 (put 'downcase-region 'disabled nil)    ;; Enables down case a region
@@ -633,6 +639,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; iSpell ;;
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+
 
 ;;  *************************
 ;;; * Programming Languages *
@@ -984,6 +991,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq midnight-mode t)
 (midnight-delay-set 'midnight-delay "02:00am")
 
+
 ;;  *********
 ;;; * Dired *
 ;;  *********
@@ -998,8 +1006,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
   (add-hook 'dired-mode-hook
             (lambda () (local-set-key (kbd "M-p") #'dired-up-directory))))
-
-
 
 (setq dired-listing-switches "-alh"
       dired-dwim-target #'dired-dwim-target-recent
@@ -1020,6 +1026,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq global-auto-revert-non-file-buffers t)
 
+
 ;;  ***************
 ;;; * Development *
 ;;  ***************
@@ -1038,6 +1045,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
 (define-key flymake-mode-map (kbd "C-c l b") 'flymake-show-buffer-diagnostics)
 (define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics)
+
 
 ;;  *********
 ;;; * Tools *
@@ -1266,7 +1274,6 @@ You are Ceri, a large language model living inside Emacs.
   (interactive)
   (find-file user-init-file))
 
-
 ;; Calculator
 (defun calc-or-quick-calc (arg)
   "Run calc or quick calc if ARG."
@@ -1449,7 +1456,6 @@ You are Ceri, a large language model living inside Emacs.
     (load irc-auth-file)
     (setq erc-sasl-password libera-chat-pass)))
 
-
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 
 (use-package transmission
@@ -1492,14 +1498,12 @@ You are Ceri, a large language model living inside Emacs.
         )
       "A list of internet radio addresses.")
 
-
 (defun emms-play-from-radio-addr ()
   "Play a url from 'emms-radio-addr'."
   (interactive)
   (let* ((radio (completing-read "Radio: " emms-radio-addr nil t))
          (addr (cdr (assoc radio emms-radio-addr))))
     (emms-play-url addr)))
-
 
 ;; Self Help
 (setq sh/tasks
@@ -1648,6 +1652,7 @@ IF INPUT-TASK then just display that task."
     (error "roll-die: Sides argument must be a natural number"))
   (message (format "d%i rolled: %i" sides (1+ (random sides)))))
 
+
 ;;  ********
 ;;; * Mail *
 ;;  ********
@@ -1677,6 +1682,7 @@ IF INPUT-TASK then just display that task."
       smtpmail-smtp-server "127.0.0.1"
       smtpmail-smtp-service 1025
       message-kill-buffer-on-exit t)
+
 
 ;;  ********
 ;;; * Ebib *
@@ -1834,6 +1840,7 @@ with some rough idea of what the papers were about."
           (lambda ()
             (local-set-key (kbd "C-y") #'ebib-insert-latex-ref-other-window)))
 
+
 ;;  ***********
 ;;; * Windows *
 ;;  ***********
@@ -1848,7 +1855,6 @@ with some rough idea of what the papers were about."
 (global-set-key (kbd "C-M-o") #'other-frame)
 
 ;; I regularly make use of follow mode
-
 
 ;; Move to window with arrow keys, swap windows with shift + arrow keys
 (setq shift-select-mode nil)    ;; Shift + arrow keys overrides this anyway.
@@ -1868,7 +1874,6 @@ with some rough idea of what the papers were about."
 (setq enable-recursive-minibuffers t
       minibuffer-depth-indicate-mode t
       minibuffer-follows-selected-frame nil)
-
 
 ;; Side Windows ;;
 ;;     ___________________________________
@@ -1946,6 +1951,7 @@ with some rough idea of what the papers were about."
 (setq switch-to-buffer-in-dedicated-window "pop"
       switch-to-buffer-obey-display-actions t)
 
+
 ;;  ************
 ;;; * Org Mode *
 ;;  ************
@@ -1957,7 +1963,6 @@ with some rough idea of what the papers were about."
 (variable-pitch-mode 0)
 (auto-fill-mode 0)
 (visual-line-mode 1)
-
 
 (setq org-return-follows-link  t
       org-hide-emphasis-markers t
@@ -2149,6 +2154,7 @@ with some rough idea of what the papers were about."
 ;; HTML syntax highlighting
 (use-package htmlize)
 
+
 ;;  ****************
 ;;; * Abbreviation *
 ;;  ****************
@@ -2187,6 +2193,7 @@ same `major-mode'."
       dabbrev-case-replace nil
       dabbrev-abbrev-skip-leading-regexp "\\$")
 (global-set-key (kbd "C-M-/") #'dabbrev-expand)
+
 
 ;;  *************
 ;;; * Templates *
@@ -2251,6 +2258,7 @@ same `major-mode'."
     (message
      (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
 
+
 ;;  **********************
 ;;; * Global Keybindings *
 ;;  **********************
@@ -2297,7 +2305,6 @@ same `major-mode'."
                                      ("C-c" .
                                       (compile
                                        ,compilation-python-type-check-cmd))))
-
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)
                                      ("A" . add-dir-local-variable)
@@ -2368,10 +2375,8 @@ same `major-mode'."
 (global-set-keys-to-prefix "C-c m r" '(("r" . emms-play-from-radio-addr)
                                        ("C-s" . emms-stop)))
 
-
 (global-set-keys-to-prefix "C-c p"  '(("n" . doc-view-other-frame-scroll-up)
                                       ("p" . doc-view-other-frame-scroll-down)))
-
 
 (global-set-keys-to-prefix "C-c t" '(("g" . global-tab-line-mode)
                                      ("l" . toggle-theme)
@@ -2388,6 +2393,7 @@ same `major-mode'."
                                      ("p" #'how-is-this-paper-looking?)
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)))
+
 
 ;;  ***********
 ;;; * STARTUP *
@@ -2463,6 +2469,7 @@ same `major-mode'."
   (desktop-clear)
   (startup))
 (global-set-key (kbd "C-c b b") #'startup)
+
 
 ;;  ***************
 ;;; * CUSTOM VARS *

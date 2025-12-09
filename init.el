@@ -156,14 +156,6 @@ than having to call `add-to-list' multiple times."
 ;; Natively compile packages immediately after installation
 (setq package-native-compile t)
 
-;; File modes ;;
-;; No config needed - just needed for the file types.
-(use-package csv-mode)
-(use-package yaml-mode)
-(use-package toml-mode)
-(use-package json-mode)
-(use-package markdown-mode)
-
 ;;  ********************
 ;;; * Usage Statistics *
 ;;  ********************
@@ -1106,7 +1098,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-expert-commands t
         gptel-temperature 0.7
-        gptel-default-mode 'markdown-mode
+        gptel-default-mode 'org-mode
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))
@@ -1123,9 +1115,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
-  (unless (eq major-mode 'vc-dir-mode)
-    (error "gptel-commit must be used in a vc-dir buffer"))
-  (vc-diff)
+  (unless (or (eq major-mode 'vc-dir-mode)
+              (eq major-mode 'diff-mode))
+    (error "gptel-commit must be used in a vc-dir or diff buffer"))
+  (unless (eq major-mode 'diff-mode)
+    (vc-diff))
   (let ((diff (buffer-string))
         (gptel--system-message nil)
         (gptel-model gptel-commit-model))
@@ -1138,6 +1132,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (vc-next-action nil))
 
 (add-hook 'vc-dir-mode-hook
+          (lambda () (local-set-key (kbd "c") #'gptel-commit)))
+(add-hook 'diff-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))
 
 (setq default-llm-system-prompt
@@ -2300,7 +2296,7 @@ same `major-mode'."
                                      ("t" . org-timer-set-timer)
                                      ("C-c" .
                                       (compile
-                                       ,compilation-python-type-check-cmd))))))
+                                       ,compilation-python-type-check-cmd))))
 
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)

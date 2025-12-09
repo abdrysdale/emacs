@@ -249,8 +249,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (current-branch (car (vc-git-branches))))
     (vc-root-version-diff t default-branch current-branch)))
 
-(global-set-key (kbd "C-c d m") #'my/vc-diff-against-main)
-
 ; Conventional Commit Templates
 (setv conventional-commit/types
   '("fix"
@@ -370,8 +368,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Hence, I'll disable desktop-save-mode but call it in the startup hook.
 ;; That way I get desktop auto-saving without loading previous desktops
 ;; by default.
-(global-set-key (kbd "C-c b d") #'desktop-read)
-
 ;; Auto-save is turned on in the startup hook.
 (desktop-save-mode nil)
 
@@ -432,11 +428,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (set-buffer b)
       (tab-line-mode *onoff*))
     (set-buffer (car *buffers*))))
-
-(global-set-keys-to-prefix "C-c t" '(("t" . current-major-mode-tab-line-mode)
-                                     ("n" . tab-line-switch-to-next-tab)
-                                     ("p" . tab-line-switch-to-prev-tab)
-                                     ("g" . global-tab-line-mode)))
 
 (defun-surely save-buffers-kill-terminal)
 (global-set-key (kbd "C-x C-c") #'save-buffers-kill-terminal-surely)
@@ -510,7 +501,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       (setq me/current-theme me/dark-theme))
   (me/load-theme))
 (me/load-theme)
-(global-set-key (kbd "C-c t l") #'toggle-theme)
 
 ;;  As a quick and convenient test, this line happens to be 79 characters long.
 (if (eq system-type 'windows-nt)
@@ -522,16 +512,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Highlighting changes
 (setq highlight-changes-mode t)
-
-(global-set-keys-to-prefix "C-c h"
-                           '(("c" . highlight-changes-mode)
-                             ("h" . highlight-changes-remove-highlight)
-                             ("v" . highlight-changes-visible-mode)
-                             ("n" . highlight-changes-next-change)
-                             ("p" . highlight-changes-previous-change)
-                             ("r" . highlight-changes-rotate-faces)
-                             ("f" . highlight-compare-with-file)
-                             ("b" . highlight-compare-buffers)))
 
 ;;  *****************
 ;;; * Basic Editing *
@@ -567,9 +547,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                               newline indentation empty space-after-tab
                               space-mark tab-mark missing-newline-at-eof))
 
-(global-set-keys-to-prefix "C-c b" '(("c" . count-words)
-                                     ("r" . revert-buffer)))
-
 ;; Copy the current buffer's filename to the kill ring.
 (defun copy-filename-to-kill ()
   "Copy the current buffer's filename to the kill ring."
@@ -578,8 +555,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (if (stringp file-name)
         (kill-new (buffer-file-name))
       (message "Current buffer is not a file."))))
-(global-set-key (kbd "C-c f w") #'copy-filename-to-kill)
-
 
 ;;  ********************
 ;;; * Advanced Editing *
@@ -664,17 +639,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind ("C-=" . er/expand-region))
 
 ;; iSpell ;;
-(global-set-keys-to-prefix "C-c d" '(("s" . ispell)
-                                     ("w" . ispell-word)
-                                     ("c" . ispell-comments-and-strings)
-                                     ("l" . dictionary-lookup-definition)
-                                     ("b" . ispell-buffer)))
-
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
-
-;; Multi-file operations
-(global-set-key (kbd "C-c f c") #'fileloop-continue)
 
 ;;  *************************
 ;;; * Programming Languages *
@@ -688,9 +654,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq compilation-scroll-output 'first-error)
 (setq compilation-python-type-check-cmd
       "uvx pyrefly check -j 0 --output-format min-text")
-(global-set-keys-to-prefix "C-c c"
-                           `(("c" . compile)
-                             ("C-c" . (compile ,compilation-python-type-check-cmd))))
 
 ;;;; Python
 (defun python-imenu-use-flat-index
@@ -702,7 +665,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'python-mode-hook
           #'python-imenu-use-flat-index)
 
-(global-set-key (kbd "C-c g d") #'pdb)
 (setq gud-pdb-command-name "uv run python -m pdb")
 (setq python-shell-interpreter "python")
 
@@ -745,7 +707,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                    BEG END
                    (how-many "[\\]cite" BEG END)
                    (how-many "[\\]todo" BEG END))))
-(global-set-key (kbd "C-c w p") #'how-is-this-paper-looking?)
 
 (defun latex-format-as-todo (BEG END)
   "Wrap the text between BEG and END in a todo."
@@ -989,19 +950,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (recentf-mode 1)
 (ffap-bindings) ;; Better defaults for file finding
 (setq read-file-name-completion-ignore-case t)
-(global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
-                                     ("v" . view-file)
-                                     ("r" . recentf-open-files)
-                                     ("a" . add-file-local-variable)
-                                     ("d" . delete-file-local-variable)
-                                     ("c" . copy-dir-locals-to-file-locals)))
-
-;; grep
-(global-set-keys-to-prefix "C-c g" '(("g" . grep)
-                                     ("l" . lgrep)
-                                     ("r" . rgrep)
-                                     ("z" . zgrep)
-                                     ("k" . kill-grep)))
 
 ;; Projects
 (defun edit-projects ()
@@ -1012,22 +960,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                                      ("s" . project-search)))
 
 ;; Buffers
-(global-set-keys-to-prefix "C-c b"
-                           '(("k" . kill-buffer-and-window)
-                             ("," . switch-to-buffer-other-window)
-                             ("v" . view-buffer-other-window)
-                             ("a" . append-to-buffer)
-                             ("n" . next-buffer)
-                             ("m" . (lambda () (interactive)
-                                      (switch-to-buffer "*Messages*")))
-                             ("l" . (lambda () (interactive)
-                                      (switch-to-buffer "*Ceri*")))
-                             ("e" . (lambda () (interactive)
-                                      (switch-to-buffer "*elysium*")))
-                             ("g" . (lambda () (interactive)
-                                      (switch-to-buffer "*gud-run*")))
-                             ("p" . previous-buffer)))
-
 (global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
@@ -1055,8 +987,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
-(global-set-keys-to-prefix "C-c b" '(("s" . scratch-buffer)
-                                     ("N" . note-buffer)))
 
 (global-auto-revert-mode 1)
 (setq midnight-mode t)
@@ -1097,16 +1027,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        (match-string 1 criteria))))
 
 (setq global-auto-revert-non-file-buffers t)
-
-(global-set-keys-to-prefix "C-c d" '(("l" . dired-default-directory-on-left)
-                                     ("a" . add-dir-local-variable)
-                                     ("c" . copy-dir-locals-to-file-locals)
-                                     ("d" . delete-dir-local-variable)
-                                     ("p" . dired-at-point)
-                                     ("f" . find-dired)
-                                     ("n" . find-name-dired)
-                                     ("e" . wdired-change-to-wdired-mode)
-                                     ("," . dired-other-window)))
 
 ;;  ***************
 ;;; * Development *
@@ -1193,7 +1113,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (load (concat user-emacs-directory "gptel-tools.el")))
 
 (use-package gptel-fn-complete)
-(global-set-key (kbd "C-c l c") #'gptel-fn-complete)
 
 (setq gptel-commit--prompt
       (concat
@@ -1324,17 +1243,6 @@ You are Ceri, a large language model living inside Emacs.
     -   Gamma's exact 1-engineer requirement with skill separation
 ")
 (setq gptel--system-message default-llm-system-prompt)
-(global-set-keys-to-prefix "C-c l" '(("g" . gptel)
-                                     ("s" . gptel-send)
-                                     ("r" . gptel-rewrite)
-                                     ("a" . gptel-add)
-                                     ("f" . gptel-add-file)
-                                     ("c" . gptel-context-quit)
-                                     ("C-g" . gptel-abort)
-                                     ("m" . gptel-menu)
-                                     ("o" . gptel-papers-summarise)
-                                     ;; Sometimes just a dictionary is required
-                                     ("d" . dictionary-lookup-definition)))
 
 ;; Aider.el
 ;; External dependencies :: aider
@@ -1361,7 +1269,7 @@ You are Ceri, a large language model living inside Emacs.
   "Visit the init file."
   (interactive)
   (find-file user-init-file))
-(global-set-key (kbd "C-c f i") #'my-visit-user-init-file)
+
 
 ;; Calculator
 (defun calc-or-quick-calc (arg)
@@ -1419,14 +1327,13 @@ You are Ceri, a large language model living inside Emacs.
   (other-frame 1)
   (doc-view-scroll-up-or-next-page)
   (other-frame 1))
+
 (defun doc-view-other-frame-scroll-down ()
   "Same as switching to other frame, pressing p and then switching back."
   (interactive)
   (other-frame 1)
   (doc-view-scroll-down-or-previous-page)
   (other-frame 1))
-(global-set-keys-to-prefix "C-c p"  '(("n" . doc-view-other-frame-scroll-up)
-                                      ("p" . doc-view-other-frame-scroll-down)))
 
 ;; Browser
 (require 'eww)
@@ -1469,13 +1376,7 @@ You are Ceri, a large language model living inside Emacs.
     (eval `(global-set-key (kbd ,(format "C-c u %s" prefix))
                            (def-eww-with-search-prefix ,name ,url)))))
 
-(global-set-keys-to-prefix "C-c u"
-                           '(("u" . eww)
-                             ("b" . browser-url-at-point-with-external-browser)
-                             ("C-b" . eww-list-bookmarks)))
-
 ;; Newsticker (RSS)
-(global-set-key (kbd "C-c m n") #'newsticker-show-news)
 (setq newsticker-frontend #'newsticker-treeview
       newsticker-automatically-mark-items-as-old nil
       newsticker-hide-old-items-in-newsticker-buffer t)
@@ -1554,7 +1455,6 @@ You are Ceri, a large language model living inside Emacs.
 
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))
-(global-set-key (kbd "C-c m i") #'irc)
 
 (use-package transmission
   :config (setq transmission-timer 5))
@@ -1604,9 +1504,6 @@ You are Ceri, a large language model living inside Emacs.
          (addr (cdr (assoc radio emms-radio-addr))))
     (emms-play-url addr)))
 
-
-(global-set-keys-to-prefix "C-c m r" '(("r" . emms-play-from-radio-addr)
-                                       ("C-s" . emms-stop)))
 
 ;; Self Help
 (setq sh/tasks
@@ -1762,7 +1659,6 @@ IF INPUT-TASK then just display that task."
 ;; Notmuch ;;
 (use-package notmuch)
 (setq-default notmuch-search-oldest-first nil)
-(global-set-key (kbd "C-c m m") #'notmuch)
 
 ;; Sometimes notmuch renders html really badly for the current colour scheme.
 ;; To remedy this, it's handy to open up the current email in a side buffer
@@ -1776,8 +1672,6 @@ IF INPUT-TASK then just display that task."
   (other-window-prefix)
   (notmuch-show-view-raw-message)
   (shr-render-buffer (current-buffer)))
-
-(global-set-key (kbd "C-c m v") #'notmuch-view-html-in-eww-other-window)
 
 ;; Sending Mail ;;
 (use-package smtpmail)
@@ -1807,8 +1701,6 @@ IF INPUT-TASK then just display that task."
   :after org
   :config
   (require 'org-ebib)
-  (global-set-key (kbd "C-c m b") #'ebib)
-  (global-set-key (kbd "C-c i") #'ebib-insert-citation)
   (setq ebib-save-xrefs-first nil
         ebib-index-default-sort '("Year" . descend)
         ebib-file-associations nil
@@ -1960,7 +1852,7 @@ with some rough idea of what the papers were about."
 (global-set-key (kbd "C-M-o") #'other-frame)
 
 ;; I regularly make use of follow mode
-(global-set-key (kbd "C-c f f") #'follow-mode)
+
 
 ;; Move to window with arrow keys, swap windows with shift + arrow keys
 (setq shift-select-mode nil)    ;; Shift + arrow keys overrides this anyway.
@@ -1969,12 +1861,6 @@ with some rough idea of what the papers were about."
 
 ;; Winner mode is handy for undo window changes.
 (winner-mode t)
-
-;; Window related key bindings
-(global-set-keys-to-prefix "C-c w"
-                           '(("t" . window-toggle-side-windows)
-                             ("s" . window-swap-states)
-                             ("m" . windmove-mode)))
 
 ;; Minibuffers
 (setq minibuffer-prompt-properties
@@ -2076,7 +1962,6 @@ with some rough idea of what the papers were about."
 (auto-fill-mode 0)
 (visual-line-mode 1)
 
-(global-set-key (kbd "C-c f a") #'org-cycle-agenda-files)
 
 (setq org-return-follows-link  t
       org-hide-emphasis-markers t
@@ -2145,25 +2030,6 @@ with some rough idea of what the papers were about."
   (insert
    (format-time-string "%a, %d %b %Y %T %Z" nil t)))
 
-;; Bind to slightly nicer key bindings
-(global-set-keys-to-prefix "C-c c"
-                           '(("r" . org-clock-report)
-                             ("o" . org-clock-out)
-                             ("l" . org-clock-in-last)
-                             ("i" . org-clock-in)
-                             ("g" . org-clock-goto)
-                             ("t" . org-timer-set-timer)
-                             ("p" . org-timer-pause-or-continue)
-                             ("s" . org-timer-stop)
-                             ("." . org-timer)
-                             ("," . insert-time-rfc-822)
-                             ("d" .(lambda () (interactive)
-                                     (insert
-                                      (format-time-string "%Y-%m-%d"))))
-                             ("n" .  (lambda () (interactive)
-                                       (insert
-                                        (format-time-string "%H:%M"))))))
-
 ;; Links ;;
 (defun org-mode-url-at-point ()
   "Extract URL from =org-mode= link at point."
@@ -2206,10 +2072,6 @@ with some rough idea of what the papers were about."
 ;; Agenda ;;
 (setq org-agenda-files `(,local/agenda-file ,local/reading-list))
 
-(global-set-keys-to-prefix "C-c m"
-                           '(("a" . org-agenda-list)
-                             ("A" . org-agenda)
-                             ("t" . org-todo-list)))
 (setq org-deadline-warning-days 60)
 
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
@@ -2279,7 +2141,6 @@ with some rough idea of what the papers were about."
            "- /Benefit to person/people/organisation?/\n%^{Benefit to org: }\n"
            "- /Where to find evidence?/\n%^{Where to find evidence: }\n"
            "- /Time spent (in hours)/ :: %^{Time spent: }\n"))))
-(global-set-key (kbd "C-c m c") #'org-capture)
 
 ;; By default org refile but the variable org-refile-targets can change that.
 ;; In changing this is also handy to view the outline path too.
@@ -2394,6 +2255,143 @@ same `major-mode'."
     (message
      (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
 
+;;  **********************
+;;; * Global Keybindings *
+;;  **********************
+
+(global-set-keys-to-prefix "C-c b" '(("," . switch-to-buffer-other-window)
+                                     ("N" . note-buffer)
+                                     ("a" . append-to-buffer)
+                                     ("b" . ebib)
+                                     ("c" . count-words)
+                                     ("d" . desktop-read)
+                                     ("e" . (lambda () (interactive)
+                                              (switch-to-buffer "*elysium*")))
+                                     ("g" . (lambda () (interactive)
+                                              (switch-to-buffer "*gud-run*")))
+                                     ("i" . ebib-insert-citation)
+                                     ("k" . kill-buffer-and-window)
+                                     ("l" . (lambda () (interactive)
+                                              (switch-to-buffer "*Ceri*")))
+                                     ("m" . (lambda () (interactive)
+                                              (switch-to-buffer "*Messages*")))
+                                     ("n" . next-buffer)
+                                     ("p" . previous-buffer)
+                                     ("r" . revert-buffer)
+                                     ("s" . scratch-buffer)
+                                     ("v" . view-buffer-other-window)))
+
+(global-set-keys-to-prefix "C-c c" `(("." . org-timer)
+                                     ("," . insert-time-rfc-822)
+                                     ("c" . compile)
+                                     ("d" .(lambda () (interactive)
+                                             (insert
+                                              (format-time-string "%Y-%m-%d"))))
+                                     ("g" . org-clock-goto)
+                                     ("i" . org-clock-in)
+                                     ("l" . org-clock-in-last)
+                                     ("n" .  (lambda () (interactive)
+                                               (insert
+                                                (format-time-string "%H:%M"))))
+                                     ("o" . org-clock-out)
+                                     ("p" . org-timer-pause-or-continue)
+                                     ("r" . org-clock-report)
+                                     ("s" . org-timer-stop)
+                                     ("t" . org-timer-set-timer)
+                                     ("C-c" .
+                                      (compile
+                                       ,compilation-python-type-check-cmd))))))
+
+
+(global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)
+                                     ("A" . add-dir-local-variable)
+                                     ("C" . copy-dir-locals-to-file-locals)
+                                     ("D" . delete-dir-local-variable)
+                                     ("b" . ispell-buffer)
+                                     ("d" . dired-default-directory-on-left)
+                                     ("c" . ispell-comments-and-strings)
+                                     ("e" . wdired-change-to-wdired-mode)
+                                     ("f" . find-dired)
+                                     ("l" . dictionary-lookup-definition)
+                                     ("m" . my/vc-diff-against-main)
+                                     ("n" . find-name-dired)
+                                     ("p" . dired-at-point)
+                                     ("s" . ispell)
+                                     ("w" . ispell-word)))
+
+(global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
+                                     ("A" . add-file-local-variable)
+                                     ("C" . copy-dir-locals-to-file-locals)
+                                     ("D" . delete-file-local-variable)
+                                     ("a" . org-cycle-agenda-filse)
+                                     ("c" . fileloop-continue)
+                                     ("f" . follow-mode)
+                                     ("i" . my-visit-user-init-file)
+                                     ("r" . recentf-open-files)
+                                     ("v" . view-file)
+                                     ("w" . copy-filename-to-kill)))
+
+(global-set-keys-to-prefix "C-c g" '(("d" . pdb)
+                                     ("g" . grep)
+                                     ("k" . kill-grep)
+                                     ("l" . lgrep)
+                                     ("r" . rgrep)
+                                     ("z" . zgrep)))
+
+(global-set-keys-to-prefix "C-c l" '(("a" . gptel-add)
+                                     ("c" . gptel-fn-complete)
+                                     ;; Sometimes just a dictionary is required
+                                     ("d" . dictionary-lookup-definition)
+                                     ("f" . gptel-add-file)
+                                     ("g" . gptel)
+                                     ("m" . gptel-menu)
+                                     ("o" . gptel-papers-summarise)
+                                     ("q" . gptel-context-quit)
+                                     ("r" . gptel-rewrite)
+                                     ("s" . gptel-send)
+                                     ("C-g" . gptel-abort)))
+
+(global-set-keys-to-prefix "C-c h" '(("b" . highlight-compare-buffers)
+                                     ("c" . highlight-changes-mode)
+                                     ("f" . highlight-compare-with-file)
+                                     ("h" . highlight-changes-remove-highlight)
+                                     ("n" . highlight-changes-next-change)
+                                     ("p" . highlight-changes-previous-change)
+                                     ("r" . highlight-changes-rotate-faces)
+                                     ("v" . highlight-changes-visible-mode)))
+
+(global-set-keys-to-prefix "C-c m" '(("A" . org-agenda)
+                                     ("a" . org-agenda-list)
+                                     ("c" . org-capture)
+                                     ("i" . irc)
+                                     ("m" . notmuch)
+                                     ("n" . newsticker-show-news)
+                                     ("t" . org-todo-list)
+                                     ("v" . notmuch-view-html-in-eww-other-window)))
+
+(global-set-keys-to-prefix "C-c m r" '(("r" . emms-play-from-radio-addr)
+                                       ("C-s" . emms-stop)))
+
+
+(global-set-keys-to-prefix "C-c p"  '(("n" . doc-view-other-frame-scroll-up)
+                                      ("p" . doc-view-other-frame-scroll-down)))
+
+
+(global-set-keys-to-prefix "C-c t" '(("g" . global-tab-line-mode)
+                                     ("l" . toggle-theme)
+                                     ("n" . tab-line-switch-to-next-tab)
+                                     ("p" . tab-line-switch-to-prev-tab)
+                                     ("t" . current-major-mode-tab-line-mode)))
+
+(global-set-keys-to-prefix "C-c u" '(("b" .
+                                      browser-url-at-point-with-external-browser)
+                                     ("u" . eww)
+                                     ("C-b" . eww-list-bookmarks)))
+
+(global-set-keys-to-prefix "C-c w" '(("m" . windmove-mode)
+                                     ("p" #'how-is-this-paper-looking?)
+                                     ("s" . window-swap-states)
+                                     ("t" . window-toggle-side-windows)))
 
 ;;  ***********
 ;;; * STARTUP *

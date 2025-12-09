@@ -12,7 +12,6 @@
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
 
-
 (defmacro setq-if-defined (var val &optional arg)
   "Set VAR to VAL if it is defined else warn if ARG else raise an error."
   (if (boundp var)
@@ -487,7 +486,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq-default c-basic-offset 4
 	      tab-width 4
 	      indent-tabs-mode nil
-          tab-always-indent t)
+          tab-always-indent 'complete)
+
 
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
@@ -586,6 +586,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  ********************
 
 ;; Completion
+;; Used to use fido-vertical but that has difficulty when not selecting an item
+;; from the completion list.  That is, when rather than selecting "fo" if "foo"
+;; is present "foo" will always be selected.
+;; Hence I switched to icomplete.
+;; Similarly, flex is too aggressive a completion match so I've removed that.
+;; The vertical completion takes up more screen real estate so I ignored that.
 (require 'icomplete)
 (setq icomplete-mode t
       icomplete-in-buffer t
@@ -596,14 +602,28 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       read-buffer-completion-ignore-case t
       completion-ignore-case t
       completion-auto-help t
-      completion-styles '(basic partial-completion initials substring))
-;; Used to use fido-vertical but that has difficulty when not selecting an item
-;; from the completion list.  That is, when rather than selecting "fo" if "foo"
-;; is present "foo" will always be selected.
-;; Hence I switched to icomplete.
-;; Similarly, flex is too aggressive a completion match so I've removed that.
-;; The vertical completion takes up more screen real estate so I ignored that.
+      completion-styles '(basic
+                          partial-completion
+                          initials
+                          substring
+                          shorthand))
 
+;; read-symbol-shorthands must only be set as a file local-variable
+;; hence we define a function for quickly doing this.
+(defun add-file-local-variable-shorthand ()
+  "Add a file-local shorthand variable."
+  (interactive)
+  (let* ((shorthand (read-string "Shorthand: "))
+         (longhand (read-string "Longhand: "))
+         (current-shorthand-list (bound-and-true-p
+                                  read-symbol-shorthands))
+         (shorthand-list (if current-shorthand-list
+                             current-shorthand-list
+                           '())))
+    (message "Added shorthand: %s -> %s" shorthand longhand)
+    (add-to-list 'shorthand-list (cons shorthand longhand))
+    (add-file-local-variable 'read-symbol-shorthands shorthand-list)
+    (setq-local read-symbol-shorthands shorthand-list)))
 
 ;; For some reason icomplete doesn't always load after initialisation
 (icomplete-mode)
@@ -971,8 +991,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq read-file-name-completion-ignore-case t)
 (global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
                                      ("v" . view-file)
-                                     ("l" . add-file-local-variable)
-                                     ("r" . recentf-open-files)))
+                                     ("r" . recentf-open-files)
+                                     ("a" . add-file-local-variable)
+                                     ("d" . delete-file-local-variable)
+                                     ("c" . copy-dir-locals-to-file-locals)))
 
 ;; grep
 (global-set-keys-to-prefix "C-c g" '(("g" . grep)
@@ -1076,7 +1098,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq global-auto-revert-non-file-buffers t)
 
-(global-set-keys-to-prefix "C-c d" '(("d" . dired-default-directory-on-left)
+(global-set-keys-to-prefix "C-c d" '(("l" . dired-default-directory-on-left)
+                                     ("a" . add-dir-local-variable)
+                                     ("c" . copy-dir-locals-to-file-locals)
+                                     ("d" . delete-dir-local-variable)
                                      ("p" . dired-at-point)
                                      ("f" . find-dired)
                                      ("n" . find-name-dired)
@@ -2299,9 +2324,12 @@ same `major-mode'."
 ;; Key binding for unexpanding abbrevs
 (global-set-key (kbd "C-x a u") #'unexpand-abbrev)
 
-
-(setq dabbrev-limit nil)  ;; No limit on searching back
-(setq dabbrev-check-all-buffers t)
+(setq dabbrev-limit nil  ;; No limit on searching back
+      dabbrev-check-all-buffers t
+      dabbrev-case-fold-search t
+      dabbrev-case-replace nil
+      dabbrev-abbrev-skip-leading-regexp "\\$")
+(global-set-key (kbd "C-M-/") #'dabbrev-expand)
 
 ;;  *************
 ;;; * Templates *

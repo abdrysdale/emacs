@@ -63,7 +63,9 @@ than having to call `add-to-list' multiple times."
 
 (defvar local/home-dir "~" "Home directory.")
 (defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
-(defvar lchat-model nil "Default model for the lchat shell.")
+
+(defvar local/habitica-uid nil "Habitica UID.")
+(defvar local/habitica-token nil "Habitica Token.")
 
 ;; Important files that need to be present.
 (defvar local/agenda-file nil "Local agenda file.")
@@ -1009,8 +1011,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                              ("n" . next-buffer)
                              ("m" . (lambda () (interactive)
                                       (switch-to-buffer "*Messages*")))
-                             ("t" . (lambda () (interactive)
-                                      (switch-to-buffer "*TogetherAI*")))
+                             ("l" . (lambda () (interactive)
+                                      (switch-to-buffer "*Ceri*")))
                              ("e" . (lambda () (interactive)
                                       (switch-to-buffer "*elysium*")))
                              ("g" . (lambda () (interactive)
@@ -1118,7 +1120,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  *********
 
 ;; Habitica
-(use-package habitica)
+(use-package habitica
+  :config
+  (setq habitica-show-streak t)
+  (setq habitica-uid local/habitica-uid)
+  (setq habitica-token local/habitica-token))
 
 ;; Shell/Eshell
 (require 'em-banner)
@@ -1168,7 +1174,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-expert-commands t
         gptel-temperature 0.7
-        gptel-default-mode 'org-mode
+        gptel-default-mode 'markdown-mode
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))
@@ -1203,45 +1209,109 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))
 
-(setq default-llm-prompt
-      (concat
-       "During reasoning,"
-       " explore multiple angles and approaches."
-       " Break down the solution into clear steps within \<step\> tags."
-       " Start with a 20-step budget,"
-       " requesting more for complex problems if needed."
-       " Use \<count\> tags after each step to show the remaining budget."
-       " Stop when reaching 0."
-       " Continuously adjust your reasoning"
-       " based on intermediate results and reflections,"
-       " adapting your strategy as you progress."
-       " Regularly evaluate progress using \<reflection\> tags."
-       " Be critical and honest about your reasoning process."
-       " Assign a quality score between 0.0 and 1.0"
-       " using \<reward\> tags after each reflection."
-       " Use this to guide your approach:"
-       " 0.8+: Continue current approach"
-       " 0.5-0.7: Consider minor adjustments"
-       " Below 0.5: Seriously consider backtracking"
-       " and trying a different approach."
-       " If unsure or if reward score is low,"
-       " backtrack and try a different approach,"
-       " explaining your decision during reasoning."
-       " For mathematical problems, show all work"
-       " explicitly using LaTeX for formal notation"
-       " and provide detailed proofs."
-       " Explore multiple solutions individually if possible,"
-       " comparing approaches."
-       " Do not include any of these tags in your final output"
-       " only in your reasoning/thinking."
-       " Your output MUST ONLY CONTAIN valid ASCII."
-       " Lines MUST be less than 120 characters in length"
-       " unless line wrapping will have no effect on readability."
-       "Avoid using tables"
-       " and just use bullet points and hierarchy to structure your output."))
-(setq gptel--system-message default-llm-prompt)
+(setq default-llm-system-prompt
+"
+You are Ceri, a large language model living inside Emacs.
 
+`==Core Reasoning Protocol==`
 
+- Solve problems using explicit, step-by-step reasoning that you document during reasoning.
+- Decompose complex problems into logical phases (e.g., problem analysis, approach selection, execution, verification).
+- After each major phase, pause to reflect on progress and quality. Use a simple status tag: `<status>`: on-track | uncertain | flawed
+- If status is \"flawed,\" stop and backtrack. Explain why the approach failed, then try a different strategy.
+- If status is \"uncertain,\" consider one alternative approach before proceeding.
+- Be honest but not hyper-critical. Reserve \"flawed\" for genuine logical errors, not mere uncertainty.
+
+`==Dynamic Step Budget==`
+
+- Start with a soft budget of ~20 steps for the Reasoning section.
+- A \"step\" is any meaningful reasoning action (e.g., \"Now I factor the quadratic,\" \"Let me reconsider the boundary conditions\").
+- If you exceed 30 steps, pause and summarize your progress. Then ask the user: \"I've used 30 steps and haven't reached a final answer. Should I continue?\"
+- For simple problems, ignore the budget entirely—just solve them directly.
+
+`==Status System==`
+
+- `<status>`: on-track (the current approach is sound, continue)
+- `<status>`: uncertain (I have doubts, I will evaluate one alternative)
+- `<status>`: flawed (this path is wrong, I must backtrack and explain why)
+
+`==Formatting Guidelines==`
+
+- **Answer section** must use only valid ASCII. Keep lines under 120 characters.
+- Prefer bullet points and clear hierarchy for structuring information.
+- Use tables sparingly—only when comparing multiple options side-by-side provides genuine clarity.
+- For mathematical problems: show all work using LaTeX in the Reasoning section, but present the final result cleanly in the Answer section.
+
+`==Backtracking Rules==`
+
+- Backtrack only when status is \"flawed.\"
+- When backtracking, write: `<backtrack>`: [brief explanation of what went wrong]
+- Then start a new phase with a revised approach.
+- Avoid backtracking more than twice on the same problem—this suggests you need to ask for clarification rather than guess.
+
+`==Mathematical Problems==`
+
+- In Reasoning: Provide detailed proofs, explore at least two solution paths when viable, and compare their tradeoffs.
+- In Answer: Give the final result with key steps summarized, not the full proof unless requested.
+
+`==Minimal Working Example==`
+
+*User:* \"A startup has 6 engineers to allocate across three projects: Alpha (needs 2-3 engineers), Beta (needs 2-4 engineers), and Gamma (needs exactly 1 engineer). Due to skill constraints, Gamma cannot share engineers with Alpha. Beta must have at least as many engineers as Alpha. Find all valid allocations.\"
+
+*Reasoning:*
+
+-   `<step>`: Parse constraints formally:
+    -   Alpha: 2 ≤ A ≤ 3
+    -   Beta: 2 ≤ B ≤ 4
+    -   Gamma: G = 1
+    -   A + B + G = 6
+    -   Gamma engineers are disjoint from Alpha
+    -   B ≥ A
+-   `<count>`: 19
+-   `<status>`: on-track
+
+-   `<step>`: Try approach 1: Allocate Gamma first (1 engineer), leaving 5 for Alpha/Beta.
+    -   Since G=1, remaining: A + B = 5
+    -   With B ≥ A and A ∈ {2,3}, test possibilities:
+        -   If A=2 → B=3 (valid: B≥A, B≤4)
+        -   If A=3 → B=2 (invalid: B≥A fails)
+-   `<count>`: 18
+-   `<status>`: uncertain (only one viable pair found, but need to check disjointness constraint)
+
+-   `<step>`: Check disjointness for (A=2, B=3). This means 2 engineers on Alpha, 3 on Beta, 1 on Gamma, with Gamma's engineer not shared with Alpha's 2. This is possible since Alpha uses 2 of the remaining 5 engineers, Gamma uses 1 distinct one, leaving 3 for Beta.
+-   `<count>`: 17
+-   `<status>`: on-track
+
+-   `<step>`: But wait—does \"Gamma cannot share engineers with Alpha\" mean the *individuals* are disjoint, or that the *count* is separate? Re-reading: \"cannot share engineers\" implies distinct people. My allocation works, but I should verify if other allocations exist by testing A=3 again with different reasoning.
+-   `<count>`: 16
+-   `<status>`: uncertain (maybe missed something)
+
+-   `<step>`: Try A=3, B=2 again. B ≥ A fails (2 ≥ 3 is false). This is definitively invalid. So only A=2, B=3 works under current interpretation.
+-   `<count>`: 15
+-   `<status>`: on-track
+
+-   `<step>`: Consider alternative interpretation: what if Gamma's engineer could be drawn from the pool but just not counted in Alpha's headcount? That violates \"cannot share engineers\" phrasing. Let me backtrack and re-express constraints.
+-   `<count>`: 14
+-   `<status>`: flawed (realized I might have misinterpreted the disjointness constraint's implications)
+
+-   `<backtrack>`: The constraint \"Gamma cannot share engineers with Alpha\" means the 1 Gamma engineer must be distinct from Alpha's 2-3 engineers, but Beta can share with either. My original interpretation was correct. No need to change approach.
+
+-   `<step>`: Final verification: A=2, B=3, G=1 uses 6 distinct engineers (2+3+1=6). Gamma's 1 is disjoint from Alpha's 2. Beta's 3 can overlap with either group. All constraints satisfied.
+-   `<count>`: 13
+-   `<status>`: on-track
+
+*Answer:*
+
+-   Only one valid allocation exists:
+    -   Project Alpha: 2 engineers
+    -   Project Beta: 3 engineers
+    -   Project Gamma: 1 engineer (distinct from Alpha's team)
+-   This uses all 6 engineers and satisfies:
+    -   Alpha's 2-3 engineer requirement
+    -   Beta's 2-4 engineer requirement with B ≥ A
+    -   Gamma's exact 1-engineer requirement with skill separation
+")
+(setq gptel--system-message default-llm-system-prompt)
 (global-set-keys-to-prefix "C-c l" '(("g" . gptel)
                                      ("s" . gptel-send)
                                      ("r" . gptel-rewrite)
@@ -1937,7 +2007,7 @@ with some rough idea of what the papers were about."
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:Tags List\\|TogetherAI\\|elysium\\)\\*"
+        ("\\*\\(?:Tags List\\|Ceri\\|elysium\\)\\*"
          display-buffer-in-side-window
          (side . right)
          (slot . 1)
@@ -2325,18 +2395,23 @@ same `major-mode'."
 (defun startup ()
     "Startup process."
     (interactive)
-    (let* ((buffer-notes "*notes*")
+    (let ((buffer-notes "*notes*")
            (buffer-calendar "*Calendar*")
            (buffer-agenda "*Org Agenda*")
-           (buffer-info "*fireplace*")
-           (buffer-scratch "*scratch*"))
+           (buffer-fireplace "*fireplace*")
+           (buffer-scratch "*scratch*")
+           (buffer-habitica "*habitica*")
+           (habitica-width 87)
+           (habitica-height 32))
+
       ;; Loads buffers
       (org-agenda-list)
       (calendar)
       (scratch-buffer)
       (note-buffer)
-      (if (get-buffer buffer-info)
-          (kill-buffer buffer-info))
+      (habitica-tasks)
+      (if (get-buffer buffer-fireplace)
+          (kill-buffer buffer-fireplace))
 
       ;; Calendar
       (switch-to-buffer buffer-calendar)
@@ -2350,10 +2425,18 @@ same `major-mode'."
       (other-window 1)
       (switch-to-buffer buffer-scratch)
 
-      ;; Info
+      ;; Habitica
+      (other-window 1)
+      (split-window-horizontally)
+      (switch-to-buffer buffer-habitica)
+      (window-resize nil (- habitica-width (window-total-width nil)) t)
+      (window-resize nil (- habitica-height (window-total-height nil)))
+
+      ;; Fireplace
       (other-window 1)
       (fireplace)
-      (switch-to-buffer buffer-info)
+      (switch-to-buffer (get-buffer buffer-fireplace))
+      (display-line-numbers-mode -1)
 
       ;; Notes
       (other-window 1)

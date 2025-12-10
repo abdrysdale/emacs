@@ -1109,6 +1109,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         gptel-expert-commands t
         gptel-temperature 0.7
         gptel-default-mode 'org-mode
+        ;; Responses seem to cut off for a lot of thinking models
+        ;; and, come to think of it, a lot of other models too.
+        ;; Hence I'll set a high upper limit and bring down
+        ;; if I feel the response quality is degraded.
+        ;; 2e14 seems like a reasonable for most model contexts.
+        gptel-max-tokens 16384
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))

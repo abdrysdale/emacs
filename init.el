@@ -315,6 +315,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package toml-mode)
 (use-package json-mode)
 (use-package markdown-mode)
+(use-package dotenv-mode)
 
 
 ;;  **********

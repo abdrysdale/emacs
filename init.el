@@ -1095,7 +1095,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (when (eq system-type 'windows-nt)
     ;; Curl and gptel don't work well on windows
     ;; https://github.com/karthink/gptel/issues/251
-    (setq gptel-use-curl nil))
+    (setq gptel-use-curl nil
+          gptel-stream nil))
   (setq gptel-backend (gptel-make-openai "TogetherAI"
                         :host "api.together.xyz"
                         :key together-ai-api-key

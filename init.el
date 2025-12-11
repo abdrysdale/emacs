@@ -142,8 +142,10 @@ than having to call `add-to-list' multiple times."
 ;; Package archives
 (require 'package)
 (package-initialize)
-
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+;; Manually update org-mode to the latest version
+(package-upgrade 'org)
 
 ;; use-package
 (unless (package-installed-p 'use-package)
@@ -475,6 +477,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 	      tab-width 4
 	      indent-tabs-mode nil
           tab-always-indent 'complete)
+(add-hook 'org-mode #'(lambda () (setq-local tab-width 8)))
 
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
@@ -1123,9 +1126,154 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package gptel-fn-complete)
 
 (setq gptel-commit--prompt
-      (concat
-       "Write a conventional commit message for the following diff making sure"
-       "to ONLY return the commit message!\nHere is the diff:\n"))
+      "
+Write a conventional commit message for the following diff making sure
+to ONLY return the commit message!\n
+
+The commit message should be structured as follows:
+
+-----------------------------------------------------------------------
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+-----------------------------------------------------------------------
+
+The commit contains the following structural elements, to communicate intent to the
+consumers of your library:
+
+1 fix: a commit of the type fix patches a bug in your codebase (this correlates
+ with PATCH in Semantic Versioning).
+2 feat: a commit of the type feat introduces a new feature to the codebase (this
+ correlates with MINOR in Semantic Versioning).
+3 BREAKING CHANGE: a commit that has a footer BREAKING CHANGE:, or
+ appends a ! after the type/scope, introduces a breaking API change (correlating
+ with MAJOR in Semantic Versioning). A BREAKING CHANGE can be part of
+ commits of any type.
+4 types other than fix: and feat: are allowed, for example
+ @commitlint/config-conventional (based on the Angular convention)
+ recommends build:, chore:, ci:, docs:, style:, refactor:, perf:, test:, and
+ others.
+5 footers other than BREAKING CHANGE: <description> may be provided and
+ follow a convention similar to git trailer format.
+
+Additional types are not mandated by the Conventional Commits specification, and
+have no implicit effect in Semantic Versioning (unless they include a BREAKING
+CHANGE). A scope may be provided to a commit’s type, to provide additional
+contextual information and is contained within parenthesis, e.g., feat(parser):
+add ability to parse arrays.
+
+Examples
+
+Commit message with description and breaking change footer
+
+```
+feat: allow provided config object to extend other configs
+
+BREAKING CHANGE: `extends` key in config file is now used for extending other config files
+```
+
+Commit message with ! to draw attention to breaking change
+
+```
+feat!: send an email to the customer when a product is shipped
+```
+
+Commit message with scope and ! to draw attention to breaking change
+
+```
+feat(api)!: send an email to the customer when a product is shipped
+```
+
+Commit message with both ! and BREAKING CHANGE footer
+
+```
+chore!: drop support for Node 6
+
+BREAKING CHANGE: use JavaScript features not available in Node 6.
+```
+
+Commit message with no body
+
+```
+docs: correct spelling of CHANGELOG
+```
+
+Commit message with scope
+
+```
+feat(lang): add Polish language
+```
+
+Commit message with multi-paragraph body and multiple footers
+
+```
+fix: prevent racing of requests
+
+Introduce a request id and a reference to latest request. Dismiss
+incoming responses other than from latest request.
+
+Remove timeouts which were used to mitigate the racing issue but are
+obsolete now.
+
+Reviewed-by: Z
+Refs: #123
+```
+
+Specification
+
+The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”,
+“SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this
+document are to be interpreted as described in RFC 2119.
+
+1 Commits MUST be prefixed with a type, which consists of a noun, feat, fix,
+ etc., followed by the OPTIONAL scope, OPTIONAL !, and REQUIRED terminal
+ colon and space.
+2 The type feat MUST be used when a commit adds a new feature to your
+ application or library.
+3 The type fix MUST be used when a commit represents a bug fix for your
+ application.
+4 A scope MAY be provided after a type. A scope MUST consist of a noun
+ describing a section of the codebase surrounded by parenthesis, e.g., fix
+ (parser):
+5 A description MUST immediately follow the colon and space after the
+ type/scope prefix. The description is a short summary of the code changes,
+ e.g., fix: array parsing issue when multiple spaces were contained in string.
+6 A longer commit body MAY be provided after the short description, providing
+ additional contextual information about the code changes. The body MUST
+ begin one blank line after the description.
+7 A commit body is free-form and MAY consist of any number of newline
+ separated paragraphs.
+8 One or more footers MAY be provided one blank line after the body. Each footer
+ MUST consist of a word token, followed by either a :<space> or <space>#
+ separator, followed by a string value (this is inspired by the git trailer
+ convention).
+9 A footer’s token MUST use - in place of whitespace characters, e.g., Acked-by
+ (this helps differentiate the footer section from a multi-paragraph body). An
+ exception is made for BREAKING CHANGE, which MAY also be used as a token.
+10 A footer’s value MAY contain spaces and newlines, and parsing MUST
+ terminate when the next valid footer token/separator pair is observed.
+11 Breaking changes MUST be indicated in the type/scope prefix of a commit, or
+ as an entry in the footer.
+12 If included as a footer, a breaking change MUST consist of the uppercase text
+ BREAKING CHANGE, followed by a colon, space, and description, e.g.,
+ BREAKING CHANGE: environment variables now take precedence over
+ config files.
+13 If included in the type/scope prefix, breaking changes MUST be indicated by a !
+ immediately before the :. If ! is used, BREAKING CHANGE: MAY be omitted from
+ the footer section, and the commit description SHALL be used to describe the
+ breaking change.
+14 Types other than feat and fix MAY be used in your commit messages, e.g.,
+ docs: update ref docs.
+15 The units of information that make up Conventional Commits MUST NOT be
+ treated as case sensitive by implementors, with the exception of BREAKING
+ CHANGE which MUST be uppercase.
+16 BREAKING-CHANGE MUST be synonymous with BREAKING CHANGE,
+ when used as a token in a footer.
+
+Here is the diff:\n\n
+")
 
 (setq gptel-commit-model 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
 (defun gptel-commit ()
@@ -2266,6 +2414,79 @@ same `major-mode'."
     (message
      (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
 
+;;  ***********
+;;; * STARTUP *
+;;  ***********
+
+(defun init-workers ()
+  "Initialise workers."
+    (interactive)
+    (unless init-script-initial-clients
+      (irc)
+      (newsticker-start)))
+(add-hook 'emacs-startup-hook #'init-workers)
+
+(defun startup ()
+    "Startup process."
+    (interactive)
+    (let ((buffer-notes "*notes*")
+           (buffer-calendar "*Calendar*")
+           (buffer-agenda "*Org Agenda*")
+           (buffer-fireplace "*fireplace*")
+           (buffer-scratch "*scratch*")
+           (buffer-habitica "*habitica*")
+           (habitica-width 87)
+           (habitica-height 32))
+
+      ;; Loads buffers
+      (org-agenda-list)
+      (calendar)
+      (scratch-buffer)
+      (note-buffer)
+      (habitica-tasks)
+      (if (get-buffer buffer-fireplace)
+          (kill-buffer buffer-fireplace))
+
+      ;; Calendar
+      (switch-to-buffer buffer-calendar)
+      (delete-other-windows)
+      (split-window-horizontally)
+
+      ;; Scratch
+      (other-window 1)
+      (split-window-vertically)
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer buffer-scratch)
+
+      ;; Habitica
+      (other-window 1)
+      (split-window-horizontally)
+      (switch-to-buffer buffer-habitica)
+      (window-resize nil (- habitica-width (window-total-width nil)) t)
+      (window-resize nil (- habitica-height (window-total-height nil)))
+
+      ;; Fireplace
+      (other-window 1)
+      (fireplace)
+      (switch-to-buffer (get-buffer buffer-fireplace))
+      (display-line-numbers-mode -1)
+
+      ;; Notes
+      (other-window 1)
+      (switch-to-buffer (get-buffer buffer-notes))
+      (org-cycle-agenda-files)
+
+      ;; Agenda
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer (get-buffer buffer-agenda))
+      (org-agenda-redo-all)))
+
+(setq server-after-make-frame-hook #'startup)
+(when (<= (length (frame-list)) 1)
+  (desktop-clear)
+  (startup))
 
 ;;  **********************
 ;;; * Global Keybindings *
@@ -2274,7 +2495,7 @@ same `major-mode'."
 (global-set-keys-to-prefix "C-c b" '(("," . switch-to-buffer-other-window)
                                      ("N" . note-buffer)
                                      ("a" . append-to-buffer)
-                                     ("b" . ebib)
+                                     ("b" . startup)
                                      ("c" . count-words)
                                      ("d" . desktop-read)
                                      ("e" . (lambda () (interactive)
@@ -2360,7 +2581,7 @@ same `major-mode'."
                                      ("q" . gptel-context-quit)
                                      ("r" . gptel-rewrite)
                                      ("s" . gptel-send)
-                                     ("C-g" . gptel-abort)))
+                                     ("C-a" . gptel-abort)))
 
 (global-set-keys-to-prefix "C-c h" '(("b" . highlight-compare-buffers)
                                      ("c" . highlight-changes-mode)
@@ -2373,6 +2594,7 @@ same `major-mode'."
 
 (global-set-keys-to-prefix "C-c m" '(("A" . org-agenda)
                                      ("a" . org-agenda-list)
+                                     ("b" . ebib)
                                      ("c" . org-capture)
                                      ("i" . irc)
                                      ("m" . notmuch)
@@ -2401,82 +2623,6 @@ same `major-mode'."
                                      ("p" #'how-is-this-paper-looking?)
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)))
-
-
-;;  ***********
-;;; * STARTUP *
-;;  ***********
-
-(defun init-workers ()
-  "Initialise workers."
-    (interactive)
-    (unless init-script-initial-clients
-      (irc)
-      (newsticker-start)))
-(add-hook 'emacs-startup-hook #'init-workers)
-
-(defun startup ()
-    "Startup process."
-    (interactive)
-    (let ((buffer-notes "*notes*")
-           (buffer-calendar "*Calendar*")
-           (buffer-agenda "*Org Agenda*")
-           (buffer-fireplace "*fireplace*")
-           (buffer-scratch "*scratch*")
-           (buffer-habitica "*habitica*")
-           (habitica-width 87)
-           (habitica-height 32))
-
-      ;; Loads buffers
-      (org-agenda-list)
-      (calendar)
-      (scratch-buffer)
-      (note-buffer)
-      (habitica-tasks)
-      (if (get-buffer buffer-fireplace)
-          (kill-buffer buffer-fireplace))
-
-      ;; Calendar
-      (switch-to-buffer buffer-calendar)
-      (delete-other-windows)
-      (split-window-horizontally)
-
-      ;; Scratch
-      (other-window 1)
-      (split-window-vertically)
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer buffer-scratch)
-
-      ;; Habitica
-      (other-window 1)
-      (split-window-horizontally)
-      (switch-to-buffer buffer-habitica)
-      (window-resize nil (- habitica-width (window-total-width nil)) t)
-      (window-resize nil (- habitica-height (window-total-height nil)))
-
-      ;; Fireplace
-      (other-window 1)
-      (fireplace)
-      (switch-to-buffer (get-buffer buffer-fireplace))
-      (display-line-numbers-mode -1)
-
-      ;; Notes
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-notes))
-      (org-cycle-agenda-files)
-
-      ;; Agenda
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-agenda))
-      (org-agenda-redo-all)))
-
-(setq server-after-make-frame-hook #'startup)
-(when (<= (length (frame-list)) 1)
-  (desktop-clear)
-  (startup))
-(global-set-key (kbd "C-c b b") #'startup)
 
 
 ;;  ***************

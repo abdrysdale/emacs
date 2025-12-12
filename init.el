@@ -2555,7 +2555,7 @@ same `major-mode'."
                                      ("A" . add-file-local-variable)
                                      ("C" . copy-dir-locals-to-file-locals)
                                      ("D" . delete-file-local-variable)
-                                     ("a" . org-cycle-agenda-filse)
+                                     ("a" . org-cycle-agenda-files)
                                      ("c" . fileloop-continue)
                                      ("f" . follow-mode)
                                      ("i" . my-visit-user-init-file)

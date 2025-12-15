@@ -1054,6 +1054,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq global-auto-revert-non-file-buffers t)
 
+;; Provides dired-async-mode
+(use-package async)
+(dired-async-mode t)
+
 
 ;;  ***************
 ;;; * Development *

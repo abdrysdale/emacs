@@ -641,6 +641,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind ("C-=" . er/expand-region))
 
 ;; iSpell ;;
+(setq ispell-dictionary "en_GB")
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 

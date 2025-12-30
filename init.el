@@ -1563,6 +1563,7 @@ You are Ceri, a large language model living inside Emacs.
          "https://site.sebasmonia.com/feed.xml")
         ("Yann Herklotz" "https://yannherklotz.com/index.xml")
         ("Steven Bonner" "https://sbonner0.github.io/feed.xml")
+        ("Arjen Wiersma" "https://arjenwiersma.nl/posts/index.xml")
         ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC

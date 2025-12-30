@@ -227,6 +227,31 @@ The timer can be canceled with `my-cancel-gc-timer'.")
      (concat "WakaTime not loaded as credentials not found in "
              waka-login-file))))
 
+
+;;  ***************
+;;; * File System *
+;;  ***************
+
+;; Tramp ;;
+;; For now I'll use scp but after Emacs 30.2 or Tramp 2.7.3
+;; then rsync will be fixed:
+;; https://lists.gnu.org/r/tramp-devel/2025-06/msg00001.html
+(setq vc-handled-backends '(Git)
+      remote-file-name-inhibit-locks t
+      tramp-use-scp-direct-remote-copying t
+      remote-file-name-inhibit-auto-save-visited t
+      tramp-copy-size-limit (* 1024 1024) ;; 1MB
+      tramp-verbose 2
+)
+
+(connection-local-set-profile-variables
+ 'remote-direct-async-process
+ '((tramp-direct-async-process . t)))
+
+(connection-local-set-profiles
+ '(:application tramp :protocol "scp")
+ 'remote-direct-async-process)
+
 ;; VC Mode ;;
 ;; More often than not I find myself returning to the built in features of Emacs
 ;; The most controversial is perhaps with using vc over magit.
@@ -645,7 +670,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
-
 ;;  *************************
 ;;; * Programming Languages *
 ;;  *************************
@@ -1030,6 +1054,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
        (match-string 1 criteria))))
 
 (setq global-auto-revert-non-file-buffers t)
+
+;; Provides dired-async-mode
+;; I normally don't like using external packages but async
+;; for dired is a must!
+(use-package async)
+(dired-async-mode t)
 
 
 ;;  ***************

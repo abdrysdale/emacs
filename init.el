@@ -2514,11 +2514,6 @@ same `major-mode'."
       (switch-to-buffer (get-buffer buffer-agenda))
       (org-agenda-redo-all)))
 
-(setq server-after-make-frame-hook #'startup)
-(when (<= (length (frame-list)) 1)
-  (desktop-clear)
-  (startup))
-
 ;;  **********************
 ;;; * Global Keybindings *
 ;;  **********************
@@ -2654,6 +2649,16 @@ same `major-mode'."
                                      ("p" #'how-is-this-paper-looking?)
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)))
+
+
+;;  *************
+;;; * Start up *
+;;  *************
+
+(setq server-after-make-frame-hook #'startup)
+(when (<= (length (frame-list)) 1)
+  (desktop-clear)
+  (startup))
 
 
 ;;  ***************

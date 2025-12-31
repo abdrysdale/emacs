@@ -2651,9 +2651,9 @@ same `major-mode'."
                                      ("t" . window-toggle-side-windows)))
 
 
-;;  *************
-;;; * Start up *
-;;  *************
+;;  *********************
+;;; * AFTER FIRST FRAME *
+;;  *********************
 
 (setq server-after-make-frame-hook #'startup)
 (when (<= (length (frame-list)) 1)

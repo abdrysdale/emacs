@@ -677,6 +677,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
+(defun project-gdb ()
+  "Run GDB in the current project root directory."
+  (interactive)
+  (when-let ((project (project-current))
+             (default-directory (project-root project)))
+    (call-interactively #'gdb)))
 
 ;;;; Compilation
 (setq compilation-scroll-output 'first-error)
@@ -695,6 +701,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq gud-pdb-command-name "uv run python -m pdb")
 (setq python-shell-interpreter "python")
+(defun project-pdb ()
+  "Run PDB in the current project root directory."
+  (interactive)
+  (when-let ((project (project-current))
+             (default-directory (project-root project)))
+    (call-interactively #'pdb)))
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -980,6 +992,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq read-file-name-completion-ignore-case t)
 
 ;; Projects
+(setq project-mode-line t)
 (defun edit-projects ()
   "Edit the list of projects."
   (interactive)
@@ -2589,10 +2602,11 @@ same `major-mode'."
                                      ("v" . view-file)
                                      ("w" . copy-filename-to-kill)))
 
-(global-set-keys-to-prefix "C-c g" '(("d" . pdb)
+(global-set-keys-to-prefix "C-c g" '(("d" . project-gdb)
                                      ("g" . grep)
                                      ("k" . kill-grep)
                                      ("l" . lgrep)
+                                     ("p" . project-pdb)
                                      ("r" . rgrep)
                                      ("z" . zgrep)))
 

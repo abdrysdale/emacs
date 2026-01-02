@@ -680,7 +680,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun project-gdb ()
   "Run GDB in the current project root directory."
   (interactive)
-  (when-let ((project (project-current))
+  (when-let* ((project (project-current))
              (default-directory (project-root project)))
     (call-interactively #'gdb)))
 
@@ -704,7 +704,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun project-pdb ()
   "Run PDB in the current project root directory."
   (interactive)
-  (when-let ((project (project-current))
+  (when-let* ((project (project-current))
              (default-directory (project-root project)))
     (call-interactively #'pdb)))
 
@@ -832,7 +832,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Live PDF preview in tectonic projects
 (add-hook 'after-change-major-mode-hook
           (lambda ()
-            (when-let ((project (project-current))
+            (when-let* ((project (project-current))
                        (proot (project-root project)))
               (when (file-exists-p (expand-file-name "Tectonic.toml" proot))
                 (setq-local TeX-output-dir

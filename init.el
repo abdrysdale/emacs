@@ -1083,7 +1083,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
 (setq flymake-start-on-flymake-mode t)
-(setq python-flymake-command '("uv run ruff" "check" "--output-format"
+(setq python-flymake-command '("uv" "run" "ruff" "check" "--output-format"
                                "concise" "--quiet"
                                "--exit-zero" "--select" "ALL"
                                "--stdin-filename=stdin" "-"))

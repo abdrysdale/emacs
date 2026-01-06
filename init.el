@@ -921,6 +921,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Semantic mode
 ;; Language aware editing commands for:
 ;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo
+;;
+;; Useful semantic commands:
+;;
+;;  C-c , j     :: semantic-complete-jump-local
+;;  C-c , <SPC> :: semantic-complete-analyze-inline
+;;  C-c , l     :: semantic-analyze-possible-completions
+;;  C-c , g     :: semantic-symref-symbol
+;;  C-c , M-w   :: senator-copy-tag
+;;  C-c , C-y   :: senator-yank-tag
+
 (require 'cedet)
 (require 'semantic)
 (setq semantic-default-submodes

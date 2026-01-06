@@ -1114,6 +1114,21 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (setq habitica-show-streak t)
   (setq habitica-uid local/habitica-uid)
   (setq habitica-token local/habitica-token))
+(defvar habitica-task-id-clock-in/out "bf35cb8a-93b2-4254-bdff-076f055c35fd"
+  "ID for the habit to track clocking in and out.")
+
+(defun org-clock-in-score-habitica-up ()
+  "Clock in on the current task and score the habitica clock habit up."
+  (interactive)
+  (if (eq major-mode 'org-agenda-mode)
+      (org-agenda-clock-in)
+    (org-clock-in))
+  (habitica-api-score-task habitica-task-id-clock-in/out "up"))
+
+(defun org-clock-in-score-habitica-down ()
+  "Score the habitica clock habit down."
+  (interactive)
+  (habitica-api-score-task habitica-task-id-clock-in/out "down"))
 
 ;; Shell/Eshell
 (require 'em-banner)
@@ -2563,26 +2578,23 @@ same `major-mode'."
                                      ("s" . scratch-buffer)
                                      ("v" . view-buffer-other-window)))
 
-(global-set-keys-to-prefix "C-c c" `(("." . org-timer)
-                                     ("," . insert-time-rfc-822)
+(global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
                                      ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
-                                     ("g" . org-clock-goto)
-                                     ("i" . org-clock-in)
-                                     ("l" . org-clock-in-last)
+                                     ("i" . org-clock-in-score-habitica-up)
                                      ("n" .  (lambda () (interactive)
                                                (insert
                                                 (format-time-string "%H:%M"))))
-                                     ("o" . org-clock-out)
+                                     ("f" . org-clock-in-score-habitica-down)
                                      ("p" . org-timer-pause-or-continue)
-                                     ("r" . org-clock-report)
                                      ("s" . org-timer-stop)
                                      ("t" . org-timer-set-timer)
                                      ("C-c" .
                                       (compile
                                        ,compilation-python-type-check-cmd))))
+
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)
                                      ("A" . add-dir-local-variable)

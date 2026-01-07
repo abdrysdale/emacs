@@ -1169,7 +1169,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     ;; https://github.com/karthink/gptel/issues/251
     (setq gptel-use-curl nil
           gptel-stream nil))
-  (setq gptel-backend (gptel-make-openai "TogetherAI"
+  (setq gptel-backend (gptel-make-openai "Ceri"
                         :host "api.together.xyz"
                         :key together-ai-api-key
                         :stream t

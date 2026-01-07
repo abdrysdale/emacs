@@ -2650,6 +2650,7 @@ same `major-mode'."
                                      ("c" . highlight-changes-mode)
                                      ("f" . highlight-compare-with-file)
                                      ("h" . highlight-changes-remove-highlight)
+                                     ("l" . hi-lock-mode)
                                      ("n" . highlight-changes-next-change)
                                      ("p" . highlight-changes-previous-change)
                                      ("r" . highlight-changes-rotate-faces)

@@ -1640,13 +1640,18 @@ You are Ceri, a large language model living inside Emacs.
       '(("Libera.Chat"
          "#gentoo"
          "#emacs"
+         "#org-mode"
          "#python"
          "#fortran"
          "##forth"
          "##rust"
+         "#gleam-lang"
          "#commonlisp"
          "#lisp"
          "#indieweb"
+         "#pytorch"
+         "##statistics"
+         "##science"
          "#machinelearning")))
 
 (setq erc-modules '(netsplit

@@ -1648,6 +1648,7 @@ You are Ceri, a large language model living inside Emacs.
          "#gleam-lang"
          "#commonlisp"
          "#lisp"
+         "#elixir"
          "#indieweb"
          "#pytorch"
          "##statistics"

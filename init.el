@@ -1640,10 +1640,12 @@ You are Ceri, a large language model living inside Emacs.
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
+         "#gentoo"
          "#emacs"
          "#python"
          "#fortran"
          "##forth"
+         "##rust"
          "#commonlisp"
          "#lisp"
          "#indieweb"

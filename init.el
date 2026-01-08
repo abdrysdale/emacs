@@ -8,7 +8,6 @@
 
 ;;; Code:
 
-
 ;;  *****************************************
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
@@ -28,7 +27,7 @@
       (list 'setq var val)))
 
 (defmacro setv (var val &optional desc)
-  "defvar VAR to VAL with DESC if not define - else setq"
+  "Define VAR to VAL with DESC if not define - else setq."
   (if (boundp var)
       (list 'setq var val)
     (list 'defvar var val desc)))
@@ -536,8 +535,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (add-to-list 'default-frame-alist '(width . 79))))
 
 ;; Highlighting changes
-(setq highlight-changes-mode t)
-
+(add-hook 'prog-mode-hook #'highlight-changes-mode)
 
 ;;  *****************
 ;;; * Basic Editing *

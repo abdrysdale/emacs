@@ -8,7 +8,6 @@
 
 ;;; Code:
 
-
 ;;  *****************************************
 ;;; * Local (system specific) configuration *
 ;;  *****************************************
@@ -28,7 +27,7 @@
       (list 'setq var val)))
 
 (defmacro setv (var val &optional desc)
-  "defvar VAR to VAL with DESC if not define - else setq"
+  "Define VAR to VAL with DESC if not define - else setq."
   (if (boundp var)
       (list 'setq var val)
     (list 'defvar var val desc)))
@@ -343,6 +342,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package json-mode)
 (use-package markdown-mode)
 (use-package dotenv-mode)
+(use-package matlab-mode)
 
 
 ;;  **********
@@ -535,8 +535,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (add-to-list 'default-frame-alist '(width . 79))))
 
 ;; Highlighting changes
-(setq highlight-changes-mode t)
-
+(add-hook 'prog-mode-hook #'highlight-changes-mode)
 
 ;;  *****************
 ;;; * Basic Editing *
@@ -666,6 +665,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :bind ("C-=" . er/expand-region))
 
 ;; iSpell ;;
+(setq ispell-dictionary "en_GB")
 (add-hook 'text-mode-hook #'flyspell-mode)
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -676,6 +676,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;; The Grand Unified Debugger
 (global-set-key (kbd "C-x C-a i") #'gud-goto-info)
 (global-set-key (kbd "C-x C-a t") #'gud-tooltip-mode)
+(defun project-gdb ()
+  "Run GDB in the current project root directory."
+  (interactive)
+  (when-let* ((project (project-current))
+             (default-directory (project-root project)))
+    (call-interactively #'gdb)))
 
 ;;;; Compilation
 (setq compilation-scroll-output 'first-error)
@@ -694,6 +700,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (setq gud-pdb-command-name "uv run python -m pdb")
 (setq python-shell-interpreter "python")
+(defun project-pdb ()
+  "Run PDB in the current project root directory."
+  (interactive)
+  (when-let* ((project (project-current))
+             (default-directory (project-root project)))
+    (call-interactively #'pdb)))
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -819,7 +831,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Live PDF preview in tectonic projects
 (add-hook 'after-change-major-mode-hook
           (lambda ()
-            (when-let ((project (project-current))
+            (when-let* ((project (project-current))
                        (proot (project-root project)))
               (when (file-exists-p (expand-file-name "Tectonic.toml" proot))
                 (setq-local TeX-output-dir
@@ -908,6 +920,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Semantic mode
 ;; Language aware editing commands for:
 ;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo
+;;
+;; Useful semantic commands:
+;;
+;;  C-c , j     :: semantic-complete-jump-local
+;;  C-c , <SPC> :: semantic-complete-analyze-inline
+;;  C-c , l     :: semantic-analyze-possible-completions
+;;  C-c , g     :: semantic-symref-symbol
+;;  C-c , M-w   :: senator-copy-tag
+;;  C-c , C-y   :: senator-yank-tag
+
 (require 'cedet)
 (require 'semantic)
 (setq semantic-default-submodes
@@ -979,6 +1001,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq read-file-name-completion-ignore-case t)
 
 ;; Projects
+(setq project-mode-line t)
 (defun edit-projects ()
   "Edit the list of projects."
   (interactive)
@@ -1077,10 +1100,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
 (setq flymake-start-on-flymake-mode t)
-(setq python-flymake-command '("ruff" "check" "--output-format"
+(setq python-flymake-command '("uv" "run" "ruff" "check" "--output-format"
                                "concise" "--quiet"
                                "--exit-zero" "--select" "ALL"
-                               "--ignore" "D407"
                                "--stdin-filename=stdin" "-"))
 
 (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
@@ -1099,6 +1121,21 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   (setq habitica-show-streak t)
   (setq habitica-uid local/habitica-uid)
   (setq habitica-token local/habitica-token))
+(defvar habitica-task-id-clock-in/out "bf35cb8a-93b2-4254-bdff-076f055c35fd"
+  "ID for the habit to track clocking in and out.")
+
+(defun org-clock-in-score-habitica-up ()
+  "Clock in on the current task and score the habitica clock habit up."
+  (interactive)
+  (if (eq major-mode 'org-agenda-mode)
+      (org-agenda-clock-in)
+    (org-clock-in))
+  (habitica-api-score-task habitica-task-id-clock-in/out "up"))
+
+(defun org-clock-in-score-habitica-down ()
+  "Score the habitica clock habit down."
+  (interactive)
+  (habitica-api-score-task habitica-task-id-clock-in/out "down"))
 
 ;; Shell/Eshell
 (require 'em-banner)
@@ -1138,7 +1175,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     ;; https://github.com/karthink/gptel/issues/251
     (setq gptel-use-curl nil
           gptel-stream nil))
-  (setq gptel-backend (gptel-make-openai "TogetherAI"
+  (setq gptel-backend (gptel-make-openai "Ceri"
                         :host "api.together.xyz"
                         :key together-ai-api-key
                         :stream t
@@ -1601,6 +1638,7 @@ You are Ceri, a large language model living inside Emacs.
          "https://site.sebasmonia.com/feed.xml")
         ("Yann Herklotz" "https://yannherklotz.com/index.xml")
         ("Steven Bonner" "https://sbonner0.github.io/feed.xml")
+        ("Arjen Wiersma" "https://arjenwiersma.nl/posts/index.xml")
         ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC
@@ -1608,13 +1646,21 @@ You are Ceri, a large language model living inside Emacs.
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
+         "#gentoo"
          "#emacs"
+         "#org-mode"
          "#python"
          "#fortran"
          "##forth"
+         "##rust"
+         "#gleam-lang"
          "#commonlisp"
          "#lisp"
+         "#elixir"
          "#indieweb"
+         "#pytorch"
+         "##statistics"
+         "##science"
          "#machinelearning")))
 
 (setq erc-modules '(netsplit
@@ -2521,11 +2567,6 @@ same `major-mode'."
       (switch-to-buffer (get-buffer buffer-agenda))
       (org-agenda-redo-all)))
 
-(setq server-after-make-frame-hook #'startup)
-(when (<= (length (frame-list)) 1)
-  (desktop-clear)
-  (startup))
-
 ;;  **********************
 ;;; * Global Keybindings *
 ;;  **********************
@@ -2552,26 +2593,23 @@ same `major-mode'."
                                      ("s" . scratch-buffer)
                                      ("v" . view-buffer-other-window)))
 
-(global-set-keys-to-prefix "C-c c" `(("." . org-timer)
-                                     ("," . insert-time-rfc-822)
+(global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
                                      ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
-                                     ("g" . org-clock-goto)
-                                     ("i" . org-clock-in)
-                                     ("l" . org-clock-in-last)
+                                     ("i" . org-clock-in-score-habitica-up)
                                      ("n" .  (lambda () (interactive)
                                                (insert
                                                 (format-time-string "%H:%M"))))
-                                     ("o" . org-clock-out)
+                                     ("f" . org-clock-in-score-habitica-down)
                                      ("p" . org-timer-pause-or-continue)
-                                     ("r" . org-clock-report)
                                      ("s" . org-timer-stop)
                                      ("t" . org-timer-set-timer)
                                      ("C-c" .
                                       (compile
                                        ,compilation-python-type-check-cmd))))
+
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)
                                      ("A" . add-dir-local-variable)
@@ -2601,10 +2639,11 @@ same `major-mode'."
                                      ("v" . view-file)
                                      ("w" . copy-filename-to-kill)))
 
-(global-set-keys-to-prefix "C-c g" '(("d" . pdb)
+(global-set-keys-to-prefix "C-c g" '(("d" . project-gdb)
                                      ("g" . grep)
                                      ("k" . kill-grep)
                                      ("l" . lgrep)
+                                     ("p" . project-pdb)
                                      ("r" . rgrep)
                                      ("z" . zgrep)))
 
@@ -2625,6 +2664,7 @@ same `major-mode'."
                                      ("c" . highlight-changes-mode)
                                      ("f" . highlight-compare-with-file)
                                      ("h" . highlight-changes-remove-highlight)
+                                     ("l" . hi-lock-mode)
                                      ("n" . highlight-changes-next-change)
                                      ("p" . highlight-changes-previous-change)
                                      ("r" . highlight-changes-rotate-faces)
@@ -2661,6 +2701,16 @@ same `major-mode'."
                                      ("p" #'how-is-this-paper-looking?)
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)))
+
+
+;;  *********************
+;;; * AFTER FIRST FRAME *
+;;  *********************
+
+(setq server-after-make-frame-hook #'startup)
+(when (<= (length (frame-list)) 1)
+  (desktop-clear)
+  (startup))
 
 
 ;;  ***************

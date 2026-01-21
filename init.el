@@ -1083,6 +1083,14 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package async)
 (dired-async-mode t)
 
+(use-package dired-rsync
+  :demand t
+  :after dired
+  :bind (:map dired-mode-map ("r" . dired-rsync))
+  :config
+  (setq dired-rsync-optios "-Lakz --info=progress2")
+  (add-to-list 'mode-line-misc-info
+               '(:eval dired-rsync-modeline-status 'append)))
 
 ;;  ***************
 ;;; * Development *

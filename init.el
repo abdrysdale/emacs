@@ -2215,7 +2215,10 @@ with some rough idea of what the papers were about."
          "TODO(t!)" "STARTED(s!)" "WAITING(w@/!)"
          "|" "DONE(d!)" "CANCELLED(c@)" "ABORT(a)")))
 
+(use-package ox-reveal)
 (require 'ox-md)
+(require 'ox-beamer)
+(setq org-beamer-frame-level 2)
 
 ;; Publishing
 (require 'ox-publish)

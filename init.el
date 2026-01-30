@@ -1154,9 +1154,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |                                        | $/1M Token  |     |    |      |
 ;; | Model Name                             | In   | Out  | TFJ | II |  CW  |
 ;; |----------------------------------------|------|------|-----|----|------|
-;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 28 |  131 |
-;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 36 | 1050 |
-;; | moonshotai/Kimi-K2-Thinking            | 1.20 | 3.00 | TTJ | 67 |  262 |
+;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
+;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 18 | 1050 |
+;; | moonshotai/Kimi-K2-Thinking            | 1.20 | 3.00 | TTJ | 41 |  262 |
+;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | -TJ | 47 |  262 |
 ;; |------------------------------------------------------------------------|
 ;;
 ;; FJ = Thinking, Function Calling, JSON Ouptut
@@ -1164,7 +1165,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  moonshotai/Kimi-K2-Thinking     :: Best
+;;  moonshotai/Kimi-K2.5            :: Best
+;;  moonshotai/Kimi-K2-Thinking     :: Best with thinking
 ;;  Llama-4-Maverick                :: Huge context
 ;;  Llama-3.3                       :: Free
 ;;
@@ -1180,7 +1182,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :key together-ai-api-key
                         :stream t
                         :models
-                        '(moonshotai/Kimi-K2-Thinking
+                        '(moonshotai/Kimi-K2.5
+                          moonshotai/Kimi-K2-Thinking
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))

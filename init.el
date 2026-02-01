@@ -1626,6 +1626,8 @@ You are Ceri, a large language model living inside Emacs.
         ("mr in med" "https://onlinelibrary.wiley.com/action/showFeed?jc=15222594&type=etoc&feed=rss")
         ("Practical fMRI"
          "https://practicalfmri.blogspot.com/feeds/posts/default")
+        ("Computerized Medical Imaging and Graphics"
+         "https://cdn.clinicalkey.com/rss/issue/08956111.xml")
         ;; Personal
         ("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
         ("Ruslan" "https://codelearn.me/feed.xml")
@@ -2222,7 +2224,10 @@ with some rough idea of what the papers were about."
          "TODO(t!)" "STARTED(s!)" "WAITING(w@/!)"
          "|" "DONE(d!)" "CANCELLED(c@)" "ABORT(a)")))
 
+(use-package ox-reveal)
 (require 'ox-md)
+(require 'ox-beamer)
+(setq org-beamer-frame-level 2)
 
 ;; Publishing
 (require 'ox-publish)

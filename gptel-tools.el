@@ -207,6 +207,17 @@ too."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Python ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (gptel-make-tool
+ :name "python"
+ :function (lambda (cmd)
+             (shell-command-to-string (format "uv run python -c %s" cmd)))
+ :args (list '( :name "cmd"
+                :type string
+                :string "Python command to be run in: uv run python -c %s"))
+ :description "Run an arbitrary python command."
+ :category "python"
+ :confirm t)
+
+(gptel-make-tool
  :name "pytest"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string

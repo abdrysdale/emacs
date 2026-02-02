@@ -1157,7 +1157,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |----------------------------------------|------|------|-----|----|------|
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 18 | 1050 |
-;; | moonshotai/Kimi-K2-Thinking            | 1.20 | 3.00 | TTJ | 41 |  262 |
+;; | zai-org/GLM-4.7                        | 0.45 | 2.00 | TTJ | 42 |  200 |
 ;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | -TJ | 47 |  262 |
 ;; |------------------------------------------------------------------------|
 ;;
@@ -1167,7 +1167,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;
 ;; Purpose of each model?
 ;;  moonshotai/Kimi-K2.5            :: Best
-;;  moonshotai/Kimi-K2-Thinking     :: Best with thinking
+;;  zai-org/GLM-4.7                 :: Best with thinking
 ;;  Llama-4-Maverick                :: Huge context
 ;;  Llama-3.3                       :: Free
 ;;
@@ -1184,7 +1184,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :stream t
                         :models
                         '(moonshotai/Kimi-K2.5
-                          moonshotai/Kimi-K2-Thinking
+                          zai-org/GLM-4.7
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))

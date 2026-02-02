@@ -1157,8 +1157,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; |----------------------------------------|------|------|-----|----|------|
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 18 | 1050 |
-;; | zai-org/GLM-4.7                        | 0.45 | 2.00 | TTJ | 42 |  200 |
-;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | -TJ | 47 |  262 |
+;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | TTJ | 47 |  262 |
 ;; |------------------------------------------------------------------------|
 ;;
 ;; FJ = Thinking, Function Calling, JSON Ouptut
@@ -1166,8 +1165,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  moonshotai/Kimi-K2.5            :: Best
-;;  zai-org/GLM-4.7                 :: Best with thinking
+;;  moonshotai/Kimi-K2.5            :: Best (thinking with temp = 1.0)
+;;  moonshotai/Kimi-K2.5            :: Best w.o. thinking (temp = 0.6)
 ;;  Llama-4-Maverick                :: Huge context
 ;;  Llama-3.3                       :: Free
 ;;
@@ -1184,12 +1183,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                         :stream t
                         :models
                         '(moonshotai/Kimi-K2.5
-                          zai-org/GLM-4.7
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-expert-commands t
-        gptel-temperature 0.7
+        gptel-temperature 1.0
         gptel-default-mode 'org-mode
         ;; Responses seem to cut off for a lot of thinking models
         ;; and, come to think of it, a lot of other models too.

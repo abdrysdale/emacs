@@ -342,7 +342,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package json-mode)
 (use-package markdown-mode)
 (use-package dotenv-mode)
-(use-package matlab-mode)
+(when (eq system-type 'windows-nt)
+  (use-package matlab-mode))
 
 
 ;;  **********

@@ -2279,6 +2279,33 @@ with some rough idea of what the papers were about."
    (format-time-string "%a, %d %b %Y %T %Z" nil t)))
 
 ;; Links ;;
+
+;; Source: https://gist.github.com/mmarshall540/61601368dbb6143c04aff59060096682
+(defun my/org-id-insert-link-with-completion ()
+  "Insert a link to another heading using completion.
+Use the heading text as default description, but provide an
+opportunity to edit same.
+The `org-outline-path-complete-in-steps' option affects the behavior of
+this command.  It works best when set to nil.
+To change which headings are presented as candidates, modify the command
+by adding a `targets' argument in the call to
+`org-id-get-with-outline-path-completion'.  By default all headings in
+the current buffer are presented as completion-candidates, but you can
+use any value that would work as a value of `org-refile-targets' to set
+the completion candidates to use.  Or you could do something fancy with
+prefix arguments to select different sets of targets.  I am too lazy to
+do that at the moment."
+  (interactive)
+  (let* ((id (org-id-get-with-outline-path-completion))
+         (desc (save-excursion
+                 (org-id-goto id)
+                 (org-get-heading :notags :notodo :noprty :nocmnt))))
+    (funcall-interactively 'org-insert-link nil (concat "id:" id) desc)))
+
+(keymap-set org-mode-map "C-c C-M-l"
+            'my/org-id-insert-link-with-completion)
+
+
 (defun org-mode-url-at-point ()
   "Extract URL from =org-mode= link at point."
   (interactive "P")

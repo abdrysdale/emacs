@@ -873,6 +873,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c C-x C-l") #'org-latex-preview)
 
 ;;;; Emacs Speaks Statistics
+;; On windows, you need to run in the R shell.
+;; chooseCRANmirror(graphics = FALSE)
+;; to avoid install.packages hanging.
 (use-package ess
   :config (require 'ess-r-mode))
 ;; well also Python but that's not important right now
@@ -1167,7 +1170,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;; Purpose of each model?
 ;;  moonshotai/Kimi-K2.5            :: Best (thinking with temp = 1.0)
 ;;  moonshotai/Kimi-K2.5            :: Best w.o. thinking (temp = 0.6)
-;;  Llama-4-Maverick                :: Huge context
+;;  Llama-4-Maverick                :: Huge context and low latency
 ;;  Llama-3.3                       :: Free
 ;;
 (use-package gptel

@@ -39,14 +39,48 @@
 
 
 (defun gptel-tool--fetch-rendered-url-content (url)
-  "Fetch and render the html content of a URL."
-   (let ((buffer (url-retrieve-synchronously url)))
-    (if  buffer
-        (with-current-buffer buffer
-          (message (format "fetched and rendered url %s" url))
-          (shr-render-region (point-min) (point-max))
-          (concat (buffer-substring-no-properties (point-min) (point-max))))
-      "unable to load website")))
+  "Fetch and render the HTML content of a URL to readable text."
+  (condition-case error
+      (let ((buffer (url-retrieve-synchronously url nil nil 30))) ; 30s timeout
+        (if (not (and buffer (buffer-live-p buffer)))
+            "Error: Unable to fetch URL"
+          (unwind-protect
+              (with-current-buffer buffer
+                ;; Handle HTTP redirections and errors
+                (goto-char (point-min))
+                (if (looking-at "HTTP/[0-9.]+ \\([0-9]+\\)")
+                    (let ((status (string-to-number (match-string 1))))
+                      (unless (<= 200 status 299)
+                        (error "HTTP error: %d" status)))
+                  (error "Invalid HTTP response"))
+                ;; Find end of headers
+                (goto-char (point-min))
+                (let ((header-end (or (re-search-forward "\r?\n\r?\n" nil t)
+                                      (point-max))))
+                  ;; Narrow to body only and decode
+                  (narrow-to-region header-end (point-max))
+                  (decode-coding-region (point-min) (point-max) 'utf-8)
+                  ;; Render HTML to text using shr
+                  (let ((shr-width 80))  ; Prevent long lines
+                    (shr-render-buffer (current-buffer)))
+                  ;; Extract text and sanitize for JSON
+                  (let ((text (buffer-substring-no-properties (point-min) (point-max))))
+                    ;; Remove control characters (NULL, bell, etc.) except \t, \n, \r
+                    (setq text (replace-regexp-in-string "[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]" "" text))
+                    ;; Normalize line endings
+                    (setq text (replace-regexp-in-string "\r\n" "\n" text))
+                    ;; Remove null bytes explicitly
+                    (setq text (replace-regexp-in-string "\0" "" text))
+                    ;; Truncate if extremely long (protect token limits)
+                    (if (> (length text) 80000)
+                        (concat (substring text 0 80000)
+                                "\n\n[Content truncated due to length...]")
+                      text))))
+            ;; Cleanup: ensure buffer is killed even if error occurs
+            (when (buffer-live-p buffer)
+              (kill-buffer buffer)))))
+    (error (format "Error fetching URL %s: %s"
+                   url (error-message-string error)))))
 
 (gptel-make-tool
  :name "fetch-url"

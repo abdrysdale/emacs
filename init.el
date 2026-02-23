@@ -726,6 +726,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;;; Nix
 (use-package nix-mode)
 
+;;;; Julia
+(use-package julia-mode)
+
 ;;;; Latex
 (setq tectonic-compile-command "tectonic -X compile -f plain %T"
       tectonic-watch-command "tectonic -X watch")

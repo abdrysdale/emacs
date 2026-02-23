@@ -1633,6 +1633,7 @@ You are Ceri, a large language model living inside Emacs.
         ("Computerized Medical Imaging and Graphics"
          "https://cdn.clinicalkey.com/rss/issue/08956111.xml")
         ;; Personal
+        ("Gregor Hophe" "https://www.enterpriseintegrationpatterns.com/ramblings.html")
         ("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
         ("Ruslan" "https://codelearn.me/feed.xml")
         ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")

@@ -711,6 +711,34 @@ The timer can be canceled with `my-cancel-gc-timer'.")
              (default-directory (project-root project)))
     (call-interactively #'pdb)))
 
+(defun python-sort-imports-ruff (&rest args)
+  "Organize Python imports in the current buffer using ruff.
+Executes \"ruff check --select I --fix\" with ARGS (options) on buffer content.
+Return non-nil if the buffer was actually modified."
+  (interactive)
+  (let ((buffer (current-buffer)))
+    (with-temp-buffer
+      (let ((temp (current-buffer)))
+        (with-current-buffer buffer
+          (let ((status (apply #'call-process-region
+                               (point-min) (point-max)
+                               "ruff"
+                               nil (list temp nil) nil
+                               (append
+                                '("check" "--select" "I" "--fix")
+                                args
+                                (when (buffer-file-name)
+                                  (list "--stdin-filename" (buffer-file-name)))
+                                '("-"))))
+                (tick (buffer-chars-modified-tick)))
+            (unless (eq 0 status)
+              (error "ruff exited with status %s (maybe ruff is not installed or not in PATH?)"
+                     status))
+            (replace-buffer-contents temp)
+            (not (eq tick (buffer-chars-modified-tick)))))))))
+
+(define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff)
+
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 

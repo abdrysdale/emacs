@@ -144,7 +144,10 @@ than having to call `add-to-list' multiple times."
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 ;; Manually update org-mode to the latest version
-(package-upgrade 'org)
+;; Sometimes this fails but it's usually because org hasn't be installed yet
+;; and so will be the latest version upon installation.
+(with-demoted-errors
+  (package-upgrade 'org))
 
 ;; use-package
 (unless (package-installed-p 'use-package)

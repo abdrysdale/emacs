@@ -956,6 +956,20 @@ Return non-nil if the buffer was actually modified."
 ;; hs-minor-mode not supported by gleam-ts-mode
 (remove-hook 'gleam-ts-mode-hook #'hs-minor-mode)
 
+;; eTags
+
+(defun etags-generate-tags-file ()
+  "Generate etags in the project root."
+  (interactive)
+  (let ((default-directory (project-root (project-current t)))
+        (compilation-buffer-name-function
+         (or project-compilation-buffer-name-function
+             compilation-buffer-name-function))
+        (extension (read-string "Extension: " "py")))
+    (compile (format "find . -name '*.%s' -print | etags -" extension))))
+(global-set-key (kbd "C-x p t") #'etags-generate-tags-file)
+(add-hook 'prog-mode-hook #'etags-regen-mode)
+
 ;; Semantic mode
 ;; Language aware editing commands for:
 ;; C, C++, HTML,Java, Javascript, Make, Python, Scheme, SRecode, and Texinfo

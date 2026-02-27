@@ -2295,6 +2295,7 @@ with some rough idea of what the papers were about."
                                  (lisp . t)
                                  (makefile . t)
                                  (octave . t)
+                                 (org . t)
                                  (python . t)
                                  (R . t)
                                  (shell . t)

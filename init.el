@@ -2683,7 +2683,6 @@ same `major-mode'."
                                      ("v" . view-buffer-other-window)))
 
 (global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
-                                     ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
@@ -2694,10 +2693,7 @@ same `major-mode'."
                                      ("f" . org-clock-in-score-habitica-down)
                                      ("p" . org-timer-pause-or-continue)
                                      ("s" . org-timer-stop)
-                                     ("t" . org-timer-set-timer)
-                                     ("C-c" .
-                                      (compile
-                                       ,compilation-python-type-check-cmd))))
+                                     ("t" . org-timer-set-timer)))
 
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)

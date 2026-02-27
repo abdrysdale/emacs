@@ -737,7 +737,8 @@ Return non-nil if the buffer was actually modified."
             (replace-buffer-contents temp)
             (not (eq tick (buffer-chars-modified-tick)))))))))
 
-(define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff)
+(eval-after-load "python-mode"
+  (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff))
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

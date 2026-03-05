@@ -144,7 +144,10 @@ than having to call `add-to-list' multiple times."
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 ;; Manually update org-mode to the latest version
-(package-upgrade 'org)
+;; Sometimes this fails but it's usually because org hasn't be installed yet
+;; and so will be the latest version upon installation.
+(with-demoted-errors
+  (package-upgrade 'org))
 
 ;; use-package
 (unless (package-installed-p 'use-package)
@@ -708,6 +711,35 @@ The timer can be canceled with `my-cancel-gc-timer'.")
              (default-directory (project-root project)))
     (call-interactively #'pdb)))
 
+(defun python-sort-imports-ruff (&rest args)
+  "Organize Python imports in the current buffer using ruff.
+Executes \"ruff check --select I --fix\" with ARGS (options) on buffer content.
+Return non-nil if the buffer was actually modified."
+  (interactive)
+  (let ((buffer (current-buffer)))
+    (with-temp-buffer
+      (let ((temp (current-buffer)))
+        (with-current-buffer buffer
+          (let ((status (apply #'call-process-region
+                               (point-min) (point-max)
+                               "ruff"
+                               nil (list temp nil) nil
+                               (append
+                                '("check" "--select" "I" "--fix")
+                                args
+                                (when (buffer-file-name)
+                                  (list "--stdin-filename" (buffer-file-name)))
+                                '("-"))))
+                (tick (buffer-chars-modified-tick)))
+            (unless (eq 0 status)
+              (error "ruff exited with status %s (maybe ruff is not installed or not in PATH?)"
+                     status))
+            (replace-buffer-contents temp)
+            (not (eq tick (buffer-chars-modified-tick)))))))))
+
+(with-eval-after-load "python-mode"
+  (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff))
+
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 
@@ -725,6 +757,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;;;; Nix
 (use-package nix-mode)
+
+;;;; Julia
+(use-package julia-mode)
 
 ;;;; Latex
 (setq tectonic-compile-command "tectonic -X compile -f plain %T"
@@ -920,6 +955,20 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; hs-minor-mode not supported by gleam-ts-mode
 (remove-hook 'gleam-ts-mode-hook #'hs-minor-mode)
+
+;; eTags
+
+(defun etags-generate-tags-file ()
+  "Generate etags in the project root."
+  (interactive)
+  (let ((default-directory (project-root (project-current t)))
+        (compilation-buffer-name-function
+         (or project-compilation-buffer-name-function
+             compilation-buffer-name-function))
+        (extension (read-string "Extension: " "py")))
+    (compile (format "find . -name '*.%s' -print | etags -" extension))))
+(global-set-key (kbd "C-x p t") #'etags-generate-tags-file)
+(add-hook 'prog-mode-hook #'etags-regen-mode)
 
 ;; Semantic mode
 ;; Language aware editing commands for:
@@ -1553,6 +1602,8 @@ SELF-MONITORING
         ("Computerized Medical Imaging and Graphics"
          "https://cdn.clinicalkey.com/rss/issue/08956111.xml")
         ;; Personal
+        ("Ali Quote" "https://aliquote.org/index.xml")
+        ("Gregor Hophe" "https://www.enterpriseintegrationpatterns.com/ramblings.html")
         ("Meadowhawk" "https://blog.meadowhawk.xyz/feeds/rss.xml")
         ("Ruslan" "https://codelearn.me/feed.xml")
         ("Reddit: Emacs" "https://www.reddit.com/r/emacs.rss")
@@ -2164,6 +2215,7 @@ with some rough idea of what the papers were about."
                                  (lisp . t)
                                  (makefile . t)
                                  (octave . t)
+                                 (org . t)
                                  (python . t)
                                  (R . t)
                                  (shell . t)
@@ -2551,7 +2603,6 @@ same `major-mode'."
                                      ("v" . view-buffer-other-window)))
 
 (global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
-                                     ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
@@ -2562,10 +2613,7 @@ same `major-mode'."
                                      ("f" . org-clock-in-score-habitica-down)
                                      ("p" . org-timer-pause-or-continue)
                                      ("s" . org-timer-stop)
-                                     ("t" . org-timer-set-timer)
-                                     ("C-c" .
-                                      (compile
-                                       ,compilation-python-type-check-cmd))))
+                                     ("t" . org-timer-set-timer)))
 
 
 (global-set-keys-to-prefix "C-c d" '(("," . dired-other-window)

@@ -119,6 +119,10 @@ than having to call `add-to-list' multiple times."
 ;;; * Package Management *
 ;;  **********************
 
+(setq package-review-policy t
+      package-review-diff-command
+      '("git" "diff" "--no-index" "--color=never" "--diff-filter=d"))
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name

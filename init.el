@@ -741,8 +741,9 @@ Return non-nil if the buffer was actually modified."
             (replace-buffer-contents temp)
             (not (eq tick (buffer-chars-modified-tick)))))))))
 
-(with-eval-after-load "python-mode"
-  (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff))
+(with-eval-after-load "python"
+  (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff)
+  (define-key python-mode-map (kbd "C-c TAB d") #'eldoc-doc-buffer))
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))

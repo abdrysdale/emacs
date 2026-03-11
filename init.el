@@ -1215,14 +1215,16 @@ Return non-nil if the buffer was actually modified."
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
 ;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 18 | 1050 |
 ;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | TTJ | 47 |  262 |
+;; | zai-org/glm-5                          | 1.00 | 3.20 | TTJ | 50 |  200 |
 ;; |------------------------------------------------------------------------|
 ;;
-;; FJ = Thinking, Function Calling, JSON Ouptut
+;; TFJ = Thinking, Function Calling, JSON Ouptut
 ;; II = Artificial Intelligence Index v2.2
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  moonshotai/Kimi-K2.5            :: Best (thinking with temp = 1.0)
+;;  zia-org/glm-5                   :: Best
+;;  moonshotai/Kimi-K2.5            :: Default (thinking with temp = 1.0)
 ;;  moonshotai/Kimi-K2.5            :: Best w.o. thinking (temp = 0.6)
 ;;  Llama-4-Maverick                :: Huge context and low latency
 ;;  Llama-3.3                       :: Free
@@ -1240,6 +1242,7 @@ Return non-nil if the buffer was actually modified."
                         :stream t
                         :models
                         '(moonshotai/Kimi-K2.5
+                          zai-org/glm-5
                           meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))

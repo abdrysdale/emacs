@@ -2132,7 +2132,7 @@ with some rough idea of what the papers were about."
          (window-parameters . ((window-height . fit-window-to-buffer)
                                (preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:Tags List\\|Ceri\\|elysium\\)\\*"
+        ("\\*\\(?:Tags List\\|Ceri\\|eldoc\\)\\*"
          display-buffer-in-side-window
          (side . right)
          (slot . 1)
@@ -2594,8 +2594,6 @@ same `major-mode'."
                                      ("b" . startup)
                                      ("c" . count-words)
                                      ("d" . desktop-read)
-                                     ("e" . (lambda () (interactive)
-                                              (switch-to-buffer "*elysium*")))
                                      ("g" . (lambda () (interactive)
                                               (switch-to-buffer "*gud-run*")))
                                      ("i" . ebib-insert-citation)

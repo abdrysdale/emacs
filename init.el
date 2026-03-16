@@ -1625,6 +1625,12 @@ SELF-MONITORING
         ("Yann Herklotz" "https://yannherklotz.com/index.xml")
         ("Steven Bonner" "https://sbonner0.github.io/feed.xml")
         ("Arjen Wiersma" "https://arjenwiersma.nl/posts/index.xml")
+        ("Philip Heltweg" "https://www.heltweg.org/rss.xml")
+        ("Julia Evans" "https://jvns.ca/atom.xml")
+        ("Haskell for all" "https://haskellforall.com/rss.xml")
+        ("Less Wrong" "https://www.lesswrong.com/feed.xml?view=curated-rss")
+        ("Erik Johannes Husom" "https://erikjohannes.no/index.xml")
+        ("Adam Drake" "https://adamdrake.com/posts/index.xml")
         ("abdrysdale" "https://abdrysdale.phd/feed.xml")))
 
 ;; IRC

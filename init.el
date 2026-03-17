@@ -1445,6 +1445,7 @@ Here is the diff:\n\n
     (vc-diff))
   (let ((diff (buffer-string))
         (gptel--system-message nil)
+        (gptel-include-reasoning nil)
         (gptel-model gptel-commit-model))
     (gptel-request
         (concat gptel-commit--prompt  diff)

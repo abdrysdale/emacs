@@ -557,7 +557,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
+(global-set-key (kbd "C-c C-r") #'replace-regexp)
 (global-set-key (kbd "C-c q") #'query-replace)
+(global-set-key (kbd "C-c C-q") #'query-replace-regexp)
 (global-set-key (kbd "C-/") #'undo)
 
 ;; In general, I prefer to go forward to the beginning of a word

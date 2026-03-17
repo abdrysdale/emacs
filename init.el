@@ -555,6 +555,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq save-interprogram-paste-before-kill t)
 (setq yank-pop-change-selection t)
 
+;; Usefull regex:
+;; \([a-z]\)\([A-Z]\) → \1_\,(downcase \2)  :: camelCase to snake_case
+
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
 (global-set-key (kbd "C-c C-r") #'replace-regexp)
@@ -1447,7 +1450,7 @@ APPROACH
 Before answering any non-trivial request, first explain your reasoning step-by-step,
 then provide the final answer. For mathematical or logical problems, show all work.
 
-If you detect uncertainty in your reasoning, pause to explicitly consider one 
+If you detect uncertainty in your reasoning, pause to explicitly consider one
 alternative approach before proceeding.
 
 FORMAT

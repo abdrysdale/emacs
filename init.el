@@ -1238,7 +1238,6 @@ Return non-nil if the buffer was actually modified."
 ;; | Model Name                             | In   | Out  | TFJ | II |  CW  |
 ;; |----------------------------------------|------|------|-----|----|------|
 ;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
-;; | Llama-4-Maverick-17B-128E-Instruct-FP8 | 0.27 | 0.85 | -FJ | 18 | 1050 |
 ;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | TTJ | 47 |  262 |
 ;; | zai-org/glm-5                          | 1.00 | 3.20 | TTJ | 50 |  200 |
 ;; |------------------------------------------------------------------------|
@@ -1248,10 +1247,9 @@ Return non-nil if the buffer was actually modified."
 ;; CW = Context Window (kTokens)
 ;;
 ;; Purpose of each model?
-;;  zia-org/glm-5                   :: Best
+;;  zia-org/glm-5                   :: Best for tool use.
 ;;  moonshotai/Kimi-K2.5            :: Default (thinking with temp = 1.0)
 ;;  moonshotai/Kimi-K2.5            :: Best w.o. thinking (temp = 0.6)
-;;  Llama-4-Maverick                :: Huge context and low latency
 ;;  Llama-3.3                       :: Free
 ;;
 (use-package gptel
@@ -1268,7 +1266,6 @@ Return non-nil if the buffer was actually modified."
                         :models
                         '(moonshotai/Kimi-K2.5
                           zai-org/glm-5
-                          meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
                           meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
         gpt-model (car (gptel-openai-models gptel-backend))
         gptel-expert-commands t
@@ -1437,7 +1434,7 @@ document are to be interpreted as described in RFC 2119.
 Here is the diff:\n\n
 ")
 
-(setq gptel-commit-model 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
+(setq gptel-commit-model 'mistralai/Mistral-Small-24B-Instruct-2501)
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)

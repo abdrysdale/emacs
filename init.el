@@ -556,7 +556,25 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq yank-pop-change-selection t)
 
 ;; Usefull regex:
-;; \([a-z]\)\([A-Z]\) → \1_\,(downcase \2)  :: camelCase to snake_case
+(defmacro my/defquery-replace (name doc pattern replacement)
+  "Define a 'query-replace-regexp' (PATTERN -> REPLACEMENT) command.
+Setting the NAME and DOC."
+  `(defun ,name ()
+     ,doc
+     (interactive)
+     (perform-replace ,pattern
+                      (query-replace-compile-replacement ,replacement t)
+                      t t nil)))
+
+(my/defquery-replace my/camel-to-snake
+                     "Transform camelCase into snake_case."
+                     "\\([a-z]\\)\\([A-Z]\\)"
+                     "\\1_\\,(downcase (match-string 2))")
+
+(my/defquery-replace my/upper-to-lower
+                     "Transform an upper case word into lower."
+                     "\\<[A-Z]\\{2,\\}\\>"
+                     "\\,(downcase \\&)")
 
 (global-set-key (kbd "C-x j") #'join-line)
 (global-set-key (kbd "C-c r") #'replace-string)
@@ -564,6 +582,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (global-set-key (kbd "C-c q") #'query-replace)
 (global-set-key (kbd "C-c C-q") #'query-replace-regexp)
 (global-set-key (kbd "C-/") #'undo)
+
+(global-set-key (kbd "C-c C-M-f") #'fill-region)
 
 ;; In general, I prefer to go forward to the beginning of a word
 ;; not the end, but I've provided a shortcut for both a bound

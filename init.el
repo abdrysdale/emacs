@@ -1333,8 +1333,7 @@ Rules:
     (gptel-request
         (format gptel-commit--prompt diff)
       :system nil
-      :position 10
-      :stream t)))
+      :stream nil)))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))

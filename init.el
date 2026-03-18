@@ -119,6 +119,23 @@ than having to call `add-to-list' multiple times."
 ;;; * Package Management *
 ;;  **********************
 
+;; Sometimes I get a weird error like:
+;;
+;; Failed to verify signature archive-contents.sig:
+;; No public key for 645357D2883A0966 created at 2025-11-14T11:05:15+0100
+;; using (unknown algorithm 22)
+;; Command output:
+;; gpg: Signature made Fri Nov 14 11:05:15 2025 CET
+;; gpg:                using EDDSA key 0327BE68D64D9A1A66859F15645357D2883A0966
+;; gpg: Can't check signature: No public key
+;;
+;; The solution (source: http://johnbokma.com/blog/2025/11/14/failed-to-verify-signature.html):
+;;
+;; M-: (setq package-check-signature nil) RET
+;; M-x package-refresh-contents
+;; M-x package-install RET gnu-elpa-keyring-update RET
+;; M-: (setq package-check-signature 'allow-unsigned) RET
+
 (setq package-review-policy t
       package-review-diff-command
       '("git" "diff" "--no-index" "--color=never" "--diff-filter=d"))
@@ -1296,6 +1313,8 @@ Rules:
 - CRITICAL: Output ONLY the commit message, no markdown, no explanations
 
 <diff>
+%s
+</diff>
 ")
 
 (setq gptel-commit-model 'mistralai/Mistral-Small-24B-Instruct-2501)
@@ -1308,18 +1327,14 @@ Rules:
   (unless (eq major-mode 'diff-mode)
     (vc-diff))
   (let ((diff (buffer-string))
-        (gptel--system-message nil)
         (gptel-include-reasoning nil)
-        (gptel-use-curl nil)
-        (gptel-stream nil)
         (gptel-model gptel-commit-model))
+    (vc-next-action nil)
     (gptel-request
-        (concat gptel-commit--prompt diff "\n</diff>")
-      :callback
-      (lambda (response info)
-        (kill-new response)
-        (message "gptel-commit message in the kill ring!"))))
-  (vc-next-action nil))
+        (format gptel-commit--prompt diff)
+      :system nil
+      :position 10
+      :stream t)))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))

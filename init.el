@@ -2113,6 +2113,7 @@ with some rough idea of what the papers were about."
       org-footnote-auto-adjust t
       org-footnote-auto-label 'confirm
       org-enforce-todo-dependencies t
+      org-clock-sound t
       org-startup-indented t)
 
 (setq org-todo-keywords

@@ -1296,6 +1296,10 @@ Return non-nil if the buffer was actually modified."
         gptel-max-tokens 16384
         gptel-track-media t
         gptel-include-reasoning t)
+  (if (boundp 'anthropic-api-key)
+      (gptel-make-anthropic "Ceri"
+        :stream t
+        :key anthropic-api-key))
   (load (concat user-emacs-directory "gptel-papers.el"))
   (load (concat user-emacs-directory "gptel-tools.el")))
 

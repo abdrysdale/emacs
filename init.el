@@ -566,6 +566,12 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;; * Basic Editing *
 ;;  *****************
 
+(if (eq system-type 'darwin)
+    (setq ns-right-option-modifier 'none
+          ns-option-modifier 'alt
+          ns-command-modifier 'meta
+          visible-bell nil))
+
 (delete-selection-mode 1) ;; Replace highlighted text rather than just inserted.
 
 (save-place-mode 1)

@@ -1290,9 +1290,9 @@ Return non-nil if the buffer was actually modified."
                             :models
                             '(moonshotai/Kimi-K2.5
                               zai-org/glm-5
-                              meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))))
-  (setq gpt-model (car (gptel-openai-models gptel-backend))
-        gptel-expert-commands t
+                              meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
+            gpt-model (car (gptel-openai-models gptel-backend))))
+  (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
         ;; Responses seem to cut off for a lot of thinking models
@@ -1374,26 +1374,6 @@ SELF-MONITORING
 - For extended reasoning (>30 steps), pause and summarize progress
 ")
 (setq gptel--system-message default-llm-system-prompt)
-
-;; Aider.el
-;; External dependencies :: aider
-;; Emacs dependencies :: transient, magit, markdown-mode
-(use-package aider
-  :init
-  (require 'transient)
-  (require 'magit)
-  (require 'markdown-mode)
-  :config
-  (setq aider-args '("--architect"
-                     "--model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Thinking"
-                     "--reasoning-effort" "high"
-                     "--no-auto-accept-architect"
-                     "--editor-model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Instruct"
-                     "--weak-model" "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
-                     "--show-diffs"
-                     "--install-main-branch"))
-  (setenv "TOGETHER_API_KEY" together-ai-api-key)
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

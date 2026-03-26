@@ -1276,15 +1276,16 @@ Return non-nil if the buffer was actually modified."
     ;; https://github.com/karthink/gptel/issues/251
     (setq gptel-use-curl nil
           gptel-stream nil))
-  (setq gptel-backend (gptel-make-openai "Ceri"
-                        :host "api.together.xyz"
-                        :key together-ai-api-key
-                        :stream t
-                        :models
-                        '(moonshotai/Kimi-K2.5
-                          zai-org/glm-5
-                          meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
-        gpt-model (car (gptel-openai-models gptel-backend))
+  (if (boundp 'together-ai-api-key)
+      (setq gptel-backend (gptel-make-openai "Ceri"
+                            :host "api.together.xyz"
+                            :key together-ai-api-key
+                            :stream t
+                            :models
+                            '(moonshotai/Kimi-K2.5
+                              zai-org/glm-5
+                              meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))))
+  (setq gpt-model (car (gptel-openai-models gptel-backend))
         gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode

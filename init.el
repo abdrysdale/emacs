@@ -555,7 +555,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'windows-nt)
     (set-face-attribute 'default nil
                         :family "Consolas" :height 110)
-  (progn
+  (unless (eq system-type 'darwin)
     (add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
     (add-to-list 'default-frame-alist '(width . 79))))
 

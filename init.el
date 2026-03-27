@@ -452,7 +452,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Basic
 (setq inhibit-startup-message t
-      visible-bell t
+      visible-bell nil
       confirm-kill-emacs nil
       global-tab-line-mode nil
       tab-line-close-button-show nil
@@ -569,8 +569,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'darwin)
     (setq ns-right-option-modifier 'none
           ns-option-modifier 'alt
-          ns-command-modifier 'meta
-          visible-bell nil))
+          ns-function-modifier 'none
+          ns-command-modifier 'meta))
 
 (delete-selection-mode 1) ;; Replace highlighted text rather than just inserted.
 
@@ -1292,6 +1292,15 @@ Return non-nil if the buffer was actually modified."
                               zai-org/glm-5
                               meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
             gpt-model (car (gptel-openai-models gptel-backend))))
+  (if (boundp 'gemini-api-key)
+      (setq gptel-backend (gptel-make-gemini "Ceri"
+                            :key gemini-api-key
+                            :stream t)
+            gptel-model 'gemini-3.1-pro-preview))
+  (if (boundp 'anthropic-api-key)
+      (gptel-make-anthropic "Ceri"
+        :key anthropic-api-key
+        :stream t))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
@@ -1303,10 +1312,6 @@ Return non-nil if the buffer was actually modified."
         gptel-max-tokens 16384
         gptel-track-media t
         gptel-include-reasoning t)
-  (if (boundp 'anthropic-api-key)
-      (gptel-make-anthropic "Ceri"
-        :stream t
-        :key anthropic-api-key))
   (load (concat user-emacs-directory "gptel-papers.el"))
   (load (concat user-emacs-directory "gptel-tools.el")))
 

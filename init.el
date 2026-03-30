@@ -745,6 +745,12 @@ Setting the NAME and DOC."
       "uvx pyrefly check -j 0 --output-format min-text")
 
 ;;;; Python
+
+(if (eq system-type 'darwin)
+    (add-to-list 'exec-path "/opt/homebrew/opt/python/libexec/bin")
+  (setenv "PATH" (concat "/opt/homebrew/opt/python/libexec/bin:"
+                         (getenv "PATH"))))
+
 (defun python-imenu-use-flat-index
     ()
   "Use flat indexing for imenu."

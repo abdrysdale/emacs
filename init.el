@@ -743,6 +743,7 @@ Setting the NAME and DOC."
 (setq compilation-scroll-output 'first-error)
 (setq compilation-python-type-check-cmd
       "uvx pyrefly check -j 0 --output-format min-text")
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
 ;;;; Python
 

@@ -1312,6 +1312,11 @@ Return non-nil if the buffer was actually modified."
       (gptel-make-anthropic "Ceri"
         :key anthropic-api-key
         :stream t))
+  (if (executable-find "ollama")
+      (gptel-make-ollama "*Ceri*"
+        :host "localhost:11434"
+        :stream t
+        :models '(qwen3.5:9b)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode

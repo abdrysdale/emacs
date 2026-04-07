@@ -1316,7 +1316,7 @@ Return non-nil if the buffer was actually modified."
       (gptel-make-ollama "*Ceri*"
         :host "localhost:11434"
         :stream t
-        :models '(qwen3.5:9b)))
+        :models '(gemma4:26b gemma4:latest)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
@@ -1875,9 +1875,57 @@ IF INPUT-TASK then just display that task."
                   ("title" "\\citetitle%<[%A]%>[%A]{%(%K%,)}")
                   ("year" "\\citeyear%<[%A]%>[%A][%A]{%K}")
                   ("date" "\\citedate%<[%A]%>[%A]{%(%K%,)}")
-                  ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))))
+                  ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))
+                 markdown-mode
+                  (("ref" "[^@%K]")
+                   ("cite" "[^@%K]\n[^@%K]:"))))
+
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
+
+(defun my/ebib-insert-markdown-footnote ()
+  "Insert a Markdown footnote marker at point and the definition at the end of buffer."
+  (interactive)
+  ;; 1. Ensure Ebib is initialized
+  (unless ebib--initialized (ebib-init))
+  
+  ;; 2. Get the relevant databases for the current buffer
+  (let* ((database-files (ebib--get-local-bibfiles))
+         (databases (or (delq nil (mapcar #'ebib--get-or-open-db database-files))
+                        ebib--databases)))
+    
+    (if (not databases)
+        (error "[Ebib] No databases open or associated with this buffer")
+      
+      ;; 3. Prompt the user for an entry using your configured completion system
+      (let* ((entries (ebib-read-entry "Footnote citation: " databases))
+             (key (caar entries))
+             (db (cdar entries)))
+        
+        (when key
+          (let* (;; 4. Define the marker format
+                 (marker (format "[^@%s]" key))
+                 ;; 5. Generate the reference string (Author, Year)
+                 ;; We use the default reference template or your customized one
+                 (type (ebib-db-get-field-value "=type=" key db 'noerror))
+                 (template (or (alist-get type ebib-reference-templates nil nil #'cl-equalp)
+                               "{Author|Editor}, ({Date|Year})"))
+                 (ref-text (ebib--process-reference-template template key db)))
+            
+            ;; 6. Insert marker at point
+            (insert marker)
+            
+            ;; 7. Append definition to the end of the buffer
+            (save-excursion
+              (goto-char (point-max))
+              ;; Ensure we are on a fresh line at the very end
+              (unless (bolp) (insert "\n"))
+              ;; Add an extra newline to separate from body text if needed
+              (insert (format "\n%s: %s" marker ref-text)))))))))
+
+(with-eval-after-load 'markdown-mode
+  (define-key markdown-mode-map
+              (kbd "C-c b i") #'my/ebib-insert-markdown-footnote))
 
 (defun ebib-create-key (key _db)
   "Return the KEY in DB."

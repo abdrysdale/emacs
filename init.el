@@ -1226,11 +1226,14 @@ Return non-nil if the buffer was actually modified."
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
 (setq flymake-start-on-flymake-mode t)
+
 (defun my/python-flymake-setup ()
   "Configure flymake to use ruff with the current buffer's filename context."
   (setq-local python-flymake-command
-              '("uv" "run" "ruff" "check" "--output-format" "concise"
-                "--quiet" "--exit-zero" "--select" "ALL"
+              `("uv" "run" "ruff" "check" "--output-format" "concise"
+                "--quiet" "--exit-zero"
+                ,(format "--config=%s/pyproject.toml"
+                         (project-root (project-current)))
                 "--stdin-filename=stdin" "-")))
 
 (add-hook 'python-mode-hook #'my/python-flymake-setup)

@@ -1229,9 +1229,9 @@ Return non-nil if the buffer was actually modified."
 (defun my/python-flymake-setup ()
   "Configure flymake to use ruff with the current buffer's filename context."
   (setq-local python-flymake-command
-              `("uv" "run" "ruff" "check" "--output-format" "concise"
+              '("uv" "run" "ruff" "check" "--output-format" "concise"
                 "--quiet" "--exit-zero" "--select" "ALL"
-                ,(concat "--stdin-filename=" (buffer-file-name)) "-")))
+                "--stdin-filename=stdin" "-")))
 
 (add-hook 'python-mode-hook #'my/python-flymake-setup)
 

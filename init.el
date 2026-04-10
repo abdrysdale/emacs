@@ -747,10 +747,12 @@ Setting the NAME and DOC."
 
 ;;;; Python
 
-(if (eq system-type 'darwin)
-    (add-to-list 'exec-path "/opt/homebrew/opt/python/libexec/bin")
-  (setenv "PATH" (concat "/opt/homebrew/opt/python/libexec/bin:"
-                         (getenv "PATH"))))
+(when (eq system-type 'darwin)
+  (let ((extra-paths '("/opt/homebrew/bin"
+                       "/opt/homebrew/opt/python/libexec/bin")))
+    (dolist (p extra-paths)
+      (add-to-list 'exec-path p)
+      (setenv "PATH" (concat p ":" (getenv "PATH"))))))
 
 (defun python-imenu-use-flat-index
     ()
@@ -1148,6 +1150,17 @@ Return non-nil if the buffer was actually modified."
       (insert "#+title: Notes\n"))
     (switch-to-buffer buffer-notes-name)))
 
+(defun markdown-buffer ()
+  "Create a scratch buffer for 'markdown-mode' notes."
+  (interactive)
+  (let* ((buffer-notes-name "*motes*")
+         (buffer-notes-scratch (get-buffer buffer-notes-name)))
+    (unless buffer-notes-scratch
+      (switch-to-buffer (get-buffer-create buffer-notes-name))
+      (markdown-mode)
+      (insert "# Notes\n"))
+    (switch-to-buffer buffer-notes-name)))
+
 (setq initial-major-mode #'emacs-lisp-mode)
 (setq initial-scratch-message ";;; Scratch --- A Scratch Pad for Elisp Code\n")
 
@@ -1349,7 +1362,7 @@ Rules:
 </diff>
 ")
 
-(setq gptel-commit-model 'mistralai/Mistral-Small-24B-Instruct-2501)
+(setq gptel-commit-model 'gemma4:latest)
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
@@ -2560,6 +2573,7 @@ same `major-mode'."
 
 (global-set-keys-to-prefix "C-c b" '(("," . switch-to-buffer-other-window)
                                      ("N" . note-buffer)
+                                     ("M" . markdown-buffer)
                                      ("a" . append-to-buffer)
                                      ("b" . startup)
                                      ("c" . count-words)

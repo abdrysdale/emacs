@@ -2099,7 +2099,7 @@ with some rough idea of what the papers were about."
 ;;    |  d r |                     |  * * |
 ;;    |  * * |                     |      |
 ;;    |______|_____________________|______|
-;;    | *help*/*grep*/  |  *shell*/       |
+;;    | *help*/*grep*/  |  *eshell*/      |
 ;;    | *Completions*/  |  *compilation*/ |
 ;;    | *Calendar*      |                 |
 ;;    |_________________|_________________|
@@ -2139,7 +2139,7 @@ with some rough idea of what the papers were about."
          (slot . -1)
          (window-parameters . ((preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:shell\\|compilation\\|eshell\\|eat\\)\\*"
+        ("\\*\\(?:compilation\\|eshell\\)\\*"
          display-buffer-in-side-window
          (side . bottom)
          (slot . 1)

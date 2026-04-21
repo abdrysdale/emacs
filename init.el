@@ -744,6 +744,12 @@ Setting the NAME and DOC."
 (setq compilation-python-type-check-cmd
       "uvx pyrefly check -j 0 --output-format min-text")
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(basedpyright
+                 "^\\(.*?\\):\\([0-9]+\\):\\([0-9]+\\) - \\(?:\\(warning\\)\\|\\(information\\)\\|error\\):"
+                 1 2 3 (4 . 5)))
+  (add-to-list 'compilation-error-regexp-alist 'basedpyright))
 
 ;;;; Python
 

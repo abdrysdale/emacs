@@ -751,6 +751,19 @@ Setting the NAME and DOC."
                  1 2 3 (4 . 5)))
   (add-to-list 'compilation-error-regexp-alist 'basedpyright))
 
+(defun my-python-lint-current-file ()
+  "Run ruff and basedpyright on the current file using `compile'."
+  (interactive)
+  (if buffer-file-name
+      (let ((file (shell-quote-argument (buffer-file-name))))
+        (compile (format
+                  "ruff format %s && ruff check --fix %s && basedpyright %s"
+                  file file file)))
+    (error "This buffer is not visiting a file!")))
+
+(with-eval-after-load 'python
+  (define-key python-mode-map (kbd "C-c c c") #'my-python-lint-current-file))
+
 ;;;; Python
 
 (when (eq system-type 'darwin)
@@ -2602,6 +2615,7 @@ same `major-mode'."
                                      ("v" . view-buffer-other-window)))
 
 (global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
+                                     ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))

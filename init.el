@@ -90,6 +90,10 @@ than having to call `add-to-list' multiple times."
 (setq-if-nil local/paper-notes-dir (in-home-dir "Documents/notes/paper-notes"))
 
 
+;; File modes
+(load (concat user-emacs-directory "hl7.el"))
+
+
 ;;  **********
 ;;; * Server *
 ;;  **********

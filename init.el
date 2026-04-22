@@ -1633,10 +1633,8 @@ SELF-MONITORING
 
 ;; The irc-auth-file should look something like:
 ;; (setq libera-chat-pass my-libera-chat-passowrd)
-(let ((irc-auth-file (concat user-emacs-directory ".irc-auth.gpg")))
-  (when (file-exists-p irc-auth-file)
-    (load irc-auth-file)
-    (setq erc-sasl-password libera-chat-pass)))
+(if (boundp 'libera-chat-pass)
+    (setq erc-sasl-password libera-chat-pass))
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 

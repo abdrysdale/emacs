@@ -2339,6 +2339,9 @@ do that at the moment."
 
 (setq org-deadline-warning-days 60)
 
+(setq org-priority-highest 1
+      org-priority-lowest 5
+      org-priority-default 3)
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;

@@ -1383,10 +1383,10 @@ Return non-nil if the buffer was actually modified."
 Rules:
 - Format: <type>[optional scope]: <description>
 - Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
-- Breaking changes: append ! after type/scope (e.g., feat!:) OR
-    add BREAKING CHANGE footer.
+- Breaking changes: append ! after type/scope (e.g., feat!:) AND
+    add a BREAKING CHANGE footer.
 - Body: optional, separated by blank line
-- Footers: optional, use format \"Token: value\" or \"Token #value\"
+- Footers: optional, use format \"Token: value\"
 - CRITICAL: Output ONLY the commit message, no markdown, no explanations
 
 <diff>

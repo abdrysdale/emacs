@@ -1395,6 +1395,7 @@ Rules:
 ")
 
 (setq gptel-commit-model 'gemma4:latest)
+
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
@@ -1407,10 +1408,19 @@ Rules:
         (gptel-include-reasoning nil)
         (gptel-model gptel-commit-model))
     (vc-next-action nil)
+    (message (format "Writing commit for ~%.1f tokens" (/ (length diff) 3)))
     (gptel-request
-        (format gptel-commit--prompt diff)
-      :system nil
-      :stream nil)))
+     (format gptel-commit--prompt diff)
+     :system nil
+     :stream nil
+     ;; Override the default insertion behavior
+     :callback
+     (lambda (response info)
+       (when response
+         (with-current-buffer (plist-get info :buffer)
+           (goto-char (plist-get info :position))
+           ;; Strip leading whitespace/newlines and insert exactly at point
+           (insert (string-trim-left response))))))))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))

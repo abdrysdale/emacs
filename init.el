@@ -373,6 +373,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (when (eq system-type 'windows-nt)
   (use-package matlab-mode))
 
+(use-package envrc)
+(envrc-global-mode)
 
 ;;  **********
 ;;; * System *

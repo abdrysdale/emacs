@@ -465,7 +465,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       tab-line-tabs-function 'tab-line-tabs-mode-buffers
       truncate-lines t
       x-stretch-cursor t
-      use-dialog-box nil)
+      use-dialog-box nil
+      my/line-length 120)
+
+(setq-default fill-column my/line-length)
+(setq-default whitespace-line-column 120)
 
 (defun get-buffers-matching-current-mode ()
   "Return a list of buffers where their major-mode is equal to the current."

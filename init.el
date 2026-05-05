@@ -1339,7 +1339,7 @@ Return non-nil if the buffer was actually modified."
     (setq gptel-use-curl nil
           gptel-stream nil))
   (if (boundp 'together-ai-api-key)
-      (setq gptel-backend (gptel-make-openai "Ceri"
+      (setq gptel-backend (gptel-make-openai "Ceri*together"
                             :host "api.together.xyz"
                             :key together-ai-api-key
                             :stream t
@@ -1349,19 +1349,19 @@ Return non-nil if the buffer was actually modified."
                               meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
             gpt-model (car (gptel-openai-models gptel-backend))))
   (if (boundp 'gemini-api-key)
-      (setq gptel-backend (gptel-make-gemini "Ceri"
+      (setq gptel-backend (gptel-make-gemini "Ceri*gemini"
                             :key gemini-api-key
                             :stream t)
             gptel-model 'gemini-3.1-pro-preview))
   (if (boundp 'anthropic-api-key)
-      (gptel-make-anthropic "Ceri"
+      (gptel-make-anthropic "Ceri*anthropic"
         :key anthropic-api-key
         :stream t))
   (if (executable-find "ollama")
-      (gptel-make-ollama "*Ceri*"
+      (gptel-make-ollama "Ceri*ollama"
         :host "localhost:11434"
         :stream t
-        :models '(gemma4:26b gemma4:latest)))
+        :models '(devstral-small-2:24b qwen3.6:35b-a3b-coding-nvfp4 gpt-oss:20b gemma4:26b gemma4:latest)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode

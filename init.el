@@ -1152,6 +1152,8 @@ Return non-nil if the buffer was actually modified."
   (find-file project-list-file))
 (global-set-keys-to-prefix "C-x p" '(("a" . edit-projects)
                                      ("s" . project-search)))
+(with-eval-after-load 'project
+  (add-to-list 'project-switch-commands '(project-shell "Shell" ?s)))
 
 ;; Buffers
 (defun my-get-sorted-buffer-list ()

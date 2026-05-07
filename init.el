@@ -1154,6 +1154,34 @@ Return non-nil if the buffer was actually modified."
                                      ("s" . project-search)))
 
 ;; Buffers
+(defun my-get-sorted-buffer-list ()
+  "Return a list of visible buffers sorted by name using natural numbering."
+  (sort (cl-remove-if (lambda (b) (string-prefix-p " " (buffer-name b)))
+                      (buffer-list))
+        (lambda (a b) (string-version-lessp (buffer-name a) (buffer-name b)))))
+
+(defun my-next-buffer-by-name ()
+  "Switch to the next buffer, sorted alphabetically/numerically by name."
+  (interactive)
+  (let* ((buffers (my-get-sorted-buffer-list))
+         (pos (cl-position (current-buffer) buffers))
+         (next-pos (if pos (mod (1+ pos) (length buffers)) 0)))
+    (switch-to-buffer (nth next-pos buffers))))
+
+(defun my-previous-buffer-by-name ()
+  "Switch to the previous buffer, sorted alphabetically/numerically by name."
+  (interactive)
+  (let* ((buffers (my-get-sorted-buffer-list))
+         (pos (cl-position (current-buffer) buffers))
+         (prev-pos (if pos (mod (1- pos) (length buffers)) (1- (length buffers)))))
+    (switch-to-buffer (nth prev-pos buffers))))
+
+(global-set-key (kbd "C-x <right>") 'my-next-buffer-by-name)
+(global-set-key (kbd "C-x <left>") 'my-previous-buffer-by-name)
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "M-[") 'my-previous-buffer-by-name)
+  (define-key shell-mode-map (kbd "M-]") 'my-next-buffer-by-name))
+
 (global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
@@ -1161,6 +1189,7 @@ Return non-nil if the buffer was actually modified."
 (global-set-key (kbd "M-]") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-next-tab)
                                 (next-buffer))))
+
 
 (defun kill-this-buffer-reliably ()
   "Reliably kill this buffer."

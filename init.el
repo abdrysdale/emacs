@@ -302,6 +302,39 @@ The timer can be canceled with `my-cancel-gc-timer'.")
         (current-branch (car (vc-git-branches))))
     (vc-root-version-diff t default-branch current-branch)))
 
+
+;; Hiding unregistered files by default.
+(defun my/vc-dir-hide-unregistered ()
+  "Hide all unregistered files in the current `vc-dir` buffer."
+  (interactive)
+  (vc-dir-hide-state 'unregistered)
+  (message "Hidden unregistered files. Press 'g' to restore."))
+
+(with-eval-after-load 'vc-dir
+  (define-key vc-dir-mode-map (kbd "H") #'my/vc-dir-hide-unregistered))
+
+(defun my/vc-dir-hide-unregistered-on-open (&rest _)
+  "Automatically hide unregistered files after `vc-dir` finishes loading."
+  (let ((vc-buf (current-buffer))
+        (proc-buf (and (boundp 'vc-dir-process-buffer) vc-dir-process-buffer)))
+
+    (if (and proc-buf (buffer-live-p proc-buf) (get-buffer-process proc-buf))
+        ;; SCENARIO A: Async process is currently running.
+        (with-current-buffer proc-buf
+          ;; Note the backquote (`). `vc-exec-after` evaluates this Lisp form directly.
+          (vc-exec-after
+           `(when (buffer-live-p ,vc-buf)
+              (with-current-buffer ,vc-buf
+                (vc-dir-hide-state 'unregistered)
+                (message "Hidden unregistered files by default. Press 'g' to restore.")))))
+      ;; SCENARIO B: Synchronous backend, or the process has already finished.
+      (when (buffer-live-p vc-buf)
+        (with-current-buffer vc-buf
+          (vc-dir-hide-state 'unregistered)
+          (message "Hidden unregistered files by default. Press 'g' to restore."))))))
+
+(advice-add 'vc-dir :after #'my/vc-dir-hide-unregistered-on-open)
+
 ; Conventional Commit Templates
 (setv conventional-commit/types
   '("fix"

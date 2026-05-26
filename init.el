@@ -805,7 +805,7 @@ Setting the NAME and DOC."
   (if buffer-file-name
       (let ((file (shell-quote-argument (buffer-file-name))))
         (compile (format
-                  "ruff format %s && ruff check --fix %s && basedpyright %s"
+                  "uv run ruff format %s && uv run ruff check --fix %s && uv run basedpyright %s"
                   file file file)))
     (error "This buffer is not visiting a file!")))
 

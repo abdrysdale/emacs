@@ -2459,11 +2459,16 @@ do that at the moment."
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")
         ("c" "Context Todo" entry
-         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
-         ,(concat
-           "* TODO ("
-           "%(buffer-name (plist-get org-capture-plist :original-buffer))"
-           ") %?\n"))
+                 (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
+                 ,(concat
+                   "* TODO ("
+                   "%(let* ((buf (plist-get org-capture-plist :original-buffer)) "
+                   "       (file (buffer-file-name buf)) "
+                   "       (dir (with-current-buffer buf (and (derived-mode-p 'dired-mode) default-directory))) "
+                   "       (target (or file dir)) "
+                   "       (name (buffer-name buf))) "
+                   "  (if target (format \"[[file:%s][%s]]\" target name) name))"
+                   ") %?\n"))
         ("i" "Interrupting Task" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"

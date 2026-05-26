@@ -290,6 +290,11 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'vc-dir)
 (setq vc-annotate-background-mode t)
 
+;; That being said, have you ever tried to rebase without magit?
+(use-package magit
+  :bind (("C-x g" . magit-status)
+         ("C-x M-g" . magit-dispatch)))
+
 (defun my/vc-diff-against-main ()
   "Diff current project against main branch."
   (interactive)

@@ -869,6 +869,21 @@ Return non-nil if the buffer was actually modified."
   (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff)
   (define-key python-mode-map (kbd "C-c TAB d") #'eldoc-doc-buffer))
 
+;;;; SQL
+(if (eq system-type 'darwin)
+    (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql"))
+(setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
+(use-package sqlformat
+  :ensure t
+  :custom
+  (sqlformat-command 'pgformatter) ;; Options: 'sqlfluff, 'sqlfluff, 'sql-formatter, 'sqlfmt
+  (sqlformat-args '())
+  :hook
+  (sql-mode . sqlformat-on-save-mode)
+  :bind
+  (:map sql-mode-map
+        ("C-c C-f" . sqlformat)))
+
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
 

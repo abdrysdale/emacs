@@ -2844,7 +2844,14 @@ same `major-mode'."
 ;;; * AFTER FIRST FRAME *
 ;;  *********************
 
-(setq server-after-make-frame-hook #'startup)
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            ;; Only run startup if this is a genuine user-facing graphical or terminal frame
+            (with-selected-frame frame
+              (when (and (display-graphic-p frame)
+                         ;; Prevent temporary utility frames from triggering it
+                         (not (window-parameter nil 'window-side)))
+                (startup)))))
 (when (<= (length (frame-list)) 1)
   (desktop-clear)
   (startup))

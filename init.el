@@ -2781,6 +2781,7 @@ same `major-mode'."
                                      ("l" . lgrep)
                                      ("p" . project-pdb)
                                      ("r" . rgrep)
+                                     ("u" . my/git-update-main)
                                      ("z" . zgrep)))
 
 (global-set-keys-to-prefix "C-c l" '(("a" . gptel-add)

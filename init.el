@@ -336,6 +336,13 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 (advice-add 'vc-dir :after #'my/vc-dir-hide-unregistered-on-open)
 
+
+;; Useful git commands
+(defun my/git-update-main ()
+  "Fetch origin main to local main and prune, without checking it out."
+  (interactive)
+  (async-shell-command "git fetch -u origin main:main --prune"))
+
 ; Conventional Commit Templates
 (setv conventional-commit/types
   '("fix"

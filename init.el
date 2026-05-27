@@ -303,15 +303,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
     (vc-root-version-diff t default-branch current-branch)))
 
 
-;; Hiding unregistered files by default.
-(defun my/vc-dir-hide-unregistered ()
+;; Hiding unregistered & up-to-date files by default.
+(defun my/vc-dir-hide-default ()
   "Hide all unregistered files in the current `vc-dir` buffer."
   (interactive)
   (vc-dir-hide-state 'unregistered)
-  (message "Hidden unregistered files. Press 'g' to restore."))
+  (vc-dir-hide-state 'up-to-date)
+  (message "Hidden unregistered/up-to-date files. Press 'g' to restore."))
 
 (with-eval-after-load 'vc-dir
-  (define-key vc-dir-mode-map (kbd "H") #'my/vc-dir-hide-unregistered))
+  (define-key vc-dir-mode-map (kbd "H") #'my/vc-dir-hide-default))
 
 (defun my/vc-dir-hide-unregistered-on-open (&rest _)
   "Automatically hide unregistered files after `vc-dir` finishes loading."

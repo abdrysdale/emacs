@@ -2230,7 +2230,7 @@ with some rough idea of what the papers were about."
 ;;    |______|_____________________|______|
 ;;    | *help*/*grep*/  |  *eshell*/      |
 ;;    | *Completions*/  |  *compilation*/ |
-;;    | *Calendar*      |                 |
+;;    | *Calendar*      |  *shell cmd*    |
 ;;    |_________________|_________________|
 ;;    |             Echo Area             |
 ;;    |___________________________________|
@@ -2268,7 +2268,7 @@ with some rough idea of what the papers were about."
          (slot . -1)
          (window-parameters . ((preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:compilation\\|eshell\\)\\*"
+        ("\\*\\(?:compilation\\|eshell\\|Async Shell Command\\|Shell Command\\)\\*"
          display-buffer-in-side-window
          (side . bottom)
          (slot . 1)

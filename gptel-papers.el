@@ -85,7 +85,7 @@
       :context (list buffer content)
       :callback (lambda (response info)
                   (let ((buffer (car (plist-get info :context)))
-                        (content (last (plist-get info :context))))
+                        (content (cadr (plist-get info :context))))
                     (gptel-papers-handle-response
                      response info buffer)
                     (gptel-papers-validate-response content buffer))))))

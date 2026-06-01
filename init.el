@@ -1697,6 +1697,7 @@ SELF-MONITORING
 
 ;; IRC
 (require 'erc)
+(require 'erc-tls)
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
@@ -1736,8 +1737,9 @@ SELF-MONITORING
                     sasl))
 
 (setq erc-nick "TactfulCitrus"
-      erc-port "6667"
+      erc-port "6697"
       erc-server "irc.libera.chat"
+      erc-server-connect-function 'erc-open-tls-stream
       erc-tls-verify t
       erc-try-new-nick-p nil
       erc-warn-about-blank-lines t
@@ -1748,7 +1750,7 @@ SELF-MONITORING
 (if (boundp 'libera-chat-pass)
     (setq erc-sasl-password libera-chat-pass))
 
-(defun irc () "Connect to default IRC client." (interactive) (erc))
+(defun irc () "Connect to default IRC client." (interactive) (erc-tls))
 
 (use-package transmission
   :config (setq transmission-timer 5))

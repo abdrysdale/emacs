@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, no-packages]
+  push:
+    branches: [main]
+
+jobs:
+  syntax:
+    name: Syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: purcell/setup-emacs@v3
+        with:
+          version: '29.4'
+
+      - name: Check balanced parens on all .el files
+        run: |
+          failed=0
+          for f in *.el; do
+            echo "Checking $f..."
+            if ! emacs --batch --visit="$f" --eval '(check-parens)' 2>&1; then
+              echo "FAILED: $f"
+              failed=1
+            fi
+          done
+          [ "$failed" = "0" ] || exit 1
+
+  compile:
+    name: Byte-compile
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        emacs_version: ['29.4', '30.1']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: purcell/setup-emacs@v3
+        with:
+          version: ${{ matrix.emacs_version }}
+
+      - name: Cache MELPA packages
+        id: cache-packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.emacs.d/elpa
+          key: ${{ runner.os }}-emacs-${{ matrix.emacs_version }}-pkgs-${{ hashFiles('init.el') }}
+          restore-keys: |
+            ${{ runner.os }}-emacs-${{ matrix.emacs_version }}-pkgs-
+
+      - name: Install packages and byte-compile
+        run: |
+          emacs --batch --eval "
+            (require 'cl-lib)
+            (setq byte-compile-error-on-warn t
+                  use-package-always-ensure nil
+                  package-native-compile nil
+                  gc-cons-threshold most-positive-fixnum)
+            (package-initialize)
+            (package-refresh-contents)
+            (require 'use-package)
+            ;; Load the config to trigger :ensure package installs
+            (load-file \"init.el\")
+            ;; Install any packages that weren't in the cache
+            (package-install-selected-packages :noconfirm)
+            ;; Byte-compile all .el files
+            (let ((compiled 0) (errored 0) (skipped 0))
+              (dolist (f (directory-files default-directory t \"\\.el$\"))
+                (when (file-regular-p f)
+                  (let ((basename (file-name-nondirectory f)))
+                    (cond
+                     ((string-match \"^\\\\.\" basename)
+                      (cl-incf skipped))
+                     ((string-match \"-autoloads\\|-pkg\" basename)
+                      (cl-incf skipped))
+                     (t
+                      (message \"\n>>> %s\" basename)
+                      (condition-case err
+                          (progn
+                            (byte-compile-file f)
+                            (cl-incf compiled))
+                        (error
+                         (message \"  ❌ %s\" (error-message-string err))
+                         (cl-incf errored))))))))
+              (message \"\n=== %s on Emacs %s ===\" (upcase system-type) emacs-version)
+              (message \"%d compiled, %d errors, %d skipped\" compiled errored skipped)
+              (kill-emacs (if (> errored 0) 1 0)))"

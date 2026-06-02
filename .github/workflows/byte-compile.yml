@@ -55,6 +55,7 @@ jobs:
       - name: Install packages and byte-compile
         run: |
           emacs --batch --eval "
+            (require 'cl-lib)
             (setq byte-compile-error-on-warn t
                   use-package-always-ensure nil
                   package-native-compile nil

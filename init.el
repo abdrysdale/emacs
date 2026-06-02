@@ -1802,19 +1802,22 @@ SELF-MONITORING
       '("Get tortoise out"
         "Make a cup of coffee"
         "Water the plants"
-        "Check washing"
-        "Check dishwasher"
+        "Check one household chore"
         "Top up bird feeders"
         "Send someone a nice message"
         "Prayer/meditation"
-        "Check bins"
         "Read a poem"
         "Shower"
-        "Put clothes away"
-        "Tidy a room"
+        "Tidy one small surface"
         "Drink glass of water"
         "Set up toys"
-        "Check house plants"))
+        "Check house plants"
+        "Walk to the window for 2 minutes"
+        "Listen to one jazz track"
+        "One Welsh flashcard"
+        "Record a 30-second voice memo"
+        "Stretch for 1 minute"
+        "Look at the sky for 1 minute"))
 
 (defun random-choice (list)
   "Return a random element from a LIST."
@@ -1933,6 +1936,16 @@ IF INPUT-TASK then just display that task."
   (sh/code-red-mode)
   (sh/code-red t (completing-read "Select a task: " sh/tasks)))
 (define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
+
+;; Meditation Timer (2 minutes, count-up with bell)
+(defun sh/meditation-timer ()
+  "Start a 2-minute meditation timer. A bell sounds at the end."
+  (interactive)
+  (message "Meditation timer started: 2 minutes")
+  (run-at-time 120 nil (lambda ()
+                         (ding t)
+                         (message "🔔 Meditation complete — 2 minutes"))))
+(define-key sh/code-red-mode-map (kbd "m") #'sh/meditation-timer)
 
 ;; Dice Rolls
 (defun roll-dice (&optional sides)

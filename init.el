@@ -2302,9 +2302,11 @@ do that at the moment."
 ;;   :STYLE: habit
 ;;   :END:
 ;;
-(setq org-habit-graph-column 60
-      org-habit-preceding-days 21
-      org-habit-following-days 7)
+(with-eval-after-load "org"
+  (require 'org-habit)
+  (setq org-habit-graph-column 60
+        org-habit-preceding-days 21
+        org-habit-following-days 7))
 
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
 

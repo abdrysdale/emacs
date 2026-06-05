@@ -2256,6 +2256,61 @@ do that at the moment."
 
 (setq org-deadline-warning-days 60)
 
+;; Custom agenda views — composed from mode × energy × time tags
+;;
+;;   d  Daily Review    — agenda + mode-filtered blocks for the day
+;;   m  Mode Balance    — all open tasks by mode (weekly pulse check)
+;;   s  Slot Fillers    — reactive tasks that fit a gap (reactive+ts)
+;;   w  Wind Down       — ops tasks for low energy (ops+el)
+;;
+(setq org-agenda-custom-commands
+      '(("d" "Daily Review"
+         ((agenda "" ((org-agenda-span 'day)))
+          (todo "STARTED"
+                ((org-agenda-overriding-header "In Progress")))
+          (tags-todo "proactive+eh+tl"
+                     ((org-agenda-overriding-header "🔨 Morning — Proactive + High Energy + Long Time")))
+          (tags-todo "reactive+ts"
+                     ((org-agenda-overriding-header "⚡ Slot Fillers — Reactive + Short Time")))
+          (tags-todo "doc+el|ops+el"
+                     ((org-agenda-overriding-header "🌤 Afternoon — Doc/Ops + Low Energy"))))
+         ((org-agenda-compact-blocks nil)))
+        ("m" "Mode Balance"
+         ((tags-todo "proactive"
+                     ((org-agenda-overriding-header "🔄 Proactive Deep Analysis")))
+          (tags-todo "reactive"
+                     ((org-agenda-overriding-header "⚡ Reactive Diagnostic")))
+          (tags-todo "sync"
+                     ((org-agenda-overriding-header "📞 Client Sync")))
+          (tags-todo "eng"
+                     ((org-agenda-overriding-header "🔧 Engineering / Infra")))
+          (tags-todo "doc"
+                     ((org-agenda-overriding-header "📝 Documentation / QMS")))
+          (tags-todo "ops"
+                     ((org-agenda-overriding-header "🔁 Routine Ops"))))
+         ((org-agenda-compact-blocks nil)))
+        ("s" "Slot Fillers"
+         tags-todo "reactive+ts"
+         ((org-agenda-overriding-header "⚡ Slot Fillers (Reactive + Short Time)")))
+        ("w" "Wind Down"
+         tags-todo "ops+el"
+         ((org-agenda-overriding-header "🌤 Wind Down (Ops + Low Energy)")))))
+
+;; Weekly review habit — the single most important GTD practice
+;; Add this entry to your agenda.org (under a top-level heading):
+;;
+;;   * Weekly Review :habit:
+;;   SCHEDULED: <2025-06-07 Sat +1w>
+;;   :PROPERTIES:
+;;   :STYLE: habit
+;;   :END:
+;;
+(with-eval-after-load "org"
+  (require 'org-habit)
+  (setq org-habit-graph-column 60
+        org-habit-preceding-days 21
+        org-habit-following-days 7))
+
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;

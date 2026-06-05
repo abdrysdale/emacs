@@ -18,8 +18,8 @@
        (setq ,var ,val)
      ,(let ((warn-msg "Variable %s is not defined"))
         (if arg
-            `(warn warn-msg ',var)
-          `(error warn-msg ',var)))))
+            `(warn ,warn-msg ',var)
+          `(error ,warn-msg ',var)))))
 
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."

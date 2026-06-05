@@ -14,17 +14,17 @@
 
 (defmacro setq-if-defined (var val &optional arg)
   "Set VAR to VAL if it is defined else warn if ARG else raise an error."
-  (if (boundp var)
-      (list 'setq var val)
-    (let ((warn-msg "Variable %s is not defined"))
-      (if arg
-          (warn warn-msg var)
-        (error warn-msg var)))))
+  `(if (boundp ',var)
+       (setq ,var ,val)
+     ,(let ((warn-msg "Variable %s is not defined"))
+        (if arg
+            `(warn ,warn-msg ',var)
+          `(error ,warn-msg ',var)))))
 
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."
-  (unless (boundp var)
-      (list 'setq var val)))
+  `(unless (boundp ',var)
+     (setq ,var ,val)))
 
 (defmacro setv (var val &optional desc)
   "Define VAR to VAL with DESC if not define - else setq."
@@ -113,7 +113,7 @@ than having to call `add-to-list' multiple times."
         (*func-has-run* nil))
     `(lambda ()
        (message (format "%s has run? %s" ',func *func-has-run*))
-       (if (and num-clients *func-has-run*)
+       (if (and num-clients (not *func-has-run*))
            (progn
              (,func)
              (setq *func-has-run* t))))))
@@ -506,7 +506,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq inhibit-startup-message t
       visible-bell nil
       confirm-kill-emacs nil
-      global-tab-line-mode nil
+      ; global-tab-line-mode is a function, use (global-tab-line-mode -1) to disable
       tab-line-close-button-show nil
       tab-line-tabs-function 'tab-line-tabs-mode-buffers
       truncate-lines t
@@ -583,7 +583,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 	      tab-width 4
 	      indent-tabs-mode nil
           tab-always-indent 'complete)
-(add-hook 'org-mode #'(lambda () (setq-local tab-width 8)))
+(add-hook 'org-mode-hook #'(lambda () (setq-local tab-width 8)))
 
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
@@ -879,8 +879,8 @@ Return non-nil if the buffer was actually modified."
 
 ;;;; SQL
 (if (eq system-type 'darwin)
-    (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql"))
-(setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
+    (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
+  (setq sql-postgres-program "psql"))
 (use-package sqlformat
   :ensure t
   :custom
@@ -1335,7 +1335,7 @@ Return non-nil if the buffer was actually modified."
   :after dired
   :bind (:map dired-mode-map ("r" . dired-rsync))
   :config
-  (setq dired-rsync-optios "-Lakz --info=progress2")
+  (setq dired-rsync-options "-Lakz --info=progress2")
   (add-to-list 'mode-line-misc-info
                '(:eval dired-rsync-modeline-status 'append)))
 
@@ -1541,7 +1541,7 @@ SELF-MONITORING
 - If status is 'flawed', backtrack with <backtrack>: [explanation], then revise
 - For extended reasoning (>30 steps), pause and summarize progress
 ")
-(setq gptel--system-message default-llm-system-prompt)
+(setq gptel-system-message default-llm-system-prompt)
 
 ;; Visit init file
 (defun my-visit-user-init-file ()

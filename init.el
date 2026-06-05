@@ -413,7 +413,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package csv-mode)
 (use-package yaml-mode)
 (use-package toml-mode)
-(use-package js-json-mode)
+(use-package js-json
+  :ensure nil
+  :mode ("\\.json\\'" . js-json-mode))
 (use-package markdown-mode)
 (use-package dotenv-mode)
 (when (eq system-type 'windows-nt)

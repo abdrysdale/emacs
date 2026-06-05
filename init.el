@@ -457,9 +457,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Sets the auth source (requires gpg!)
 ;; loopback is needed if GPG requires a password for decrypting keys
-(setq auth-sources `(,(in-home-dir ".authinfo.gpg"))
-      epa-gpg-program "gpg"
+(setq epa-gpg-program "gpg"
       epa-pinentry-mode 'loopback)
+(setq auth-sources `(,(in-home-dir ".authinfo.gpg")))
 
 ;; Saves session
 ;; In general, I like option to load a previously saved session
@@ -883,6 +883,7 @@ Return non-nil if the buffer was actually modified."
 (if (eq system-type 'darwin)
     (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
   (setq sql-postgres-program "psql"))
+
 (use-package sqlformat
   :ensure t
   :custom
@@ -1699,7 +1700,6 @@ SELF-MONITORING
 
 ;; IRC
 (require 'erc)
-(require 'erc-tls)
 
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat"
@@ -1752,7 +1752,7 @@ SELF-MONITORING
 (if (boundp 'libera-chat-pass)
     (setq erc-sasl-password libera-chat-pass))
 
-(defun irc () "Connect to default IRC client." (interactive) (erc-tls))
+(defun irc () "Connect to default IRC client." (interactive) (erc))
 
 (use-package transmission
   :config (setq transmission-timer 5))

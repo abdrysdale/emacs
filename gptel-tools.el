@@ -217,7 +217,7 @@ too."
  :name "status"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " (shell-quote-argument root) " && git status")))))
+                    (concat "cd " (shell-quote-argument root) " && git status"))))
  :description "Git status at the project root"
  :category "git")
 
@@ -233,7 +233,7 @@ too."
  :name "log"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " (shell-quote-argument root) " && git log --oneline")))))
+                    (concat "cd " (shell-quote-argument root) " && git log --oneline"))))
  :description "Git log at the project root"
  :category "git")
 

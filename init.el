@@ -2263,8 +2263,8 @@ do that at the moment."
 (setq org-agenda-custom-commands
       '(("d" "Daily Review"
          ((agenda "" ((org-agenda-span 'day)))
-          (tags-todo "STARTED"
-                     ((org-agenda-overriding-header "In Progress")))
+          (todo "STARTED"
+                ((org-agenda-overriding-header "In Progress")))
           (tags-todo "proactive+eh+tl"
                      ((org-agenda-overriding-header "🔨 Morning — Proactive + High Energy + Long Time")))
           (tags-todo "reactive+ts"

@@ -2332,7 +2332,10 @@ with some rough idea of what the papers were about."
       org-footnote-auto-label 'confirm
       org-enforce-todo-dependencies t
       org-clock-sound t
-      org-startup-indented t)
+      org-startup-indented t
+      org-habit-graph-column 60
+      org-habit-preceding-days 21
+      org-habit-following-days 7)
 
 (setq org-todo-keywords
       '((sequence
@@ -2467,6 +2470,62 @@ do that at the moment."
 (setq org-priority-highest 1
       org-priority-lowest 5
       org-priority-default 3)
+
+;; Custom agenda views — composed from mode × energy × time tags
+;;
+;;   d  Daily Review    — agenda + mode-filtered blocks for the day
+;;   m  Mode Balance    — all open tasks by mode (weekly pulse check)
+;;   s  Slot Fillers    — reactive tasks that fit a gap (reactive+ts)
+;;   w  Wind Down       — ops tasks for low energy (ops+el)
+;;
+(setq org-agenda-custom-commands
+      '(("d" "Daily Review"
+         ((agenda "" ((org-agenda-span 'day)))
+          (todo "STARTED"
+                ((org-agenda-overriding-header "In Progress")))
+          (tags-todo "proactive+eh+tl"
+                     ((org-agenda-overriding-header "🔨 Morning — Proactive + High Energy + Long Time")))
+          (tags-todo "reactive+ts"
+                     ((org-agenda-overriding-header "⚡ Slot Fillers — Reactive + Short Time")))
+          (tags-todo "doc+el|ops+el"
+                     ((org-agenda-overriding-header "🌤 Afternoon — Doc/Ops + Low Energy"))))
+         ((org-agenda-compact-blocks nil)))
+        ("m" "Mode Balance"
+         ((tags-todo "proactive"
+                     ((org-agenda-overriding-header "🔄 Proactive Deep Analysis")))
+          (tags-todo "reactive"
+                     ((org-agenda-overriding-header "⚡ Reactive Diagnostic")))
+          (tags-todo "sync"
+                     ((org-agenda-overriding-header "📞 Client Sync")))
+          (tags-todo "eng"
+                     ((org-agenda-overriding-header "🔧 Engineering / Infra")))
+          (tags-todo "doc"
+                     ((org-agenda-overriding-header "📝 Documentation / QMS")))
+          (tags-todo "ops"
+                     ((org-agenda-overriding-header "🔁 Routine Ops"))))
+         ((org-agenda-compact-blocks nil)))
+        ("s" "Slot Fillers"
+         tags-todo "reactive+ts"
+         ((org-agenda-overriding-header "⚡ Slot Fillers (Reactive + Short Time)")))
+        ("w" "Wind Down"
+         tags-todo "ops+el"
+         ((org-agenda-overriding-header "🌤 Wind Down (Ops + Low Energy)")))))
+
+;; Weekly review habit — the single most important GTD practice
+;; Add this entry to your agenda.org (under a top-level heading):
+;;
+;;   * Weekly Review :habit:
+;;   SCHEDULED: <2025-06-07 Sat +1w>
+;;   :PROPERTIES:
+;;   :STYLE: habit
+;;   :END:
+;;
+(with-eval-after-load "org"
+  (require 'org-habit)
+  (setq org-habit-graph-column 60
+        org-habit-preceding-days 21
+        org-habit-following-days 7))
+
 (define-key org-mode-map (kbd "C-c p s") #'org-priority)
 
 ;; Capture ;;
@@ -2479,7 +2538,12 @@ do that at the moment."
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
-         "* TODO %?\n")
+         ,(concat
+           "* TODO %?\n"
+           "%(let ((input (read-string \"Schedule (RET to skip): \")))"
+           " (if (string-empty-p input) \"\""
+           " (concat \"SCHEDULED: <\""
+           " (org-read-date nil nil input) \">\\n\")))"))
         ("n" "Note" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")
@@ -2516,19 +2580,18 @@ do that at the moment."
          :jump-to-captured nil
          :kill-buffer t)
         ("r" "Reflection" entry
-         (file+headline
-          ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
-         ;; Uses the Driscoll Model:- one of the simplest models
-         ;; and involves three stem questions which are;
-         ;; what, so what and now what?
-         ,(concat
-           "* TODO %^{Title: }%?\n"
-           "SCHEDULED: <%(org-read-date nil nil \"+83d\")> "
-           "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
-           "*** /What?/\n%^{What: }\n"
-           "*** /So What?/\n%^{So What: }\n"
-           "*** /Now What?/\n%^{Now What: }\n"
-           "*** /3 month update:/\n"))
+                 (file+headline
+                  ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
+                 ;; Uses the Driscoll Model:- one of the simplest models
+                 ;; and involves three stem questions which are;
+                 ;; what, so what and now what?
+                 ,(concat
+                   "* TODO %^{Title: }%?\n"
+                   "SCHEDULED: <%(org-read-date nil nil \"+90d\")>\n"
+                   "*** /What?/\n%^{What: }\n"
+                   "*** /So What?/\n%^{So What: }\n"
+                   "*** /Now What?/\n%^{Now What: }\n"
+                   "*** /3 month update:/\n"))
         ("d" "Continuous Personal Development" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "CPD")
          ,(concat

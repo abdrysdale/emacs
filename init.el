@@ -2323,7 +2323,12 @@ do that at the moment."
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
-         "* TODO %?\nSCHEDULED: %^{When|now|today|this week|someday}p\n")
+         ,(concat
+           "* TODO %?\n"
+           "%(let ((input (read-string \"Schedule (RET to skip): \")))"
+           " (if (string-empty-p input) \"\""
+           " (concat \"SCHEDULED: <\""
+           " (org-read-date nil nil input) \">\\n\")))"))
         ("n" "Note" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")

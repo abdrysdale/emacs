@@ -2121,7 +2121,10 @@ with some rough idea of what the papers were about."
       org-footnote-auto-label 'confirm
       org-enforce-todo-dependencies t
       org-clock-sound t
-      org-startup-indented t)
+      org-startup-indented t
+      org-habit-graph-column 60
+      org-habit-preceding-days 21
+      org-habit-following-days 7)
 
 (setq org-todo-keywords
       '((sequence
@@ -2357,19 +2360,18 @@ do that at the moment."
          :jump-to-captured nil
          :kill-buffer t)
         ("r" "Reflection" entry
-         (file+headline
-          ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
-         ;; Uses the Driscoll Model:- one of the simplest models
-         ;; and involves three stem questions which are;
-         ;; what, so what and now what?
-         ,(concat
-           "* TODO %^{Title: }%?\n"
-           "SCHEDULED: <%(org-read-date nil nil \"+83d\")> "
-           "DEADLINE: <%(org-read-date nil nil \"+90d\")>\n"
-           "*** /What?/\n%^{What: }\n"
-           "*** /So What?/\n%^{So What: }\n"
-           "*** /Now What?/\n%^{Now What: }\n"
-           "*** /3 month update:/\n"))
+                 (file+headline
+                  ,(in-home-dir "Documents/notes/agenda.org") "Reflections")
+                 ;; Uses the Driscoll Model:- one of the simplest models
+                 ;; and involves three stem questions which are;
+                 ;; what, so what and now what?
+                 ,(concat
+                   "* TODO %^{Title: }%?\n"
+                   "SCHEDULED: <%(org-read-date nil nil \"+90d\")>\n"
+                   "*** /What?/\n%^{What: }\n"
+                   "*** /So What?/\n%^{So What: }\n"
+                   "*** /Now What?/\n%^{Now What: }\n"
+                   "*** /3 month update:/\n"))
         ("d" "Continuous Personal Development" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "CPD")
          ,(concat

@@ -14,17 +14,17 @@
 
 (defmacro setq-if-defined (var val &optional arg)
   "Set VAR to VAL if it is defined else warn if ARG else raise an error."
-  (if (boundp var)
-      (list 'setq var val)
-    (let ((warn-msg "Variable %s is not defined"))
-      (if arg
-          (warn warn-msg var)
-        (error warn-msg var)))))
+  `(if (boundp ',var)
+       (setq ,var ,val)
+     ,(let ((warn-msg "Variable %s is not defined"))
+        (if arg
+            `(warn ,warn-msg ',var)
+          `(error ,warn-msg ',var)))))
 
 (defmacro setq-if-not-defined (var val)
   "Set VAR to VAL if it is not defined."
-  (unless (boundp var)
-      (list 'setq var val)))
+  `(unless (boundp ',var)
+     (setq ,var ,val)))
 
 (defmacro setv (var val &optional desc)
   "Define VAR to VAL with DESC if not define - else setq."
@@ -90,6 +90,10 @@ than having to call `add-to-list' multiple times."
 (setq-if-nil local/paper-notes-dir (in-home-dir "Documents/notes/paper-notes"))
 
 
+;; File modes
+(load (concat user-emacs-directory "hl7.el"))
+
+
 ;;  **********
 ;;; * Server *
 ;;  **********
@@ -109,7 +113,7 @@ than having to call `add-to-list' multiple times."
         (*func-has-run* nil))
     `(lambda ()
        (message (format "%s has run? %s" ',func *func-has-run*))
-       (if (and num-clients *func-has-run*)
+       (if (and num-clients (not *func-has-run*))
            (progn
              (,func)
              (setq *func-has-run* t))))))
@@ -286,12 +290,58 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (require 'vc-dir)
 (setq vc-annotate-background-mode t)
 
+;; That being said, have you ever tried to rebase without magit?
+(use-package magit
+  :bind (("C-x g" . magit-status)
+         ("C-x M-g" . magit-dispatch)))
+
 (defun my/vc-diff-against-main ()
   "Diff current project against main branch."
   (interactive)
   (let ((default-branch "main")
         (current-branch (car (vc-git-branches))))
     (vc-root-version-diff t default-branch current-branch)))
+
+
+;; Hiding unregistered & up-to-date files by default.
+(defun my/vc-dir-hide-default ()
+  "Hide all unregistered files in the current `vc-dir` buffer."
+  (interactive)
+  (vc-dir-hide-state 'unregistered)
+  (vc-dir-hide-state 'up-to-date)
+  (message "Hidden unregistered/up-to-date files. Press 'g' to restore."))
+
+(with-eval-after-load 'vc-dir
+  (define-key vc-dir-mode-map (kbd "H") #'my/vc-dir-hide-default))
+
+(defun my/vc-dir-hide-unregistered-on-open (&rest _)
+  "Automatically hide unregistered files after `vc-dir` finishes loading."
+  (let ((vc-buf (current-buffer))
+        (proc-buf (and (boundp 'vc-dir-process-buffer) vc-dir-process-buffer)))
+
+    (if (and proc-buf (buffer-live-p proc-buf) (get-buffer-process proc-buf))
+        ;; SCENARIO A: Async process is currently running.
+        (with-current-buffer proc-buf
+          ;; Note the backquote (`). `vc-exec-after` evaluates this Lisp form directly.
+          (vc-exec-after
+           `(when (buffer-live-p ,vc-buf)
+              (with-current-buffer ,vc-buf
+                (vc-dir-hide-state 'unregistered)
+                (message "Hidden unregistered files by default. Press 'g' to restore.")))))
+      ;; SCENARIO B: Synchronous backend, or the process has already finished.
+      (when (buffer-live-p vc-buf)
+        (with-current-buffer vc-buf
+          (vc-dir-hide-state 'unregistered)
+          (message "Hidden unregistered files by default. Press 'g' to restore."))))))
+
+(advice-add 'vc-dir :after #'my/vc-dir-hide-unregistered-on-open)
+
+
+;; Useful git commands
+(defun my/git-update-main ()
+  "Fetch origin main to local main and prune, without checking it out."
+  (interactive)
+  (async-shell-command "git fetch -u origin main:main --prune"))
 
 ; Conventional Commit Templates
 (setv conventional-commit/types
@@ -363,12 +413,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (use-package csv-mode)
 (use-package yaml-mode)
 (use-package toml-mode)
-(use-package json-mode)
+(use-package js-json
+  :ensure nil
+  :mode ("\\.json\\'" . js-json-mode))
 (use-package markdown-mode)
 (use-package dotenv-mode)
 (when (eq system-type 'windows-nt)
   (use-package matlab-mode))
 
+(use-package envrc)
+(envrc-global-mode)
 
 ;;  **********
 ;;; * System *
@@ -403,9 +457,9 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Sets the auth source (requires gpg!)
 ;; loopback is needed if GPG requires a password for decrypting keys
-(setq auth-sources `(,(in-home-dir ".authinfo.gpg"))
-      epa-gpg-program "gpg"
+(setq epa-gpg-program "gpg"
       epa-pinentry-mode 'loopback)
+(setq auth-sources `(,(in-home-dir ".authinfo.gpg")))
 
 ;; Saves session
 ;; In general, I like option to load a previously saved session
@@ -452,14 +506,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Basic
 (setq inhibit-startup-message t
-      visible-bell t
+      visible-bell nil
       confirm-kill-emacs nil
-      global-tab-line-mode nil
+      ; global-tab-line-mode is a function, use (global-tab-line-mode -1) to disable
       tab-line-close-button-show nil
       tab-line-tabs-function 'tab-line-tabs-mode-buffers
       truncate-lines t
       x-stretch-cursor t
-      use-dialog-box nil)
+      use-dialog-box nil
+      my/line-length 120)
+
+(setq-default fill-column my/line-length)
+(setq-default whitespace-line-column 120)
 
 (defun get-buffers-matching-current-mode ()
   "Return a list of buffers where their major-mode is equal to the current."
@@ -527,7 +585,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 	      tab-width 4
 	      indent-tabs-mode nil
           tab-always-indent 'complete)
-(add-hook 'org-mode #'(lambda () (setq-local tab-width 8)))
+(add-hook 'org-mode-hook #'(lambda () (setq-local tab-width 8)))
 
 ;; Electric indents reidents text lines on-the-fly.
 ;; I do not like this.
@@ -555,7 +613,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'windows-nt)
     (set-face-attribute 'default nil
                         :family "Consolas" :height 110)
-  (progn
+  (unless (eq system-type 'darwin)
     (add-to-list 'default-frame-alist '(font . "Monospace-10:light"))
     (add-to-list 'default-frame-alist '(width . 79))))
 
@@ -569,8 +627,8 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (if (eq system-type 'darwin)
     (setq ns-right-option-modifier 'none
           ns-option-modifier 'alt
-          ns-command-modifier 'meta
-          visible-bell nil))
+          ns-function-modifier 'none
+          ns-command-modifier 'meta))
 
 (delete-selection-mode 1) ;; Replace highlighted text rather than just inserted.
 
@@ -743,8 +801,36 @@ Setting the NAME and DOC."
 (setq compilation-scroll-output 'first-error)
 (setq compilation-python-type-check-cmd
       "uvx pyrefly check -j 0 --output-format min-text")
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(basedpyright
+                 "^\\(.*?\\):\\([0-9]+\\):\\([0-9]+\\) - \\(?:\\(warning\\)\\|\\(information\\)\\|error\\):"
+                 1 2 3 (4 . 5)))
+  (add-to-list 'compilation-error-regexp-alist 'basedpyright))
+
+(defun my-python-lint-current-file ()
+  "Run ruff and basedpyright on the current file using `compile'."
+  (interactive)
+  (if buffer-file-name
+      (let ((file (shell-quote-argument (buffer-file-name))))
+        (compile (format
+                  "uv run ruff format %s && uv run ruff check --fix %s && uv run basedpyright %s"
+                  file file file)))
+    (error "This buffer is not visiting a file!")))
+
+(with-eval-after-load 'python
+  (define-key python-mode-map (kbd "C-c c c") #'my-python-lint-current-file))
 
 ;;;; Python
+
+(when (eq system-type 'darwin)
+  (let ((extra-paths '("/opt/homebrew/bin"
+                       "/opt/homebrew/opt/python/libexec/bin")))
+    (dolist (p extra-paths)
+      (add-to-list 'exec-path p)
+      (setenv "PATH" (concat p ":" (getenv "PATH"))))))
+
 (defun python-imenu-use-flat-index
     ()
   "Use flat indexing for imenu."
@@ -792,6 +878,22 @@ Return non-nil if the buffer was actually modified."
 (with-eval-after-load "python"
   (define-key python-mode-map (kbd "C-c TAB s") #'python-sort-imports-ruff)
   (define-key python-mode-map (kbd "C-c TAB d") #'eldoc-doc-buffer))
+
+;;;; SQL
+(if (eq system-type 'darwin)
+    (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
+  (setq sql-postgres-program "psql"))
+
+(use-package sqlformat
+  :ensure t
+  :custom
+  (sqlformat-command 'pgformatter) ;; Options: 'sqlfluff, 'sqlfluff, 'sql-formatter, 'sqlfmt
+  (sqlformat-args '())
+  :hook
+  (sql-mode . sqlformat-on-save-mode)
+  :bind
+  (:map sql-mode-map
+        ("C-c C-f" . sqlformat)))
 
 ;;;; Perl
 (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
@@ -1114,8 +1216,38 @@ Return non-nil if the buffer was actually modified."
   (find-file project-list-file))
 (global-set-keys-to-prefix "C-x p" '(("a" . edit-projects)
                                      ("s" . project-search)))
+(with-eval-after-load 'project
+  (add-to-list 'project-switch-commands '(project-shell "Shell" ?s)))
 
 ;; Buffers
+(defun my-get-sorted-buffer-list ()
+  "Return a list of visible buffers sorted by name using natural numbering."
+  (sort (cl-remove-if (lambda (b) (string-prefix-p " " (buffer-name b)))
+                      (buffer-list))
+        (lambda (a b) (string-version-lessp (buffer-name a) (buffer-name b)))))
+
+(defun my-next-buffer-by-name ()
+  "Switch to the next buffer, sorted alphabetically/numerically by name."
+  (interactive)
+  (let* ((buffers (my-get-sorted-buffer-list))
+         (pos (cl-position (current-buffer) buffers))
+         (next-pos (if pos (mod (1+ pos) (length buffers)) 0)))
+    (switch-to-buffer (nth next-pos buffers))))
+
+(defun my-previous-buffer-by-name ()
+  "Switch to the previous buffer, sorted alphabetically/numerically by name."
+  (interactive)
+  (let* ((buffers (my-get-sorted-buffer-list))
+         (pos (cl-position (current-buffer) buffers))
+         (prev-pos (if pos (mod (1- pos) (length buffers)) (1- (length buffers)))))
+    (switch-to-buffer (nth prev-pos buffers))))
+
+(global-set-key (kbd "C-x <right>") 'my-next-buffer-by-name)
+(global-set-key (kbd "C-x <left>") 'my-previous-buffer-by-name)
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "M-[") 'my-previous-buffer-by-name)
+  (define-key shell-mode-map (kbd "M-]") 'my-next-buffer-by-name))
+
 (global-set-key (kbd "C-x C-b") #'ibuffer)
 (global-set-key (kbd "M-[") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-prev-tab)
@@ -1123,6 +1255,7 @@ Return non-nil if the buffer was actually modified."
 (global-set-key (kbd "M-]") (lambda () (interactive)
                               (if tab-line-mode (tab-line-switch-to-next-tab)
                                 (next-buffer))))
+
 
 (defun kill-this-buffer-reliably ()
   "Reliably kill this buffer."
@@ -1139,6 +1272,17 @@ Return non-nil if the buffer was actually modified."
       (switch-to-buffer (get-buffer-create buffer-notes-name))
       (org-mode)
       (insert "#+title: Notes\n"))
+    (switch-to-buffer buffer-notes-name)))
+
+(defun markdown-buffer ()
+  "Create a scratch buffer for 'markdown-mode' notes."
+  (interactive)
+  (let* ((buffer-notes-name "*motes*")
+         (buffer-notes-scratch (get-buffer buffer-notes-name)))
+    (unless buffer-notes-scratch
+      (switch-to-buffer (get-buffer-create buffer-notes-name))
+      (markdown-mode)
+      (insert "# Notes\n"))
     (switch-to-buffer buffer-notes-name)))
 
 (setq initial-major-mode #'emacs-lisp-mode)
@@ -1194,7 +1338,7 @@ Return non-nil if the buffer was actually modified."
   :after dired
   :bind (:map dired-mode-map ("r" . dired-rsync))
   :config
-  (setq dired-rsync-optios "-Lakz --info=progress2")
+  (setq dired-rsync-options "-Lakz --info=progress2")
   (add-to-list 'mode-line-misc-info
                '(:eval dired-rsync-modeline-status 'append)))
 
@@ -1206,10 +1350,17 @@ Return non-nil if the buffer was actually modified."
 (require 'flymake)
 (add-hook 'prog-mode-hook #'flymake-mode)
 (setq flymake-start-on-flymake-mode t)
-(setq python-flymake-command '("uv" "run" "ruff" "check" "--output-format"
-                               "concise" "--quiet"
-                               "--exit-zero" "--select" "ALL"
-                               "--stdin-filename=stdin" "-"))
+
+(defun my/python-flymake-setup ()
+  "Configure flymake to use ruff with the current buffer's filename context."
+  (setq-local python-flymake-command
+              `("uv" "run" "ruff" "check" "--output-format" "concise"
+                "--quiet" "--exit-zero"
+                ,(format "--config=%s/pyproject.toml"
+                         (project-root (project-current)))
+                "--stdin-filename=stdin" "-")))
+
+(add-hook 'python-mode-hook #'my/python-flymake-setup)
 
 (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
 (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
@@ -1283,16 +1434,30 @@ Return non-nil if the buffer was actually modified."
     (setq gptel-use-curl nil
           gptel-stream nil))
   (if (boundp 'together-ai-api-key)
-      (setq gptel-backend (gptel-make-openai "Ceri"
+      (setq gptel-backend (gptel-make-openai "Ceri*together"
                             :host "api.together.xyz"
                             :key together-ai-api-key
                             :stream t
                             :models
                             '(moonshotai/Kimi-K2.5
                               zai-org/glm-5
-                              meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))))
-  (setq gpt-model (car (gptel-openai-models gptel-backend))
-        gptel-expert-commands t
+                              meta-llama/Llama-3.3-70B-Instruct-Turbo-Free))
+            gpt-model (car (gptel-openai-models gptel-backend))))
+  (if (boundp 'gemini-api-key)
+      (setq gptel-backend (gptel-make-gemini "Ceri*gemini"
+                            :key gemini-api-key
+                            :stream t)
+            gptel-model 'gemini-3.1-pro-preview))
+  (if (boundp 'anthropic-api-key)
+      (gptel-make-anthropic "Ceri*anthropic"
+        :key anthropic-api-key
+        :stream t))
+  (if (executable-find "ollama")
+      (gptel-make-ollama "Ceri*ollama"
+        :host "localhost:11434"
+        :stream t
+        :models '(devstral-small-2:24b qwen3.6:35b-a3b-coding-nvfp4 gpt-oss:20b gemma4:26b gemma4:latest)))
+  (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
         ;; Responses seem to cut off for a lot of thinking models
@@ -1303,10 +1468,6 @@ Return non-nil if the buffer was actually modified."
         gptel-max-tokens 16384
         gptel-track-media t
         gptel-include-reasoning t)
-  (if (boundp 'anthropic-api-key)
-      (gptel-make-anthropic "Ceri"
-        :stream t
-        :key anthropic-api-key))
   (load (concat user-emacs-directory "gptel-papers.el"))
   (load (concat user-emacs-directory "gptel-tools.el")))
 
@@ -1317,10 +1478,10 @@ Return non-nil if the buffer was actually modified."
 Rules:
 - Format: <type>[optional scope]: <description>
 - Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
-- Breaking changes: append ! after type/scope (e.g., feat!:) OR
-    add BREAKING CHANGE footer.
+- Breaking changes: append ! after type/scope (e.g., feat!:) AND
+    add a BREAKING CHANGE footer.
 - Body: optional, separated by blank line
-- Footers: optional, use format \"Token: value\" or \"Token #value\"
+- Footers: optional, use format \"Token: value\"
 - CRITICAL: Output ONLY the commit message, no markdown, no explanations
 
 <diff>
@@ -1328,7 +1489,8 @@ Rules:
 </diff>
 ")
 
-(setq gptel-commit-model 'mistralai/Mistral-Small-24B-Instruct-2501)
+(setq gptel-commit-model 'gemma4:latest)
+
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
@@ -1341,10 +1503,19 @@ Rules:
         (gptel-include-reasoning nil)
         (gptel-model gptel-commit-model))
     (vc-next-action nil)
+    (message (format "Writing commit for ~%.1f tokens" (/ (length diff) 3)))
     (gptel-request
-        (format gptel-commit--prompt diff)
-      :system nil
-      :stream nil)))
+     (format gptel-commit--prompt diff)
+     :system nil
+     :stream nil
+     ;; Override the default insertion behavior
+     :callback
+     (lambda (response info)
+       (when response
+         (with-current-buffer (plist-get info :buffer)
+           (goto-char (plist-get info :position))
+           ;; Strip leading whitespace/newlines and insert exactly at point
+           (insert (string-trim-left response))))))))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))
@@ -1373,27 +1544,7 @@ SELF-MONITORING
 - If status is 'flawed', backtrack with <backtrack>: [explanation], then revise
 - For extended reasoning (>30 steps), pause and summarize progress
 ")
-(setq gptel--system-message default-llm-system-prompt)
-
-;; Aider.el
-;; External dependencies :: aider
-;; Emacs dependencies :: transient, magit, markdown-mode
-(use-package aider
-  :init
-  (require 'transient)
-  (require 'magit)
-  (require 'markdown-mode)
-  :config
-  (setq aider-args '("--architect"
-                     "--model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Thinking"
-                     "--reasoning-effort" "high"
-                     "--no-auto-accept-architect"
-                     "--editor-model" "together_ai/Qwen/Qwen3-Next-80B-A3B-Instruct"
-                     "--weak-model" "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
-                     "--show-diffs"
-                     "--install-main-branch"))
-  (setenv "TOGETHER_API_KEY" together-ai-api-key)
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
+(setq gptel-system-message default-llm-system-prompt)
 
 ;; Visit init file
 (defun my-visit-user-init-file ()
@@ -1588,8 +1739,9 @@ SELF-MONITORING
                     sasl))
 
 (setq erc-nick "TactfulCitrus"
-      erc-port "6667"
+      erc-port "6697"
       erc-server "irc.libera.chat"
+      erc-server-connect-function 'erc-open-tls-stream
       erc-tls-verify t
       erc-try-new-nick-p nil
       erc-warn-about-blank-lines t
@@ -1597,10 +1749,8 @@ SELF-MONITORING
 
 ;; The irc-auth-file should look something like:
 ;; (setq libera-chat-pass my-libera-chat-passowrd)
-(let ((irc-auth-file (concat user-emacs-directory ".irc-auth.gpg")))
-  (when (file-exists-p irc-auth-file)
-    (load irc-auth-file)
-    (setq erc-sasl-password libera-chat-pass)))
+(if (boundp 'libera-chat-pass)
+    (setq erc-sasl-password libera-chat-pass))
 
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 
@@ -1656,19 +1806,22 @@ SELF-MONITORING
       '("Get tortoise out"
         "Make a cup of coffee"
         "Water the plants"
-        "Check washing"
-        "Check dishwasher"
+        "Check one household chore"
         "Top up bird feeders"
         "Send someone a nice message"
         "Prayer/meditation"
-        "Check bins"
         "Read a poem"
         "Shower"
-        "Put clothes away"
-        "Tidy a room"
+        "Tidy one small surface"
         "Drink glass of water"
         "Set up toys"
-        "Check house plants"))
+        "Check house plants"
+        "Walk to the window for 2 minutes"
+        "Listen to one jazz track"
+        "One Welsh flashcard"
+        "Record a 30-second voice memo"
+        "Stretch for 1 minute"
+        "Look at the sky for 1 minute"))
 
 (defun random-choice (list)
   "Return a random element from a LIST."
@@ -1788,6 +1941,16 @@ IF INPUT-TASK then just display that task."
   (sh/code-red t (completing-read "Select a task: " sh/tasks)))
 (define-key sh/code-red-mode-map (kbd "d") #'sh/code-red-display-tasks)
 
+;; Meditation Timer (2 minutes, count-up with bell)
+(defun sh/meditation-timer ()
+  "Start a 2-minute meditation timer. A bell sounds at the end."
+  (interactive)
+  (message "Meditation timer started: 2 minutes")
+  (run-at-time 120 nil (lambda ()
+                         (ding t)
+                         (message "🔔 Meditation complete — 2 minutes"))))
+(define-key sh/code-red-mode-map (kbd "m") #'sh/meditation-timer)
+
 ;; Dice Rolls
 (defun roll-dice (&optional sides)
   "Roll an number between [1, SIDES]."
@@ -1874,9 +2037,57 @@ IF INPUT-TASK then just display that task."
                   ("title" "\\citetitle%<[%A]%>[%A]{%(%K%,)}")
                   ("year" "\\citeyear%<[%A]%>[%A][%A]{%K}")
                   ("date" "\\citedate%<[%A]%>[%A]{%(%K%,)}")
-                  ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))))
+                  ("full" "\\fullcite%<[%A]%>[%A]{%(%K%,)}"))
+                 markdown-mode
+                  (("ref" "[^@%K]")
+                   ("cite" "[^@%K]\n[^@%K]:"))))
+
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
+
+(defun my/ebib-insert-markdown-footnote ()
+  "Insert a Markdown footnote marker at point and the definition at the end of buffer."
+  (interactive)
+  ;; 1. Ensure Ebib is initialized
+  (unless ebib--initialized (ebib-init))
+  
+  ;; 2. Get the relevant databases for the current buffer
+  (let* ((database-files (ebib--get-local-bibfiles))
+         (databases (or (delq nil (mapcar #'ebib--get-or-open-db database-files))
+                        ebib--databases)))
+    
+    (if (not databases)
+        (error "[Ebib] No databases open or associated with this buffer")
+      
+      ;; 3. Prompt the user for an entry using your configured completion system
+      (let* ((entries (ebib-read-entry "Footnote citation: " databases))
+             (key (caar entries))
+             (db (cdar entries)))
+        
+        (when key
+          (let* (;; 4. Define the marker format
+                 (marker (format "[^@%s]" key))
+                 ;; 5. Generate the reference string (Author, Year)
+                 ;; We use the default reference template or your customized one
+                 (type (ebib-db-get-field-value "=type=" key db 'noerror))
+                 (template (or (alist-get type ebib-reference-templates nil nil #'cl-equalp)
+                               "{Author|Editor}, ({Date|Year})"))
+                 (ref-text (ebib--process-reference-template template key db)))
+            
+            ;; 6. Insert marker at point
+            (insert marker)
+            
+            ;; 7. Append definition to the end of the buffer
+            (save-excursion
+              (goto-char (point-max))
+              ;; Ensure we are on a fresh line at the very end
+              (unless (bolp) (insert "\n"))
+              ;; Add an extra newline to separate from body text if needed
+              (insert (format "\n%s: %s" marker ref-text)))))))))
+
+(with-eval-after-load 'markdown-mode
+  (define-key markdown-mode-map
+              (kbd "C-c b i") #'my/ebib-insert-markdown-footnote))
 
 (defun ebib-create-key (key _db)
   "Return the KEY in DB."
@@ -2034,9 +2245,9 @@ with some rough idea of what the papers were about."
 ;;    |  d r |                     |  * * |
 ;;    |  * * |                     |      |
 ;;    |______|_____________________|______|
-;;    | *help*/*grep*/  |  *shell*/       |
+;;    | *help*/*grep*/  |  *eshell*/      |
 ;;    | *Completions*/  |  *compilation*/ |
-;;    | *Calendar*      |                 |
+;;    | *Calendar*      |  *shell cmd*    |
 ;;    |_________________|_________________|
 ;;    |             Echo Area             |
 ;;    |___________________________________|
@@ -2074,7 +2285,7 @@ with some rough idea of what the papers were about."
          (slot . -1)
          (window-parameters . ((preserve-size . (nil . t))
                                (no-other-window . nil))))
-        ("\\*\\(?:shell\\|compilation\\|eshell\\|eat\\)\\*"
+        ("\\*\\(?:compilation\\|eshell\\|Async Shell Command\\|Shell Command\\)\\*"
          display-buffer-in-side-window
          (side . bottom)
          (slot . 1)
@@ -2256,6 +2467,10 @@ do that at the moment."
 
 (setq org-deadline-warning-days 60)
 
+(setq org-priority-highest 1
+      org-priority-lowest 5
+      org-priority-default 3)
+
 ;; Custom agenda views — composed from mode × energy × time tags
 ;;
 ;;   d  Daily Review    — agenda + mode-filtered blocks for the day
@@ -2333,11 +2548,16 @@ do that at the moment."
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")
         ("c" "Context Todo" entry
-         (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
-         ,(concat
-           "* TODO ("
-           "%(buffer-name (plist-get org-capture-plist :original-buffer))"
-           ") %?\n"))
+                 (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
+                 ,(concat
+                   "* TODO ("
+                   "%(let* ((buf (plist-get org-capture-plist :original-buffer)) "
+                   "       (file (buffer-file-name buf)) "
+                   "       (dir (with-current-buffer buf (and (derived-mode-p 'dired-mode) default-directory))) "
+                   "       (target (or file dir)) "
+                   "       (name (buffer-name buf))) "
+                   "  (if target (format \"[[file:%s][%s]]\" target name) name))"
+                   ") %?\n"))
         ("i" "Interrupting Task" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* STARTED %^{Task}\n:PROPERTIES:\n:CREATED: %U\n:END:\n"
@@ -2573,6 +2793,7 @@ same `major-mode'."
 
 (global-set-keys-to-prefix "C-c b" '(("," . switch-to-buffer-other-window)
                                      ("N" . note-buffer)
+                                     ("M" . markdown-buffer)
                                      ("a" . append-to-buffer)
                                      ("b" . startup)
                                      ("c" . count-words)
@@ -2592,6 +2813,7 @@ same `major-mode'."
                                      ("v" . view-buffer-other-window)))
 
 (global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
+                                     ("c" . compile)
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
@@ -2639,6 +2861,7 @@ same `major-mode'."
                                      ("l" . lgrep)
                                      ("p" . project-pdb)
                                      ("r" . rgrep)
+                                     ("u" . my/git-update-main)
                                      ("z" . zgrep)))
 
 (global-set-keys-to-prefix "C-c l" '(("a" . gptel-add)
@@ -2701,7 +2924,14 @@ same `major-mode'."
 ;;; * AFTER FIRST FRAME *
 ;;  *********************
 
-(setq server-after-make-frame-hook #'startup)
+(add-hook 'after-make-frame-functions
+          (lambda (frame)
+            ;; Only run startup if this is a genuine user-facing graphical or terminal frame
+            (with-selected-frame frame
+              (when (and (display-graphic-p frame)
+                         ;; Prevent temporary utility frames from triggering it
+                         (not (window-parameter nil 'window-side)))
+                (startup)))))
 (when (<= (length (frame-list)) 1)
   (desktop-clear)
   (startup))

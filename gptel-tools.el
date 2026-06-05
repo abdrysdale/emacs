@@ -96,7 +96,7 @@
   (let* ((search-prefix eww-search-prefix)
          (search-term (replace-regexp-in-string " " "+" query))
          (url (concat search-prefix search-term)))
-    (fetch-rendered-url-content url)))
+    (gptel-tool--fetch-rendered-url-content url)))
 
 (gptel-make-tool
  :name "query-search-engine"
@@ -120,7 +120,7 @@
                     (dir (if relative-dir
                              (concat root relative-dir)
                            root)))
-               (shell-command-to-string (concat "ls " dir))))
+               (shell-command-to-string (concat "ls " (shell-quote-argument dir)))))
  :description "List the contents of the project directory."
  :args (list '( :name "relative-dir"
                 :type string
@@ -217,7 +217,7 @@ too."
  :name "status"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " root " && git status"))))
+                    (concat "cd " (shell-quote-argument root) " && git status"))))
  :description "Git status at the project root"
  :category "git")
 
@@ -233,8 +233,8 @@ too."
  :name "log"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " root " && git log --oneline"))))
- :description "Git branch at the project root"
+                    (concat "cd " (shell-quote-argument root) " && git log --oneline"))))
+ :description "Git log at the project root"
  :category "git")
 
 
@@ -243,7 +243,7 @@ too."
 (gptel-make-tool
  :name "python"
  :function (lambda (cmd)
-             (shell-command-to-string (format "uv run python -c %s" cmd)))
+             (shell-command-to-string (format "uv run python -c %s" (shell-quote-argument cmd))))
  :args (list '( :name "cmd"
                 :type string
                 :string "Python command to be run in: uv run python -c %s"))
@@ -255,7 +255,7 @@ too."
  :name "pytest"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "uv run pytest " root))))
+                    (concat "uv run pytest " (shell-quote-argument root)))))
  :description "Run pytest at the project root."
  :category "python")
 
@@ -264,7 +264,7 @@ too."
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
                     (concat "uv run python -m unittest discover -s 'tests' "
-                            root))))
+                            (shell-quote-argument root)))))
  :description "Run python -m unittest at the project root."
  :category "python")
 
@@ -272,7 +272,7 @@ too."
  :name "mypy"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "uv run ty " root))))
+                    (concat "uv run ty " (shell-quote-argument root)))))
  :description "Run mypy at the project root - this is slow so only run if ty doesn't work"
  :category "python")
 
@@ -280,7 +280,7 @@ too."
  :name "ty"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "uv run ty " root))))
+                    (concat "uv run ty " (shell-quote-argument root)))))
  :description "Run ty (the type checker by astral) at the project root."
  :category "python")
 
@@ -314,13 +314,15 @@ relevant heading and its content. Query should be a natural language phrase, e.g
 ;; Helper: Extract URLs from HTML snippet (simple but effective)
 (defun gptel--extract-urls-from-html (html)
   "Extract the first 5 URLs from HTML text."
-  (let ((urls '()))
-    (while (string-match "<a[^>]+href=\"\\([^\"]+\\)\"[^>]*>" html)
+  (let ((urls '())
+        (count 0))
+    (while (and (string-match "<a[^>]+href=\"\\([^\"]+\\)\"[^>]*>" html)
+                (< count 5))
       (let ((url (match-string 1 html)))
         (when (string-match-p "^https?://docs\\.python\\.org" url)
-          (push url urls))
-        (setq html (substring html (match-end 0))))
-      (when (> (length urls) 4) (cl-return)))
+          (push url urls)
+          (setq count (1+ count)))
+        (setq html (substring html (match-end 0)))))
     (nreverse urls)))
 
 ;; Helper: Strip HTML tags and return clean text

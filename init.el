@@ -2707,48 +2707,26 @@ same `major-mode'."
 ;;; * Niche Functions *
 ;;  *******************
 
-;; Government Digital Skill Level
-(defun skill-level-summary (BEG END)
-  "Display the number of occurrences of each skill level between BEG and END."
-  (interactive "r")
-  (let ((levels '("Awareness" "Working" "Practitioner" "Expert"))
-        (RSTART (if (= BEG END) nil BEG))
-        (REND (if (= BEG END) nil END)))
-    (message (mapconcat
-              (lambda (level) (format "%s: %i "
-                                 level
-                                 (count-matches level RSTART REND t)))
-              levels))))
+(load (concat user-emacs-directory "nt-k8s-dashboard.el"))
 
-;; Mostly MRI related...
+(defun my/helm-template-diff (chart release namespace values-file)
+  "Render a Helm chart locally and compare it with the live cluster.
+Prompt for RELEASE, CHART, NAMESPACE, and VALUES-FILE, then run:
+  helm template RELEASE CHART -n NAMESPACE -f VALUES-FILE | kubectl diff -f -
+The output is shown in a compilation buffer."
+  (interactive
+   (list
+    (read-string "Release: ")
+    (read-directory-name "Chart dir: ")
+    (read-string "Namespace: " "default")
+    (read-file-name "Values file: ")))
+  (let\* ((cmd (format "helm template %s %s -n %s -f %s | kubectl diff -f -"
+                       (shell-quote-argument release)
+                       (shell-quote-argument chart)
+                       (shell-quote-argument namespace)
+                       (shell-quote-argument values-file))))
+         (compilation-start cmd 'compilation-mode (lambda (\_) "\*helm-kubectl-diff\*"))))
 
-(defconst gamma-bar 42.58e6 "Gyromagnetic Ratio in Hz/Tesla.")
-
-(defun get-hz/px (bw px &optional half)
-  "Get the Hz/Px from BW (kHz) and PX if HALF assumes bw is half bandwidth."
-  (let* ((bandwidth (if half (* 2 bw) bw)))
-         (/ (* 1000 bandwidth) px)))
-
-(defun fat/water-shift (&optional T)
-  "Get the fat-water shift - assumes 1.5T unless T is provided."
-  (let* ((static-field (if T T 1.5)))
-         (* static-field gamma-bar 3.5e-6)))
-
-(defun bw-okay-ge? (bw px)
-  "Check fat/water shift from BW and PX for 1.5T GE systems."
-  (let* ((hz/px (get-hz/px bw px t))
-         (delta_f (fat/water-shift))
-         (fw-shift? (/ delta_f hz/px)))
-    (message
-     (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
-
-(defun bw-okay-siemens? (bw px)
-  "Check fat/water shift from BW and PX for 1.5T Siemens systems."
-  (let* ((hz/px (get-hz/px bw px))
-         (delta_f (fat/water-shift))
-         (fw-shift? (/ delta_f hz/px)))
-    (message
-     (format "FW Shift: %.2f (%.1f Hz/px %.1f Hz)" fw-shift? hz/px delta_f))))
 
 ;;  ***********
 ;;; * STARTUP *

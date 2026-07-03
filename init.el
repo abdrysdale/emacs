@@ -2820,7 +2820,8 @@ The output is shown in a compilation buffer."
                                      ("p" . previous-buffer)
                                      ("r" . revert-buffer)
                                      ("s" . scratch-buffer)
-                                     ("v" . view-buffer-other-window)))
+                                     ("v" . view-buffer-other-window)
+                                     ("C-l" . emacs-lock-mode)))
 
 (global-set-keys-to-prefix "C-c c" `(("," . insert-time-rfc-822)
                                      ("c" . compile)
@@ -2853,6 +2854,7 @@ The output is shown in a compilation buffer."
                                      ("s" . ispell)
                                      ("w" . ispell-word)))
 
+;; Remember find-file can accept wildcards!
 (global-set-keys-to-prefix "C-c f" '(("," . find-file-other-window)
                                      ("A" . add-file-local-variable)
                                      ("C" . copy-dir-locals-to-file-locals)
@@ -2921,13 +2923,16 @@ The output is shown in a compilation buffer."
 
 (global-set-keys-to-prefix "C-c u" '(("b" .
                                       browser-url-at-point-with-external-browser)
+                                     ("f" . ffap-menu)
                                      ("u" . eww)
                                      ("C-b" . eww-list-bookmarks)))
 
-(global-set-keys-to-prefix "C-c w" '(("m" . windmove-mode)
-                                     ("p" #'how-is-this-paper-looking?)
+(global-set-keys-to-prefix "C-c w" '(("c" . compare-windows)
+                                     ("m" . windmove-mode)
+                                     ("p" . how-is-this-paper-looking?)
                                      ("s" . window-swap-states)
-                                     ("t" . window-toggle-side-windows)))
+                                     ("t" . window-toggle-side-windows)
+                                     ("C-m" . master-mode)))
 
 
 ;;  *********************

@@ -1420,6 +1420,9 @@ Return non-nil if the buffer was actually modified."
   (interactive)
   (habitica-api-score-task habitica-task-id-clock-in/out "down"))
 
+;; Terminals
+(use-package vterm)
+
 ;; Shell/Eshell
 (require 'em-banner)
 (setq eshell-banner-message "")

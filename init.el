@@ -2250,6 +2250,9 @@ with some rough idea of what the papers were about."
 ;; Winner mode is handy for undo window changes.
 (winner-mode t)
 
+;; Undelete frames as well as buffers.
+(undelete-frame-mode)
+
 ;; Minibuffers
 (setq minibuffer-prompt-properties
       '(read-only t cursor-intangible t face minibuffer-prompt))

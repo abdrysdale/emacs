@@ -893,6 +893,20 @@ Return non-nil if the buffer was actually modified."
     (setq sql-postgres-program "/opt/homebrew/opt/libpq/bin/psql")
   (setq sql-postgres-program "psql"))
 
+(setq sql-connection-alist
+      '((prd-pg-db
+         (sql-product 'postgres)
+         (sql-user "nt")
+         (sql-database "prd")
+         (sql-server "localhost")
+         (sql-port 5432))
+        (stg-pg-db
+         (sql-product 'postgres)
+         (sql-user "nt")
+         (sql-database "stg")
+         (sql-server "localhost")
+         (sql-port 5433))))
+
 (use-package sqlformat
   :ensure t
   :custom

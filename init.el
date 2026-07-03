@@ -268,8 +268,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       tramp-use-scp-direct-remote-copying t
       remote-file-name-inhibit-auto-save-visited t
       tramp-copy-size-limit (* 1024 1024) ;; 1MB
-      tramp-verbose 2
-)
+      tramp-verbose 2)
+
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 (connection-local-set-profile-variables
  'remote-direct-async-process

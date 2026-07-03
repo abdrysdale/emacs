@@ -682,6 +682,13 @@ Setting the NAME and DOC."
 ;; e        :: Quit and stay in the same buffer & position.
 (global-set-key (kbd "C-c v") #'view-mode)
 
+;; master-mode is handy for scrolling other windows
+;; C-c C-l			master-says-recenter
+;; C-c C-n			master-says-scroll-up
+;; C-c C-p			master-says-scroll-down
+;; C-c <			master-says-beginning-of-buffer
+;; C-c >			master-says-end-of-buffer
+
 ;; Format whitespace visualisation
 (setq whitespace-style '(face tabs spaces trailing lines space-before-tab
                               newline indentation empty space-after-tab

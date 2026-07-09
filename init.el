@@ -191,9 +191,13 @@ than having to call `add-to-list' multiple times."
 ;;; * Usage Statistics *
 ;;  ********************
 
-;; Set a high value of 1 GB to prevent frequent garbage collections
-;; during initialization.
-(setq gc-cons-threshold #x40000000)  ; default threshold is 800 KB
+;; Set a high value to prevent frequent garbage collections during initialization.
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; After startup, lower to 50 MB to avoid long GC pauses during active use.
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold 50000000)))
 
 ;; Prevent longer GC pauses and experience less mini-interruptions.
 ;; When idle for 15 sec, run the GC no matter what.
@@ -484,7 +488,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 ;;  ******
 
 ;; Help
-(setq help-at-pt-timer-delay 0
+(setq help-at-pt-timer-delay 0.1
       help-at-pt-display-when-idle "always")
 
 ;; Tooltips
@@ -500,7 +504,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
   :init (which-key-mode)
   :diminish which-key-mode
   :config
-  (setq which-key-idle-delay 0.1))
+  (setq which-key-idle-delay 0.5))
 
 ;; Frame
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -1348,7 +1352,9 @@ Return non-nil if the buffer was actually modified."
    (concat dired-listing-switches
        (match-string 1 criteria))))
 
-(setq global-auto-revert-non-file-buffers t)
+;; global-auto-revert-non-file-buffers disabled — was polling dired/process
+;; buffers every 5s, causing latency on slow filesystems. Dired refreshes
+;; manually with `g'.
 
 ;; Provides dired-async-mode
 ;; I normally don't like using external packages but async
@@ -2736,8 +2742,9 @@ The output is shown in a compilation buffer."
   "Initialise workers."
     (interactive)
     (unless init-script-initial-clients
-      (irc)
-      (newsticker-start)))
+      ;; IRC and newsticker removed from startup — connect manually
+      ;; with M-x irc and M-x newsticker-start when needed.
+      ))
 (add-hook 'emacs-startup-hook #'init-workers)
 
 (defun startup ()

@@ -2294,7 +2294,7 @@ with some rough idea of what the papers were about."
 (setq window-resize-pixelwise t)
 
 (setq display-buffer-alist
-      `(("\\*\\(?:Buffer List\\|Ibuffer\\)\\*"
+      `(("\\*\\(?:Buffer List\\|Ibuffer\\|nt-k8s\\)\\*"
          display-buffer-in-side-window
          (side . top)
          (slot . 1)

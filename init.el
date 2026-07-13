@@ -2733,6 +2733,62 @@ The output is shown in a compilation buffer."
                        (shell-quote-argument values-file))))
          (compilation-start cmd 'compilation-mode (lambda (\_) "\*helm-kubectl-diff\*"))))
 
+;; Tracks a PostGres command over time and gets the delta. Ideally a tick.
+(defvar my/pg-monitor-timer nil
+  "Timer object for the Postgres monitor.")
+
+(defvar my/pg-monitor-prev-count 0
+  "Stores the previous count to calculate the delta.")
+
+(defun my/pg-monitor-update (uri query)
+  "Fetches the count via psql using URI and QUERY, then update the monitor buffer."
+  (let* ((cmd (format "%s \"%s\" -tAc \"%s\"" sql-postgres-program uri query))
+         (output (string-trim (shell-command-to-string cmd)))
+         (current-count (string-to-number output))
+         (diff (- current-count my/pg-monitor-prev-count))
+         (safe-uri (replace-regexp-in-string "\\(://[^:@]+:\\)[^@]+@" "\\1***@" uri)))
+    (with-current-buffer (get-buffer-create "*PG Monitor*")
+      (erase-buffer)
+      (insert "=== Postgres Tracker ===\n\n")
+      (insert (format "Target URI: %s\n" safe-uri))
+      (insert (format "Query:      %s\n\n" query))
+      (insert (format "Last Checked:  %s\n" (format-time-string "%Y-%m-%d %H:%M:%S")))
+      (insert (format "Count: %d\n" current-count))
+
+      (when (> my/pg-monitor-prev-count 0)
+        (insert (format "Delta:        +%d since last tick\n" diff)))
+
+      (setq my/pg-monitor-prev-count current-count))))
+
+(defun my/pg-monitor-start (uri query &optional interval)
+  "Start monitoring the Postgres DB in a new buffer.
+If called interactively, prompts for the URI and QUERY also INTERVAL if called with a 'prefix-arg'."
+  (interactive
+   (list (read-string "Postgres URI: ")
+         (read-string "Query: ")
+         (if current-prefix-arg
+             (read-number "Interval (seconds): " 100)
+           100)))
+  (let ((timer-interval (or interval 100)))
+    (my/pg-monitor-stop)
+    (setq my/pg-monitor-prev-count 0)
+
+    ;; Open the monitor buffer in another window
+    (switch-to-buffer-other-window (get-buffer-create "*PG Monitor*"))
+
+    ;; Run the update function immediately, then every X seconds.
+    ;; The trailing `uri' and `query' are passed directly to `my/pg-monitor-update'.
+    (setq my/pg-monitor-timer (run-with-timer 0 timer-interval 'my/pg-monitor-update uri query))
+    (message "Started PG monitor (updating every %d seconds)." timer-interval)))
+
+(defun my/pg-monitor-stop ()
+  "Stop the Postgres monitor timer."
+  (interactive)
+  (when my/pg-monitor-timer
+    (cancel-timer my/pg-monitor-timer)
+    (setq my/pg-monitor-timer nil)
+    (message "Stopped PG monitor.")))
+
 
 ;;  ***********
 ;;; * STARTUP *

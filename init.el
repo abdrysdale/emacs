@@ -2509,55 +2509,82 @@ do that at the moment."
       org-priority-lowest 5
       org-priority-default 3)
 
-;; Custom agenda views — composed from mode × energy × time tags
+(setq org-agenda-columns-compute-summary-properties t
+      org-agenda-columns-show-summaries t)
+
+(setq org-global-properties
+      '(("Effort_ALL" . "0:05 0:10 0:15 0:30 1:00 1:30 2:00")))
+
+(setq org-columns-default-format
+      "%25ITEM %TODO %TAGS %EFFORT{:}")
+
+;; Custom agenda views
 ;;
-;;   d  Daily Review    — agenda + mode-filtered blocks for the day
-;;   m  Mode Balance    — all open tasks by mode (weekly pulse check)
-;;   s  Slot Fillers    — reactive tasks that fit a gap (reactive+ts)
-;;   w  Wind Down       — ops tasks for low energy (ops+el)
-;;
+;;   -  Daily Review    — agenda + mode-filtered blocks for the day
+;;   -  Mode Balance    — all open tasks by mode (weekly pulse check)
+;;   -  Slot Fillers    — reactive tasks that fit a gap
+(defun my/org-skip-not-due-today ()
+  "Skip tasks that do not have a SCHEDULED or DEADLINE date of today or overdue."
+  (let* ((sched-str  (org-entry-get nil "SCHEDULED" t))
+         (dead-str   (org-entry-get nil "DEADLINE" t))
+         (today      (time-to-days (current-time)))
+         (sched-days (when sched-str (time-to-days (org-time-string-to-time sched-str))))
+         (dead-days  (when dead-str  (time-to-days (org-time-string-to-time dead-str)))))
+    (if (or (and sched-days (<= sched-days today))
+            (and dead-days  (<= dead-days today)))
+        nil ;; Do not skip (matches today or earlier)
+      (save-excursion (or (outline-next-heading) (point-max))))))
+
 (setq org-agenda-custom-commands
       '(("d" "Daily Review"
-         ((agenda "" ((org-agenda-span 'day)))
+          ((agenda "" ((org-agenda-span 'day)))
+
           (todo "STARTED"
                 ((org-agenda-overriding-header "In Progress")))
-          (tags-todo "proactive+eh+tl"
-                     ((org-agenda-overriding-header "🔨 Morning — Proactive + High Energy + Long Time")))
-          (tags-todo "reactive+ts"
-                     ((org-agenda-overriding-header "⚡ Slot Fillers — Reactive + Short Time")))
-          (tags-todo "doc+el|ops+el"
-                     ((org-agenda-overriding-header "🌤 Afternoon — Doc/Ops + Low Energy"))))
-         ((org-agenda-compact-blocks nil)))
-        ("m" "Mode Balance"
-         ((tags-todo "proactive"
-                     ((org-agenda-overriding-header "🔄 Proactive Deep Analysis")))
-          (tags-todo "reactive"
-                     ((org-agenda-overriding-header "⚡ Reactive Diagnostic")))
-          (tags-todo "sync"
-                     ((org-agenda-overriding-header "📞 Client Sync")))
-          (tags-todo "eng"
-                     ((org-agenda-overriding-header "🔧 Engineering / Infra")))
-          (tags-todo "doc"
-                     ((org-agenda-overriding-header "📝 Documentation / QMS")))
-          (tags-todo "ops"
-                     ((org-agenda-overriding-header "🔁 Routine Ops"))))
-         ((org-agenda-compact-blocks nil)))
-        ("s" "Slot Fillers"
-         tags-todo "reactive+ts"
-         ((org-agenda-overriding-header "⚡ Slot Fillers (Reactive + Short Time)")))
-        ("w" "Wind Down"
-         tags-todo "ops+el"
-         ((org-agenda-overriding-header "🌤 Wind Down (Ops + Low Energy)")))))
 
-;; Weekly review habit — the single most important GTD practice
-;; Add this entry to your agenda.org (under a top-level heading):
-;;
-;;   * Weekly Review :habit:
-;;   SCHEDULED: <2025-06-07 Sat +1w>
-;;   :PROPERTIES:
-;;   :STYLE: habit
-;;   :END:
-;;
+          (tags-todo "consume+eh"
+                     ((org-agenda-overriding-header "📖 Consume + High Energy")
+                      (org-agenda-skip-function 'my/org-skip-not-due-today)))
+
+          (tags-todo "produce+eh"
+                     ((org-agenda-overriding-header "✍️ Produce + High Energy")
+                      (org-agenda-skip-function 'my/org-skip-not-due-today)))
+
+          (tags-todo "consume+el"
+                     ((org-agenda-overriding-header "📖 Consume + Low Energy")
+                      (org-agenda-skip-function 'my/org-skip-not-due-today)))
+
+          (tags-todo "produce+el"
+                     ((org-agenda-overriding-header "✍️ Produce + Low Energy")
+                      (org-agenda-skip-function 'my/org-skip-not-due-today)))
+
+          (tags-todo "meet"
+                     ((org-agenda-overriding-header "📅 Meetings")
+                      (org-agenda-skip-function 'my/org-skip-not-due-today))))
+
+         ((org-agenda-compact-blocks nil)))
+
+        ("b" "Mode Balance"
+         ((tags-todo "consume"
+                     ((org-agenda-overriding-header "📖 Consume")))
+          (tags-todo "produce"
+                     ((org-agenda-overriding-header "✍️ Produce")))
+          (tags-todo "meet"
+                     ((org-agenda-overriding-header "📅 Meet"))))
+         ((org-agenda-compact-blocks nil)))
+
+        ("f" "Slot Fillers"
+         ((tags-todo "consume+el"
+                      ((org-agenda-overriding-header "📖 Consume — short + low energy")))
+          (tags-todo "produce+el"
+                      ((org-agenda-overriding-header "✍️ Produce — short + low energy")))
+          (tags-todo "meet+el"
+                      ((org-agenda-overriding-header "📅 Meet — short + low energy"))))
+         ((org-agenda-effort-filter-preset '("+<0:15"))
+          (org-agenda-compact-blocks nil)))))
+
+
+;; Weekly review habit
 (with-eval-after-load "org"
   (require 'org-habit)
   (setq org-habit-graph-column 60
@@ -2816,7 +2843,7 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
            (habitica-height 32))
 
       ;; Loads buffers
-      (org-agenda-list)
+      (org-agenda nil "d")
       (calendar)
       (scratch-buffer)
       (note-buffer)

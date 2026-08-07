@@ -2518,6 +2518,65 @@ do that at the moment."
 (setq org-columns-default-format
       "%25ITEM %TODO %TAGS %EFFORT{:}")
 
+(defun my/process-inbox-item ()
+  "Process the inbox item at point through four steps:
+1. Tags — mode (consume/produce/meet) + energy (el/eh) via tag picker
+2. Effort — via effort picker from Effort_ALL
+3. Schedule — optional, skip with 'n'
+4. Deadline - optional, skip with 'n'
+
+Tags and effort can be skipped with C-g (no change made).
+Schedule has an explicit yes/no gate before opening the date picker."
+  (interactive)
+  (unless (org-at-heading-p)
+    (user-error "Not on a heading"))
+
+  (let ((heading (org-get-heading t t t t))
+        (short (truncate-string-to-width (org-get-heading t t t t) 50 0 nil t)))
+    ;; Step 1: Tags — opens fast tag selection with your #+TAGS groups
+    (message "Step 1/4: Tags for '%s'" short)
+    (condition-case nil
+        (org-set-tags-command)
+      (quit (message "Skipped tags")))
+
+    ;; Step 2: Effort — opens completing-read with Effort_ALL values
+    (message "Step 2/4: Effort for '%s'" short)
+    (condition-case nil
+        (org-set-effort)
+      (quit (message "Skipped effort")))
+
+    ;; Step 3: Schedule — explicit yes/no gate
+    (let ((sched (org-entry-get nil "SCHEDULED")))
+      (if (y-or-n-p (if sched
+                        "Already scheduled — reschedule? "
+                      "Schedule this item? "))
+          (condition-case nil
+              (org-schedule nil)
+            (quit (message "Skipped scheduling")))
+        (message "Skipped scheduling")))
+
+    ;; Step 4: Deadline — explicit yes/no gate
+    (let ((deadline (org-entry-get nil "DEADLINE")))
+      (if (y-or-n-p (if deadline
+                        "Already has a deadline — change? "
+                      "Set a deadline this item? "))
+          (condition-case nil
+              (org-deadline nil)
+            (quit (message "Skipped setting a deadline")))
+        (message "Skipped setting a deadline")))
+
+    ;; Summary line
+    (let ((tags (org-get-tags))
+          (effort (org-entry-get nil "Effort"))
+          (sched (org-entry-get nil "SCHEDULED")))
+      (message "Processed '%s' | Tags: %s | Effort: %s | Scheduled: %s | Deadline: %s"
+               (truncate-string-to-width heading 40 0 nil t)
+               (if tags (mapconcat #'identity tags " ") "—")
+               (or effort "—")
+               (or sched "—")
+               (or deadline "—")))))
+(define-key org-mode-map (kbd "C-c C-x t") #'my/process-inbox-item)
+
 ;; Custom agenda views
 ;;
 ;;   -  Daily Review    — agenda + mode-filtered blocks for the day
@@ -2596,19 +2655,11 @@ do that at the moment."
 ;; Capture ;;
 
 ;; Capture templates
-(with-eval-after-load "org"
-  (define-key org-mode-map (kbd "C-c n e") #'st/export-notes)
-  (define-key org-mode-map (kbd "C-c n t") #'st/set-template))
-
 (setq org-capture-templates
       `(("t" "Todo" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          ,(concat
-           "* TODO %?\n"
-           "%(let ((input (read-string \"Schedule (RET to skip): \")))"
-           " (if (string-empty-p input) \"\""
-           " (concat \"SCHEDULED: <\""
-           " (org-read-date nil nil input) \">\\n\")))"))
+           "* TODO %?\n"))
         ("n" "Note" entry
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          "* %?\n")

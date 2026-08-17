@@ -203,6 +203,9 @@ can still see WHERE secrets are configured without seeing WHAT they are."
            ;; AWS access keys
            ("AKIA[0-9A-Z]{16}" . "[REDACTED-AWS-KEY]")
            ;; AWS secret keys (40 char base64)
+           ;; WARNING: this pattern is aggressive — it matches ANY 40-char
+           ;; base64 string, not just AWS secrets. May over-redact base64
+           ;; images, commit hashes, etc. Tune or remove if over-redacting.
            ("\\([A-Za-z0-9/+=]\\{40\\}\\)" . "[REDACTED-AWS-SECRET]")
            ;; PEM private key blocks
            ("-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----"

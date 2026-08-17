@@ -15,8 +15,21 @@
 (require 'gptel)
 
 (defun gptel-tool-utils--get-project-root ()
-  "Get the root for the currently active project."
+  "Get the root for the currently active project.
+Uses `project-current' with the current buffer, falling back to
+`default-directory' if the current buffer is not file-visiting
+(e.g. the gptel chat buffer). This ensures tools resolve the
+correct project root regardless of which buffer is current when
+the tool function executes."
   (let ((project (project-current)))
+    (unless project
+      ;; Fall back to default-directory, which the gptel chat buffer
+      ;; inherits from the buffer where gptel-send was called.
+      (when-let* ((dir (and (not project)
+                            (file-name-as-directory
+                             (expand-file-name default-directory))))
+                  ((file-exists-p dir)))
+        (setq project (project--find-in-directory dir))))
     (unless project
       (error "Not in a project.  Cannot list directory contents"))
     (file-name-as-directory (expand-file-name (project-root project)))))

@@ -277,6 +277,22 @@ Returns the file contents, or an error message if none found."
  :description "Read the project context file (CLAUDE.md, AGENTS.md, or .gptel-project.md) from the project root. USE THIS at the start of a session to understand the project's tech stack, architecture, key directories, and conventions before exploring code."
  :category "project")
 
+(gptel-make-tool
+ :name "write-project-context"
+ :function (lambda (content)
+             (let* ((root (gptel-tool-utils--get-project-root))
+                    (path (concat root ".gptel-project.md")))
+               (with-temp-buffer
+                 (insert content)
+                 (write-file path))
+               (format "Written %d bytes to %s" (length content) path)))
+ :description "Write or overwrite the .gptel-project.md file in the project root. Use to create or update the project context file with tech stack, architecture, key directories, and conventions. This tool ONLY writes .gptel-project.md — it cannot write any other file."
+ :args (list '(:name "content"
+               :type string
+               :description "Full content to write to .gptel-project.md (markdown)"))
+ :confirm t
+ :category "project")
+
 
 (gptel-make-tool
  :name "file-tree"

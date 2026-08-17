@@ -19,7 +19,7 @@
   (let ((project (project-current)))
     (unless project
       (error "Not in a project.  Cannot list directory contents"))
-    (file-name-as-directory (project-root project))))
+    (file-name-as-directory (expand-file-name (project-root project)))))
 
 ;; Emacs ;;
 (gptel-make-tool
@@ -165,6 +165,44 @@
                :description "The content to write to the file"))
  :confirm t
  :category "filesystem")
+
+(gptel-make-tool
+ :name "grep"
+ :function (lambda (pattern &optional relative-dir)
+             (let* ((root (gptel-tool-utils--get-project-root))
+                    (dir (if relative-dir (concat root relative-dir) root)))
+               (shell-command-to-string
+                (format "cd %s && rg -n --no-heading %s"
+                        (shell-quote-argument dir)
+                        (shell-quote-argument pattern)))))
+ :description "Search file contents recursively using ripgrep. Returns matching lines with file:line prefixes."
+ :args (list '(:name "pattern"
+               :type string
+               :description "Regular expression to search for in file contents")
+             '(:name "relative-dir"
+               :type string
+               :description "Directory relative to project root (optional, defaults to root)"
+               :optional t))
+ :confirm t
+ :category "filesystem")
+
+
+(gptel-make-tool
+ :name "file-tree"
+ :function (lambda (&optional relative-dir)
+             (let* ((root (gptel-tool-utils--get-project-root))
+                    (dir (if relative-dir (concat root relative-dir) root)))
+               (shell-command-to-string
+                (format "cd %s && find . -type f -not -path '*/.git/*' -not -path '*/node_modules/*' -not -path '*/__pycache__/*' | head -200 | sort"
+                        (shell-quote-argument dir)))))
+ :description "List all files in the project (or subdirectory) as a tree. Excludes .git, node_modules, __pycache__. Capped at 200 files."
+ :args (list '(:name "relative-dir"
+               :type string
+               :description "Directory relative to project root (optional, defaults to root)"
+               :optional t))
+ :category "filesystem")
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Project ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

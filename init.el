@@ -1440,27 +1440,6 @@ Return non-nil if the buffer was actually modified."
 (global-set-key (kbd "C-c s") #'shell)
 (global-set-key (kbd "C-x p C-s") #'project-shell)
 
-;; GPTel
-;;
-;; |------------------------------------------------------------------------|
-;; |                                        | $/1M Token  |     |    |      |
-;; | Model Name                             | In   | Out  | TFJ | II |  CW  |
-;; |----------------------------------------|------|------|-----|----|------|
-;; | Llama-3.3-70B-Instruct-Turbo-Free      | 0.00 | 0.00 | -FJ | 14 |  131 |
-;; | moonshotai/Kimi-K2.5                   | 0.50 | 2.80 | TTJ | 47 |  262 |
-;; | zai-org/glm-5                          | 1.00 | 3.20 | TTJ | 50 |  200 |
-;; |------------------------------------------------------------------------|
-;;
-;; TFJ = Thinking, Function Calling, JSON Ouptut
-;; II = Artificial Intelligence Index v2.2
-;; CW = Context Window (kTokens)
-;;
-;; Purpose of each model?
-;;  zia-org/glm-5                   :: Best for tool use.
-;;  moonshotai/Kimi-K2.5            :: Default (thinking with temp = 1.0)
-;;  moonshotai/Kimi-K2.5            :: Best w.o. thinking (temp = 0.6)
-;;  Llama-3.3                       :: Free
-;;
 (use-package gptel
   :config
   (when (eq system-type 'windows-nt)
@@ -1491,7 +1470,7 @@ Return non-nil if the buffer was actually modified."
       (gptel-make-ollama "Ceri*ollama"
         :host "localhost:11434"
         :stream t
-        :models '(devstral-small-2:24b qwen3.6:35b qwen3.6:35b-a3b-coding-nvfp4 gpt-oss:20b gemma4:26b gemma4:latest)))
+        :models '(qwen3.8:27b-mlx gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
@@ -2831,10 +2810,10 @@ The output is shown in a compilation buffer."
       (insert (format "Target URI: %s\n" safe-uri))
       (insert (format "Query:      %s\n\n" query))
       (insert (format "Last Checked:  %s\n" (format-time-string "%Y-%m-%d %H:%M:%S")))
-      (insert (format "Count: %d\n" current-count))
+      (insert (format "Count:         %d\n" current-count))
 
       (when (> my/pg-monitor-prev-count 0)
-        (insert (format "Delta:        +%d since last tick\n" diff)))
+        (insert (format "Delta:         +%d since last tick\n" diff)))
 
       (setq my/pg-monitor-prev-count current-count))))
 

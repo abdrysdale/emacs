@@ -251,6 +251,33 @@ Redacts credential-like patterns from the output."
  :category "filesystem")
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Project Context ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun gptel-tool--find-project-context ()
+  "Find and read the project context file from the project root.
+Searches for CLAUDE.md, AGENTS.md, or .gptel-project.md in order.
+Returns the file contents, or an error message if none found."
+  (let* ((root (gptel-tool-utils--get-project-root))
+         (candidates '("CLAUDE.md" "AGENTS.md" ".gptel-project.md"))
+         (found nil))
+    (dolist (file candidates)
+      (let ((path (concat root file)))
+        (when (and (not found) (file-exists-p path))
+          (setq found path))))
+    (if found
+        (with-temp-buffer
+          (insert-file-contents found)
+          (concat (format "[Project context from %s]\n\n" found)
+                  (buffer-substring-no-properties (point-min) (point-max))))
+      "No project context file found. Looked for: CLAUDE.md, AGENTS.md, .gptel-project.md")))
+
+(gptel-make-tool
+ :name "project-context"
+ :function #'gptel-tool--find-project-context
+ :description "Read the project context file (CLAUDE.md, AGENTS.md, or .gptel-project.md) from the project root. USE THIS at the start of a session to understand the project's tech stack, architecture, key directories, and conventions before exploring code."
+ :category "project")
+
+
 (gptel-make-tool
  :name "file-tree"
  :function (lambda (&optional relative-dir)

@@ -1598,16 +1598,16 @@ SELF-MONITORING
 - If status is 'flawed', backtrack and revise your analysis.
 ")
 
-(setq gptel-system-message default-llm-system-prompt)
+(setq gptel--system-message default-llm-system-prompt)
 
 (defun gptel-toggle-codebase-prompt ()
   "Toggle between the default and codebase-analysis system prompts."
   (interactive)
-  (if (string= gptel-system-message default-llm-system-prompt)
+  (if (string= gptel--system-message default-llm-system-prompt)
       (progn
-        (setq gptel-system-message codebase-analysis-prompt)
+        (setq gptel--system-message codebase-analysis-prompt)
         (message "System prompt: codebase analysis"))
-    (setq gptel-system-message default-llm-system-prompt)
+    (setq gptel--system-message default-llm-system-prompt)
     (message "System prompt: default (Ceri)")))
 
 ;; Visit init file

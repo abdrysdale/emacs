@@ -121,7 +121,7 @@
                              (concat root relative-dir)
                            root)))
                (shell-command-to-string (concat "ls " (shell-quote-argument dir)))))
- :description "List the contents of the project directory."
+ :description "List the contents of a directory. Use this to explore the project structure before reading specific files."
  :args (list '( :name "relative-dir"
                 :type string
                 :description
@@ -175,7 +175,7 @@
                 (format "cd %s && rg -n --no-heading %s"
                         (shell-quote-argument dir)
                         (shell-quote-argument pattern)))))
- :description "Search file contents recursively using ripgrep. Returns matching lines with file:line prefixes."
+ :description "Search file contents recursively using ripgrep. USE THIS when you need to find where something is defined, referenced, or configured. Always search before reading files — it's faster than guessing which file to read. Returns matching lines with file:line prefixes."
  :args (list '(:name "pattern"
                :type string
                :description "Regular expression to search for in file contents")
@@ -195,7 +195,7 @@
                (shell-command-to-string
                 (format "cd %s && find . -type f -not -path '*/.git/*' -not -path '*/node_modules/*' -not -path '*/__pycache__/*' | head -200 | sort"
                         (shell-quote-argument dir)))))
- :description "List all files in the project (or subdirectory) as a tree. Excludes .git, node_modules, __pycache__. Capped at 200 files."
+ :description "List all files in the project (or subdirectory) as a flat tree. USE THIS FIRST to understand the project structure before exploring specific directories or files. Excludes .git, node_modules, __pycache__. Capped at 200 files."
  :args (list '(:name "relative-dir"
                :type string
                :description "Directory relative to project root (optional, defaults to root)"
@@ -263,8 +263,8 @@ too."
  :name "branch"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " root " && git branch"))))
- :description "Git branch at the project root"
+                    (concat "cd " (shell-quote-argument root) " && git branch"))))
+ :description "Show git branches at the project root."
  :category "git")
 
 (gptel-make-tool
@@ -275,17 +275,68 @@ too."
  :description "Git log at the project root"
  :category "git")
 
+(gptel-make-tool
+ :name "git-diff"
+ :function (lambda (&optional ref)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (concat "cd " (shell-quote-argument root)
+                        " && git diff "
+                        (if ref (shell-quote-argument ref) "")))))
+ :description "Show git diff — uncommitted changes by default, or changes in a specific commit/branch. Use to understand what changed recently."
+ :args (list '(:name "ref"
+               :type string
+               :description "Git ref (commit hash, branch name) to diff against. Omit for working tree changes."
+               :optional t))
+ :category "git")
+
+(gptel-make-tool
+ :name "git-show"
+ :function (lambda (ref)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (concat "cd " (shell-quote-argument root)
+                        " && git show --stat "
+                        (shell-quote-argument ref)))))
+ :description "Show a specific commit: message + files changed + diff stats. Use when you need to understand what a specific commit did."
+ :args (list '(:name "ref"
+               :type string
+               :description "Commit hash or ref to show"))
+ :category "git")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Shell ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(gptel-make-tool
+ :name "shell"
+ :function (lambda (command)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (format "cd %s && %s"
+                        (shell-quote-argument root)
+                        command))))
+ :description "Run an arbitrary shell command from the project root. Use for git operations, config inspection, make targets, docker commands, or anything not covered by other tools. Prefer specific tools (grep, file-tree, git-diff) when they apply."
+ :args (list '(:name "command"
+               :type string
+               :description "Shell command to execute"))
+ :confirm t
+ :category "shell")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Python ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (gptel-make-tool
  :name "python"
  :function (lambda (cmd)
-             (shell-command-to-string (format "uv run python -c %s" (shell-quote-argument cmd))))
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (format "cd %s && uv run python -c %s"
+                        (shell-quote-argument root)
+                        (shell-quote-argument cmd)))))
  :args (list '( :name "cmd"
                 :type string
-                :string "Python command to be run in: uv run python -c %s"))
- :description "Run an arbitrary python command."
+                :description "Python code to execute. Runs via 'uv run python -c' from the project root."))
+ :description "Run arbitrary Python code from the project root. Use for data processing, analysis, or chaining multiple file reads into a single result."
  :category "python"
  :confirm t)
 

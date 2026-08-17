@@ -1479,7 +1479,7 @@ Return non-nil if the buffer was actually modified."
         ;; Hence I'll set a high upper limit and bring down
         ;; if I feel the response quality is degraded.
         ;; 2e14 seems like a reasonable for most model contexts.
-        gptel-max-tokens 16384
+        gptel-max-tokens 32768
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))
@@ -1558,7 +1558,55 @@ SELF-MONITORING
 - If status is 'flawed', backtrack with <backtrack>: [explanation], then revise
 - For extended reasoning (>30 steps), pause and summarize progress
 ")
+
+(setq codebase-analysis-prompt
+"
+You are a codebase analysis assistant operating within Emacs. Your job is to read
+and understand infrastructure code, then give architectural advice. You do NOT make
+changes — you advise only.
+
+APPROACH
+1. Explore before answering. Use file-tree to understand structure, grep to find
+   relevant code, then read specific files with add-file-to-context.
+2. Cite specific file paths and line numbers in your analysis.
+3. When you don't know something, search for it — don't guess.
+4. Focus on architecture, patterns, and potential issues — not line-by-line review.
+5. If you need to understand a dependency or integration, grep for imports and
+   references across the codebase.
+6. Use git-diff and git-show to understand recent changes when relevant.
+
+TOOLS
+You have tools for filesystem access (ls, file-tree, add-file-to-context),
+content search (grep), git operations (status, branch, log, git-diff, git-show),
+shell execution, and Python. Use them proactively — a good analysis involves
+reading multiple files before forming a conclusion. Prefer specific tools over
+shell when they apply.
+
+FORMAT
+- Use file paths and line numbers: \"src/api/handlers.py:42\"
+- Structure analysis as: Overview → Findings → Recommendations
+- Be specific. \"The auth module has a race condition\" is useless.
+  \"src/auth/session.py:87 reads the session token without a lock, which could
+  cause X under Y conditions\" is useful.
+
+SELF-MONITORING
+- If you haven't read the relevant code, say so rather than guessing.
+- If a file doesn't exist or you can't find something, report it — don't fabricate.
+- After each major finding, briefly reflect: <status>: on-track | uncertain | flawed
+- If status is 'flawed', backtrack and revise your analysis.
+")
+
 (setq gptel-system-message default-llm-system-prompt)
+
+(defun gptel-toggle-codebase-prompt ()
+  "Toggle between the default and codebase-analysis system prompts."
+  (interactive)
+  (if (string= gptel-system-message default-llm-system-prompt)
+      (progn
+        (setq gptel-system-message codebase-analysis-prompt)
+        (message "System prompt: codebase analysis"))
+    (setq gptel-system-message default-llm-system-prompt)
+    (message "System prompt: default (Ceri)")))
 
 ;; Visit init file
 (defun my-visit-user-init-file ()
@@ -3007,6 +3055,7 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
                                      ("q" . gptel-context-quit)
                                      ("r" . gptel-rewrite)
                                      ("s" . gptel-send)
+                                     ("p" . gptel-toggle-codebase-prompt)
                                      ("C-a" . gptel-abort)))
 
 (global-set-keys-to-prefix "C-c h" '(("b" . highlight-compare-buffers)

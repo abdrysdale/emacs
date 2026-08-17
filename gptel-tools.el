@@ -121,7 +121,7 @@
                              (concat root relative-dir)
                            root)))
                (shell-command-to-string (concat "ls " (shell-quote-argument dir)))))
- :description "List the contents of the project directory."
+ :description "List the contents of a directory. Use this to explore the project structure before reading specific files."
  :args (list '( :name "relative-dir"
                 :type string
                 :description
@@ -175,7 +175,71 @@
                 (format "cd %s && rg -n --no-heading %s"
                         (shell-quote-argument dir)
                         (shell-quote-argument pattern)))))
- :description "Search file contents recursively using ripgrep. Returns matching lines with file:line prefixes."
+ :description "Search file contents recursively using ripgrep. USE THIS when you need to find where something is defined, referenced, or configured. Always search before reading files — it's faster than guessing which file to read. Returns matching lines with file:line prefixes."
+ :args (list '(:name "pattern"
+               :type string
+               :description "Regular expression to search for in file contents")
+             '(:name "relative-dir"
+               :type string
+               :description "Directory relative to project root (optional, defaults to root)"
+               :optional t))
+ :confirm t
+ :category "filesystem")
+
+
+;; Secret redaction for use with cloud models ;;
+;; Inspired by Claude Code's PostToolUse hook pattern and dotenvx's ;;
+;; value-based redaction. Two layers: file exclusion + output redaction. ;;
+
+(defun gptel-tool--redact-secrets (text)
+  "Redact credential-like patterns from TEXT.
+Replaces values that match common secret patterns with [REDACTED].
+Does not redact the key names — only the values — so the model
+can still see WHERE secrets are configured without seeing WHAT they are."
+  (let ((patterns
+         '(;; Key=value pairs: password=foo, api_key: bar, "secret": "baz"
+           ("\\(\\(?:api[_-]?key\\|apikey\\|api[_-]?secret\\|secret\\|password\\|passwd\\|pwd\\|token\\|bearer\\|access[_-]?key\\|private[_-]?key\\|client[_-]?secret\\)\\)[\"']\{0,1\}[:= ]+\\([A-Za-z0-9_\\-./+=]{8,}\\)"
+            . "\\1: [REDACTED]")
+           ;; AWS access keys
+           ("AKIA[0-9A-Z]{16}" . "[REDACTED-AWS-KEY]")
+           ;; AWS secret keys (40 char base64)
+           ;; WARNING: this pattern is aggressive — it matches ANY 40-char
+           ;; base64 string, not just AWS secrets. May over-redact base64
+           ;; images, commit hashes, etc. Tune or remove if over-redacting.
+           ("\\([A-Za-z0-9/+=]\\{40\\}\\)" . "[REDACTED-AWS-SECRET]")
+           ;; PEM private key blocks
+           ("-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----"
+            . "[REDACTED-PRIVATE-KEY]")
+           ;; Connection strings with embedded credentials
+           ("\\(\\(?:postgres\\|mongodb\\|redis\\|amqp\\|mysql\\|postgresql\\)://[^:]+:[^@]+@"
+            . "\\1://[REDACTED]:[REDACTED]@")
+           ;; JWT tokens (eyJ... header)
+           ("eyJ[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+" . "[REDACTED-JWT]")
+           ;; GitHub tokens
+           ("gh[pousr]_[A-Za-z0-9]{36,}" . "[REDACTED-GITHUB-TOKEN]")
+           ;; Generic high-entropy hex strings (64+ chars, likely hashes/secrets)
+           ("\\b[0-9a-f]\\{64,\\}\\b" . "[REDACTED-HASH]"))))
+    (dolist (pair patterns text)
+      (setq text (replace-regexp-in-string (car pair) (cdr pair) text))))
+  text)
+
+(defun gptel-tool--safe-rg (pattern &optional relative-dir)
+  "Run ripgrep with secret file exclusion and output redaction.
+Excludes .env, .pem, .key, credentials, and secret files.
+Redacts credential-like patterns from the output."
+  (let* ((root (gptel-tool-utils--get-project-root))
+         (dir (if relative-dir (concat root relative-dir) root))
+         (raw (shell-command-to-string
+               (format
+                "cd %s && rg -n --no-heading --glob '!*.env' --glob '!.env.*' --glob '!*.pem' --glob '!*.key' --glob '!*credentials*' --glob '!*secret*' --glob '!*.p12' --glob '!*.pfx' %s"
+                (shell-quote-argument dir)
+                (shell-quote-argument pattern)))))
+    (gptel-tool--redact-secrets raw)))
+
+(gptel-make-tool
+ :name "safe-grep"
+ :function #'gptel-tool--safe-rg
+ :description "Search file contents with automatic secret redaction. USE THIS instead of grep when working with cloud models (Together, Gemini, Anthropic) to prevent credential leakage. Excludes .env, .pem, .key, credentials files. Redacts API keys, passwords, tokens, private keys, connection strings, and JWTs from results. For local models (Ollama), use 'grep' instead — no data leaves your machine."
  :args (list '(:name "pattern"
                :type string
                :description "Regular expression to search for in file contents")
@@ -195,7 +259,7 @@
                (shell-command-to-string
                 (format "cd %s && find . -type f -not -path '*/.git/*' -not -path '*/node_modules/*' -not -path '*/__pycache__/*' | head -200 | sort"
                         (shell-quote-argument dir)))))
- :description "List all files in the project (or subdirectory) as a tree. Excludes .git, node_modules, __pycache__. Capped at 200 files."
+ :description "List all files in the project (or subdirectory) as a flat tree. USE THIS FIRST to understand the project structure before exploring specific directories or files. Excludes .git, node_modules, __pycache__. Capped at 200 files."
  :args (list '(:name "relative-dir"
                :type string
                :description "Directory relative to project root (optional, defaults to root)"
@@ -263,8 +327,8 @@ too."
  :name "branch"
  :function (lambda () (let ((root (gptel-tool-utils--get-project-root)))
                    (shell-command-to-string
-                    (concat "cd " root " && git branch"))))
- :description "Git branch at the project root"
+                    (concat "cd " (shell-quote-argument root) " && git branch"))))
+ :description "Show git branches at the project root."
  :category "git")
 
 (gptel-make-tool
@@ -275,17 +339,68 @@ too."
  :description "Git log at the project root"
  :category "git")
 
+(gptel-make-tool
+ :name "git-diff"
+ :function (lambda (&optional ref)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (concat "cd " (shell-quote-argument root)
+                        " && git diff "
+                        (if ref (shell-quote-argument ref) "")))))
+ :description "Show git diff — uncommitted changes by default, or changes in a specific commit/branch. Use to understand what changed recently."
+ :args (list '(:name "ref"
+               :type string
+               :description "Git ref (commit hash, branch name) to diff against. Omit for working tree changes."
+               :optional t))
+ :category "git")
+
+(gptel-make-tool
+ :name "git-show"
+ :function (lambda (ref)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (concat "cd " (shell-quote-argument root)
+                        " && git show --stat "
+                        (shell-quote-argument ref)))))
+ :description "Show a specific commit: message + files changed + diff stats. Use when you need to understand what a specific commit did."
+ :args (list '(:name "ref"
+               :type string
+               :description "Commit hash or ref to show"))
+ :category "git")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Shell ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(gptel-make-tool
+ :name "shell"
+ :function (lambda (command)
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (format "cd %s && %s"
+                        (shell-quote-argument root)
+                        command))))
+ :description "Run an arbitrary shell command from the project root. Use for git operations, config inspection, make targets, docker commands, or anything not covered by other tools. Prefer specific tools (grep, file-tree, git-diff) when they apply."
+ :args (list '(:name "command"
+               :type string
+               :description "Shell command to execute"))
+ :confirm t
+ :category "shell")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Python ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (gptel-make-tool
  :name "python"
  :function (lambda (cmd)
-             (shell-command-to-string (format "uv run python -c %s" (shell-quote-argument cmd))))
+             (let ((root (gptel-tool-utils--get-project-root)))
+               (shell-command-to-string
+                (format "cd %s && uv run python -c %s"
+                        (shell-quote-argument root)
+                        (shell-quote-argument cmd)))))
  :args (list '( :name "cmd"
                 :type string
-                :string "Python command to be run in: uv run python -c %s"))
- :description "Run an arbitrary python command."
+                :description "Python code to execute. Runs via 'uv run python -c' from the project root."))
+ :description "Run arbitrary Python code from the project root. Use for data processing, analysis, or chaining multiple file reads into a single result."
  :category "python"
  :confirm t)
 

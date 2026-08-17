@@ -187,6 +187,67 @@
  :category "filesystem")
 
 
+;; Secret redaction for use with cloud models ;;
+;; Inspired by Claude Code's PostToolUse hook pattern and dotenvx's ;;
+;; value-based redaction. Two layers: file exclusion + output redaction. ;;
+
+(defun gptel-tool--redact-secrets (text)
+  "Redact credential-like patterns from TEXT.
+Replaces values that match common secret patterns with [REDACTED].
+Does not redact the key names — only the values — so the model
+can still see WHERE secrets are configured without seeing WHAT they are."
+  (let ((patterns
+         '(;; Key=value pairs: password=foo, api_key: bar, "secret": "baz"
+           ("\\(\\(?:api[_-]?key\\|apikey\\|api[_-]?secret\\|secret\\|password\\|passwd\\|pwd\\|token\\|bearer\\|access[_-]?key\\|private[_-]?key\\|client[_-]?secret\\)\\)[\"']\{0,1\}[:= ]+\\([A-Za-z0-9_\\-./+=]{8,}\\)"
+            . "\\1: [REDACTED]")
+           ;; AWS access keys
+           ("AKIA[0-9A-Z]{16}" . "[REDACTED-AWS-KEY]")
+           ;; AWS secret keys (40 char base64)
+           ("\\([A-Za-z0-9/+=]\\{40\\}\\)" . "[REDACTED-AWS-SECRET]")
+           ;; PEM private key blocks
+           ("-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----"
+            . "[REDACTED-PRIVATE-KEY]")
+           ;; Connection strings with embedded credentials
+           ("\\(\\(?:postgres\\|mongodb\\|redis\\|amqp\\|mysql\\|postgresql\\)://[^:]+:[^@]+@"
+            . "\\1://[REDACTED]:[REDACTED]@")
+           ;; JWT tokens (eyJ... header)
+           ("eyJ[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+" . "[REDACTED-JWT]")
+           ;; GitHub tokens
+           ("gh[pousr]_[A-Za-z0-9]{36,}" . "[REDACTED-GITHUB-TOKEN]")
+           ;; Generic high-entropy hex strings (64+ chars, likely hashes/secrets)
+           ("\\b[0-9a-f]\\{64,\\}\\b" . "[REDACTED-HASH]"))))
+    (dolist (pair patterns text)
+      (setq text (replace-regexp-in-string (car pair) (cdr pair) text))))
+  text)
+
+(defun gptel-tool--safe-rg (pattern &optional relative-dir)
+  "Run ripgrep with secret file exclusion and output redaction.
+Excludes .env, .pem, .key, credentials, and secret files.
+Redacts credential-like patterns from the output."
+  (let* ((root (gptel-tool-utils--get-project-root))
+         (dir (if relative-dir (concat root relative-dir) root))
+         (raw (shell-command-to-string
+               (format
+                "cd %s && rg -n --no-heading --glob '!*.env' --glob '!.env.*' --glob '!*.pem' --glob '!*.key' --glob '!*credentials*' --glob '!*secret*' --glob '!*.p12' --glob '!*.pfx' %s"
+                (shell-quote-argument dir)
+                (shell-quote-argument pattern)))))
+    (gptel-tool--redact-secrets raw)))
+
+(gptel-make-tool
+ :name "safe-grep"
+ :function #'gptel-tool--safe-rg
+ :description "Search file contents with automatic secret redaction. USE THIS instead of grep when working with cloud models (Together, Gemini, Anthropic) to prevent credential leakage. Excludes .env, .pem, .key, credentials files. Redacts API keys, passwords, tokens, private keys, connection strings, and JWTs from results. For local models (Ollama), use 'grep' instead — no data leaves your machine."
+ :args (list '(:name "pattern"
+               :type string
+               :description "Regular expression to search for in file contents")
+             '(:name "relative-dir"
+               :type string
+               :description "Directory relative to project root (optional, defaults to root)"
+               :optional t))
+ :confirm t
+ :category "filesystem")
+
+
 (gptel-make-tool
  :name "file-tree"
  :function (lambda (&optional relative-dir)

@@ -1470,7 +1470,7 @@ Return non-nil if the buffer was actually modified."
       (gptel-make-ollama "Ceri*ollama"
         :host "localhost:11434"
         :stream t
-        :models '(qwen3.8:27b-mlx gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
+        :models '(qwen3-coder:30b qwen3.8:27b-mlx gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode

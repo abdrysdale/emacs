@@ -197,31 +197,33 @@ Replaces values that match common secret patterns with [REDACTED].
 Does not redact the key names — only the values — so the model
 can still see WHERE secrets are configured without seeing WHAT they are."
   (let ((patterns
-         '(;; Key=value pairs: password=foo, api_key: bar, "secret": "baz"
-           ("\\(\\(?:api[_-]?key\\|apikey\\|api[_-]?secret\\|secret\\|password\\|passwd\\|pwd\\|token\\|bearer\\|access[_-]?key\\|private[_-]?key\\|client[_-]?secret\\)\\)[\"']\{0,1\}[:= ]+\\([A-Za-z0-9_\\-./+=]{8,}\\)"
-            . "\\1: [REDACTED]")
+         '(;; Key=value pairs: password=foo, api_key: bar, secret: baz
+           ;; Matches key names followed by separator and 8+ char value
+           ("\\(?:api[_-]?key\\|apikey\\|api[_-]?secret\\|secret\\|password\\|passwd\\|pwd\\|token\\|bearer\\|access[_-]?key\\|private[_-]?key\\|client[_-]?secret\\)[\"']?[:= ]+\\([A-Za-z0-9_./+=-]\\{8,\\}\\)"
+            . "[REDACTED]")
            ;; AWS access keys
-           ("AKIA[0-9A-Z]{16}" . "[REDACTED-AWS-KEY]")
+           ("AKIA[0-9A-Z]\\{16\\}" . "[REDACTED-AWS-KEY]")
            ;; AWS secret keys (40 char base64)
            ;; WARNING: this pattern is aggressive — it matches ANY 40-char
            ;; base64 string, not just AWS secrets. May over-redact base64
            ;; images, commit hashes, etc. Tune or remove if over-redacting.
-           ("\\([A-Za-z0-9/+=]\\{40\\}\\)" . "[REDACTED-AWS-SECRET]")
+           ("[A-Za-z0-9/+=]\\{40\\}" . "[REDACTED-AWS-SECRET]")
            ;; PEM private key blocks
-           ("-----BEGIN [A-Z ]*PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]*PRIVATE KEY-----"
+           ("-----BEGIN [A-Z ]*PRIVATE KEY-----[[:ascii:]]*?-----END [A-Z ]*PRIVATE KEY-----"
             . "[REDACTED-PRIVATE-KEY]")
            ;; Connection strings with embedded credentials
-           ("\\(\\(?:postgres\\|mongodb\\|redis\\|amqp\\|mysql\\|postgresql\\)://[^:]+:[^@]+@"
-            . "\\1://[REDACTED]:[REDACTED]@")
+           ("\\(?:postgres\\|mongodb\\|redis\\|amqp\\|mysql\\|postgresql\\)://[^:@]+:[^@]+@"
+            . "[REDACTED]://[REDACTED]:[REDACTED]@")
            ;; JWT tokens (eyJ... header)
-           ("eyJ[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+" . "[REDACTED-JWT]")
+           ("eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+" . "[REDACTED-JWT]")
            ;; GitHub tokens
-           ("gh[pousr]_[A-Za-z0-9]{36,}" . "[REDACTED-GITHUB-TOKEN]")
+           ("gh[pousr]_[A-Za-z0-9_]\\{36,\\}" . "[REDACTED-GITHUB-TOKEN]")
            ;; Generic high-entropy hex strings (64+ chars, likely hashes/secrets)
-           ("\\b[0-9a-f]\\{64,\\}\\b" . "[REDACTED-HASH]"))))
+           ("[0-9a-f]\\{64,\\}" . "[REDACTED-HASH]"))))
     (dolist (pair patterns text)
       (setq text (replace-regexp-in-string (car pair) (cdr pair) text))))
   text)
+
 
 (defun gptel-tool--safe-rg (pattern &optional relative-dir)
   "Run ripgrep with secret file exclusion and output redaction.

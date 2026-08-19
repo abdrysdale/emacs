@@ -2597,7 +2597,8 @@ Schedule has an explicit yes/no gate before opening the date picker."
     ;; Summary line
     (let ((tags (org-get-tags))
           (effort (org-entry-get nil "Effort"))
-          (sched (org-entry-get nil "SCHEDULED")))
+          (sched (org-entry-get nil "SCHEDULED"))
+          (deadline (org-entry-get nil "DEADLINE")))
       (message "Processed '%s' | Tags: %s | Effort: %s | Scheduled: %s | Deadline: %s"
                (truncate-string-to-width heading 40 0 nil t)
                (if tags (mapconcat #'identity tags " ") "—")

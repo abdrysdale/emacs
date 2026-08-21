@@ -1494,11 +1494,7 @@ Return non-nil if the buffer was actually modified."
 (use-package langtool
   :config
   (setq langtool-http-server "localhost:8081"
-        langtool-default-language "en-GB")
-  (global-set-key (kbd "C-c g c") 'langtool-check)
-  (global-set-key (kbd "C-c g r") 'langtool-correct-at-point)
-  (global-set-key (kbd "C-c g d") 'langtool-show-brief-message)
-  (global-set-key (kbd "C-c g q") 'langtool-check-done))
+        langtool-default-language "en-GB"))
 
 ;; LLM-based proofreading via Qwen3 4B
 ;; Requires: gptel (already configured above) + Ollama with qwen3:4b model
@@ -1542,9 +1538,6 @@ Uses Qwen3 4B via Ollama."
       (delete-region (region-beginning) (region-end))
       (insert result)
       (message "Proofread applied"))))
-
-(global-set-key (kbd "C-c g p") 'gptel-proofread-buffer)
-(global-set-key (kbd "C-c g a") 'gptel-proofread-apply)
 
 (setq gptel-commit--prompt
       "Write a Conventional Commit message for the following diff.
@@ -3097,11 +3090,17 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
                                      ("v" . view-file)
                                      ("w" . copy-filename-to-kill)))
 
-(global-set-keys-to-prefix "C-c g" '(("d" . project-gdb)
+(global-set-keys-to-prefix "C-c g" '(("a" . gptel-proofread-apply)
+                                     ("b" . gptel-proofread-buffer)
+                                     ("c" . langtool-check)
+                                     ("d" . project-gdb)
+                                     ("f" . langtool-correct-at-point)
                                      ("g" . grep)
                                      ("k" . kill-grep)
                                      ("l" . lgrep)
+                                     ("m" . langtool-show-brief-message)
                                      ("p" . project-pdb)
+                                     ("q" . langtool-check-done)
                                      ("r" . rgrep)
                                      ("u" . my/git-update-main)
                                      ("z" . zgrep)))

@@ -1525,10 +1525,13 @@ the corrected version in a temporary buffer."
   (let* ((text (if (use-region-p)
                    (buffer-substring-no-properties (region-beginning) (region-end))
                  (buffer-substring-no-properties (point-min) (point-max))))
-         (prompt (concat gptel-proofread-prompt "\n\n" text)))
+         (prompt (concat gptel-proofread-prompt "\n\n" text))
+         (gptel-backend gptel-ollama-backend)
+         (gptel-model 'qwen3:4b)
+         (gptel-include-reasoning nil)
+         (gptel-use-context nil)
+         (gptel-use-tools nil))
     (gptel-request prompt
-      :backend gptel-ollama-backend
-      :model 'qwen3:4b
       :stream nil
       :system gptel-proofread-prompt
       :callback (lambda (response info)
@@ -1538,7 +1541,7 @@ the corrected version in a temporary buffer."
                         (insert response)
                         (display-buffer (current-buffer))
                         (message "Proofread complete — see *gptel-proofread* buffer"))
-                    (message "Proofread failed: %s" (plist-get info :error)))))
+                    (message "Proofread failed: %s" (plist-get info :status)))))
     (message "Proofreading...")))
 
 (defun gptel-proofread-apply ()
@@ -1550,10 +1553,13 @@ Uses Qwen3 4B via Ollama."
     (let* ((beg (region-beginning))
            (end (region-end))
            (text (buffer-substring-no-properties beg end))
-           (prompt (concat gptel-proofread-prompt "\n\n" text)))
+           (prompt (concat gptel-proofread-prompt "\n\n" text))
+           (gptel-backend gptel-ollama-backend)
+           (gptel-model 'qwen3:4b)
+           (gptel-include-reasoning nil)
+           (gptel-use-context nil)
+           (gptel-use-tools nil))
       (gptel-request prompt
-        :backend gptel-ollama-backend
-        :model 'qwen3:4b
         :stream nil
         :system gptel-proofread-prompt
         :callback (lambda (response info)
@@ -1564,7 +1570,7 @@ Uses Qwen3 4B via Ollama."
                             (goto-char beg)
                             (insert response))
                           (message "Proofread applied"))
-                      (message "Proofread failed: %s" (plist-get info :error)))))
+                      (message "Proofread failed: %s" (plist-get info :status)))))
       (message "Proofreading..."))))
 
 (setq gptel-commit--prompt

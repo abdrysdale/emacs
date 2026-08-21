@@ -1470,7 +1470,7 @@ Return non-nil if the buffer was actually modified."
       (gptel-make-ollama "Ceri*ollama"
         :host "localhost:11434"
         :stream t
-        :models '(qwen3-coder:30b qwen3.8:27b-mlx gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
+        :models '(qwen3-coder:30b qwen3.8:27b-mlx qwen3:4b gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
@@ -1486,6 +1486,65 @@ Return non-nil if the buffer was actually modified."
   (load (concat user-emacs-directory "gptel-tools.el")))
 
 (use-package gptel-fn-complete)
+
+;; LanguageTool — grammar checking via local HTTP server
+;; Requires: brew install languagetool && languagetool-server --port 8081
+;; For homophone detection (affect/effect, their/there): download n-gram data
+;; See https://dev.languagetool.org/finding-errors-using-n-gram-data.html
+(use-package langtool
+  :config
+  (setq langtool-http-server "localhost:8081"
+        langtool-default-language "en-GB")
+  (global-set-key (kbd "C-c g c") 'langtool-check)
+  (global-set-key (kbd "C-c g r") 'langtool-correct-at-point)
+  (global-set-key (kbd "C-c g d") 'langtool-show-brief-message)
+  (global-set-key (kbd "C-c g q") 'langtool-check-done))
+
+;; LLM-based proofreading via Qwen3 4B
+;; Requires: gptel (already configured above) + Ollama with qwen3:4b model
+;; Install model: ollama pull qwen3:4b
+(defvar gptel-proofread-prompt
+  "Proofread the following text for spelling and grammar errors only.
+Use British English spelling (e.g. behaviour, organise, colour, centre, practise as verb).
+Do not change my meaning, style, or word choice.
+Return only the corrected text. If no errors are found, return the text unchanged."
+  "System prompt for LLM-based proofreading.")
+
+(defun gptel-proofread-buffer ()
+  "Proofread the current buffer (or active region) for spelling and grammar.
+Uses Qwen3 4B via Ollama. Sends the text to the LLM and displays
+the corrected version in a temporary buffer."
+  (interactive)
+  (let* ((text (if (use-region-p)
+                   (buffer-substring-no-properties (region-beginning) (region-end))
+                 (buffer-substring-no-properties (point-min) (point-max))))
+         (gptel-model 'qwen3:4b)
+         (gptel-include-reasoning nil)
+         (prompt (concat gptel-proofread-prompt "\n\n" text))
+         (result (gptel--quick-fetch prompt)))
+    (with-current-buffer (get-buffer-create "*gptel-proofread*")
+      (erase-buffer)
+      (insert result)
+      (display-buffer (current-buffer)))
+    (message "Proofread complete — see *gptel-proofread* buffer")))
+
+(defun gptel-proofread-apply ()
+  "Proofread the active region and replace it with the corrected text.
+Uses Qwen3 4B via Ollama."
+  (interactive)
+  (if (not (use-region-p))
+      (message "Select a region first")
+    (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
+           (gptel-model 'qwen3:4b)
+           (gptel-include-reasoning nil)
+           (prompt (concat gptel-proofread-prompt "\n\n" text))
+           (result (gptel--quick-fetch prompt)))
+      (delete-region (region-beginning) (region-end))
+      (insert result)
+      (message "Proofread applied"))))
+
+(global-set-key (kbd "C-c g p") 'gptel-proofread-buffer)
+(global-set-key (kbd "C-c g a") 'gptel-proofread-apply)
 
 (setq gptel-commit--prompt
       "Write a Conventional Commit message for the following diff.

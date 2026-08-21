@@ -1505,6 +1505,7 @@ Return non-nil if the buffer was actually modified."
 ;; Install model: ollama pull qwen3:4b
 (defvar gptel-proofread-prompt
   "Proofread the following text for spelling and grammar errors only.
+Use British English spelling (e.g. behaviour, organise, colour, centre, practise as verb).
 Do not change my meaning, style, or word choice.
 Return only the corrected text. If no errors are found, return the text unchanged."
   "System prompt for LLM-based proofreading.")

@@ -1493,8 +1493,10 @@ Return non-nil if the buffer was actually modified."
 ;; See https://dev.languagetool.org/finding-errors-using-n-gram-data.html
 (use-package langtool
   :config
-  (setq langtool-http-server "localhost:8081"
+  (setq langtool-http-server-host "localhost"
+        langtool-http-server-port 8081
         langtool-default-language "en-GB"))
+
 
 ;; LLM-based proofreading via Qwen3 4B
 ;; Requires: gptel (already configured above) + Ollama with qwen3:4b model
@@ -1517,7 +1519,7 @@ the corrected version in a temporary buffer."
          (gptel-model 'qwen3:4b)
          (gptel-include-reasoning nil)
          (prompt (concat gptel-proofread-prompt "\n\n" text))
-         (result (gptel--quick-fetch prompt)))
+         (result (gptel-request prompt)))
     (with-current-buffer (get-buffer-create "*gptel-proofread*")
       (erase-buffer)
       (insert result)
@@ -1534,7 +1536,7 @@ Uses Qwen3 4B via Ollama."
            (gptel-model 'qwen3:4b)
            (gptel-include-reasoning nil)
            (prompt (concat gptel-proofread-prompt "\n\n" text))
-           (result (gptel--quick-fetch prompt)))
+           (result (gptel-request prompt)))
       (delete-region (region-beginning) (region-end))
       (insert result)
       (message "Proofread applied"))))
@@ -3094,7 +3096,7 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
                                      ("b" . gptel-proofread-buffer)
                                      ("c" . langtool-check)
                                      ("d" . project-gdb)
-                                     ("f" . langtool-correct-at-point)
+                                     ("f" . langtool-correct-buffer)
                                      ("g" . grep)
                                      ("k" . kill-grep)
                                      ("l" . lgrep)

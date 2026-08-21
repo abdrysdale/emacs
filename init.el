@@ -1501,7 +1501,8 @@ Return non-nil if the buffer was actually modified."
   (global-set-key (kbd "C-c g q") 'langtool-check-done))
 
 ;; LLM-based proofreading via Qwen3 4B
-;; Uses the local Ollama instance for a final spelling/grammar pass
+;; Requires: gptel (already configured above) + Ollama with qwen3:4b model
+;; Install model: ollama pull qwen3:4b
 (defvar gptel-proofread-prompt
   "Proofread the following text for spelling and grammar errors only.
 Do not change my meaning, style, or word choice.

@@ -135,6 +135,38 @@
         )))
 
 
+;;============;;
+;; Auto-correct ;;  (common spelling corrections — expand automatically)
+;;============;;
+
+(progn
+  (when (boundp 'text-mode-abbrev-table)
+    (clear-abbrev-table text-mode-abbrev-table))
+  (define-abbrev-table 'text-mode-abbrev-table
+    '(
+      ("relavent" "relevant" nil 0)
+      ("intensional" "intentional" nil 0)
+      ("psyc" "psych" nil 0)
+      ("remeber" "remember" nil 0)
+      ("colaborator" "collaborator" nil 0)
+      ("publically" "publicly" nil 0)
+      ("superceded" "superseded" nil 0)
+      ("thier" "their" nil 0)
+      ("teh" "the" nil 0)
+      ("adn" "and" nil 0)
+      ("nad" "and" nil 0)
+      ("fo" "of" nil 0)
+      ("ot" "to" nil 0)
+      ("taht" "that" nil 0)
+      ("wnat" "want" nil 0)
+      ("witht" "with" nil 0)
+      ("recieve" "receive" nil 0)
+      ("seperate" "separate" nil 0)
+      ("definately" "definitely" nil 0)
+      ("occured" "occurred" nil 0)
+      ("untill" "until" nil 0)
+      )))
+
 ;;=============;;
 ;; Boilerplate ;;
 ;;=============;;

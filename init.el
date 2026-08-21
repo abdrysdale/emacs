@@ -1467,10 +1467,11 @@ Return non-nil if the buffer was actually modified."
         :key anthropic-api-key
         :stream t))
   (if (executable-find "ollama")
-      (gptel-make-ollama "Ceri*ollama"
-        :host "localhost:11434"
-        :stream t
-        :models '(qwen3-coder:30b qwen3.8:27b-mlx qwen3:4b gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest)))
+      (setq gptel-ollama-backend
+            (gptel-make-ollama "Ceri*ollama"
+              :host "localhost:11434"
+              :stream t
+              :models '(qwen3-coder:30b qwen3.8:27b-mlx qwen3:4b gemma4:e4b-mlx gemma4:31b-mlx gemma4:latest))))
   (setq gptel-expert-commands t
         gptel-temperature 1.0
         gptel-default-mode 'org-mode
@@ -1508,6 +1509,14 @@ Do not change my meaning, style, or word choice.
 Return only the corrected text. If no errors are found, return the text unchanged."
   "System prompt for LLM-based proofreading.")
 
+;; Capture the Ollama backend for proofreading so it doesn't depend on
+;; which backend gptel-backend is currently set to
+;; Requires: gptel (already configured above) + Ollama with qwen3:4b model
+;; Install model: ollama pull qwen3:4b
+(defvar gptel-ollama-backend nil
+  "Dedicated Ollama backend for proofreading functions.
+Set in gptel :config to capture the registered Ollama backend.")
+
 (defun gptel-proofread-buffer ()
   "Proofread the current buffer (or active region) for spelling and grammar.
 Uses Qwen3 4B via Ollama. Sends the text to the LLM and displays
@@ -1516,15 +1525,21 @@ the corrected version in a temporary buffer."
   (let* ((text (if (use-region-p)
                    (buffer-substring-no-properties (region-beginning) (region-end))
                  (buffer-substring-no-properties (point-min) (point-max))))
-         (gptel-model 'qwen3:4b)
-         (gptel-include-reasoning nil)
-         (prompt (concat gptel-proofread-prompt "\n\n" text))
-         (result (gptel-request prompt)))
-    (with-current-buffer (get-buffer-create "*gptel-proofread*")
-      (erase-buffer)
-      (insert result)
-      (display-buffer (current-buffer)))
-    (message "Proofread complete — see *gptel-proofread* buffer")))
+         (prompt (concat gptel-proofread-prompt "\n\n" text)))
+    (gptel-request prompt
+      :backend gptel-ollama-backend
+      :model 'qwen3:4b
+      :stream nil
+      :system gptel-proofread-prompt
+      :callback (lambda (response info)
+                  (if response
+                      (with-current-buffer (get-buffer-create "*gptel-proofread*")
+                        (erase-buffer)
+                        (insert response)
+                        (display-buffer (current-buffer))
+                        (message "Proofread complete — see *gptel-proofread* buffer"))
+                    (message "Proofread failed: %s" (plist-get info :error)))))
+    (message "Proofreading...")))
 
 (defun gptel-proofread-apply ()
   "Proofread the active region and replace it with the corrected text.
@@ -1532,14 +1547,25 @@ Uses Qwen3 4B via Ollama."
   (interactive)
   (if (not (use-region-p))
       (message "Select a region first")
-    (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
-           (gptel-model 'qwen3:4b)
-           (gptel-include-reasoning nil)
-           (prompt (concat gptel-proofread-prompt "\n\n" text))
-           (result (gptel-request prompt)))
-      (delete-region (region-beginning) (region-end))
-      (insert result)
-      (message "Proofread applied"))))
+    (let* ((beg (region-beginning))
+           (end (region-end))
+           (text (buffer-substring-no-properties beg end))
+           (prompt (concat gptel-proofread-prompt "\n\n" text)))
+      (gptel-request prompt
+        :backend gptel-ollama-backend
+        :model 'qwen3:4b
+        :stream nil
+        :system gptel-proofread-prompt
+        :callback (lambda (response info)
+                    (if response
+                        (with-current-buffer (current-buffer)
+                          (save-excursion
+                            (delete-region beg end)
+                            (goto-char beg)
+                            (insert response))
+                          (message "Proofread applied"))
+                      (message "Proofread failed: %s" (plist-get info :error)))))
+      (message "Proofreading..."))))
 
 (setq gptel-commit--prompt
       "Write a Conventional Commit message for the following diff.

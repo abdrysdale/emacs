@@ -2493,7 +2493,7 @@ with some rough idea of what the papers were about."
 (setq org-todo-keywords
       '((sequence
          "TODO(t!)" "STARTED(s!)" "WAITING(w@/!)"
-         "|" "DONE(d!)" "CANCELLED(c@)" "ABORT(a)")))
+         "|" "DONE(d!)" "CANCELLED(c@)")))
 
 (use-package ox-reveal)
 (require 'ox-md)
@@ -2626,6 +2626,8 @@ do that at the moment."
 
 (setq org-agenda-columns-compute-summary-properties t
       org-agenda-columns-show-summaries t)
+
+(setq org-log-into-drawer t)
 
 (setq org-global-properties
       '(("Effort_ALL" . "0:05 0:10 0:15 0:30 1:00 1:30 2:00")))

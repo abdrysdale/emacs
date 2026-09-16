@@ -1601,21 +1601,29 @@ Rules:
     (vc-diff))
   (let ((diff (buffer-string))
         (gptel-include-reasoning nil)
-        (gptel-model gptel-commit-model))
+        (gptel-model gptel-commit-model)
+        ;; Ask Ollama not to think: gemma4 is a thinking model, and
+        ;; thinking is on by default for thinking-capable models.
+        (gptel--request-params (list :think :json-false)))
     (vc-next-action nil)
     (message (format "Writing commit for ~%.1f tokens" (/ (length diff) 3)))
     (gptel-request
      (format gptel-commit--prompt diff)
      :system nil
      :stream nil
-     ;; Override the default insertion behavior
      :callback
      (lambda (response info)
-       (when response
-         (with-current-buffer (plist-get info :buffer)
-           (goto-char (plist-get info :position))
-           ;; Strip leading whitespace/newlines and insert exactly at point
-           (insert (string-trim-left response))))))))
+       (pcase response
+         ;; Thinking models pass reasoning first as (reasoning . TEXT);
+         ;; discard it and only insert the commit message itself.
+         ((or `(reasoning . ,_) `(reasoning . t)))
+         ((pred stringp)
+          (with-current-buffer (plist-get info :buffer)
+            (goto-char (plist-get info :position))
+            ;; Strip leading whitespace/newlines and insert exactly at point
+            (insert (string-trim-left response))))
+         ;; abort / tool-call / nil: ignore
+         (_ nil))))))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))

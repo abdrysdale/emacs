@@ -79,11 +79,16 @@ Returns a plist: (:successp BOOLEAN :output STRING :step-id STRING)"
      ;; Tool requires individual confirmation — refuse
      ((gptel-workflow--check-confirm tool-spec)
       (list :successp nil
-            :output (format "WARNING: Tool '%s' requires individual user confirmation (:confirm is set). "
-                            tool-name
-                            (format "It cannot be executed inside a workflow — call '%s' directly "
-                                    tool-name)
-                            "as a standalone tool call so the user can review it.")
+            :output (format "WARNING: Tool '%s' requires individual user confirmation (:confirm is set). It cannot be executed inside a workflow — call '%s' directly as a standalone tool call so the user can review it."
+                            tool-name tool-name)
+            :step-id step-id))
+     ;; Asynchronous tools cannot be composed in a workflow — gptel runs
+     ;; them by prepending a callback argument, which a synchronous
+     ;; (apply ...) cannot supply.  Refuse like :confirm tools.
+     ((gptel-tool-async tool-spec)
+      (list :successp nil
+            :output (format "WARNING: Tool '%s' is asynchronous and cannot be executed inside a workflow. Call '%s' directly as a standalone tool call instead."
+                            tool-name tool-name)
             :step-id step-id))
      ;; Tool found and not confirmed — execute
      (t
@@ -174,13 +179,17 @@ Returns a summary string of all step results."
     (dolist (step steps)
       (let* ((tool-name (plist-get step :tool))
              (tool-spec (when tool-name (gptel-workflow--resolve-tool tool-name))))
-        (when (and tool-spec (gptel-workflow--check-confirm tool-spec))
-          (push (format "WARNING: Step '%s' uses tool '%s' which requires individual "
-                        (or (plist-get step :id) "?") tool-name)
-                warnings))))
+        (cond
+         ((and tool-spec (gptel-workflow--check-confirm tool-spec))
+          (push (format "WARNING: Step '%s' uses tool '%s' which requires individual user confirmation. These steps will FAIL when reached — call '%s' directly as a standalone tool call instead."
+                        (or (plist-get step :id) "?") tool-name tool-name)
+                warnings))
+         ((and tool-spec (gptel-tool-async tool-spec))
+          (push (format "WARNING: Step '%s' uses tool '%s' which is asynchronous. These steps will FAIL when reached — call '%s' directly as a standalone tool call instead."
+                        (or (plist-get step :id) "?") tool-name tool-name)
+                warnings)))))
     (when warnings
-      (push (format "confirmation. These steps will FAIL when reached. Tools with :confirm: %s"
-                    (mapconcat #'identity (nreverse warnings) "; "))
+      (push (mapconcat #'identity (nreverse warnings) "\n")
             results))
     ;; Execute steps
     (cl-loop repeat (+ max-steps 1)  ; allow one extra for terminal step
@@ -228,8 +237,13 @@ Returns a summary string of all step results."
                               result))
                             ;; No branching — end workflow
                             (t nil))))))))
+    ;; If the step budget ran out mid-workflow, say so (loop guard hit)
+    (when current-id
+      (push (format "Step budget exhausted — workflow stopped before step '%s'. This usually means the step IDs form a cycle."
+                     current-id)
+            results))
     ;; Return results as a string (oldest first)
-    (mapconcat #'identity (nreverse results) "\n"))
+    (mapconcat #'identity (nreverse results) "\n")))
 
 ;;; --- The gptel tool ---
 
@@ -243,20 +257,21 @@ list — tools not in the active list are rejected.
 IMPORTANT: Tools with individual `:confirm' flags (like web-search,
 shell, python) CANNOT be executed inside a workflow.  If a step
 references such a tool, the step will fail with a warning.  Call
-confirmed tools directly as standalone tool calls instead.
+confirmed tools directly as standalone tool calls instead.  Asynchronous
+tools cannot be composed either.
 
-Example JSON:
+Example JSON (tools that exist and are workflow-eligible in the
+default tool set):
 {
   \"steps\": [
-    {\"id\": \"search\", \"tool\": \"grep\",
-     \"args\": {\"pattern\": \"TODO\", \"dir\": \"src/\"},
-     \"on_success\": \"count\", \"on_failure\": \"report\"},
-    {\"id\": \"count\", \"tool\": \"file-tree\",
-     \"args\": {\"dir\": \"src/\"},
+    {\"id\": \"changes\", \"tool\": \"status\",
+     \"on_success\": \"diff\", \"on_failure\": \"history\"},
+    {\"id\": \"diff\", \"tool\": \"git-diff\",
      \"condition\": {\"field\": \"output\", \"regex\": \"[0-9]+\",
-                    \"match\": \"done\", \"no_match\": \"report\"}},
-    {\"id\": \"report\", \"tool\": \"ls\",
-     \"args\": {\"dir\": \"src/\"}},
+                    \"match\": \"tree\", \"no_match\": \"history\"}},
+    {\"id\": \"tree\", \"tool\": \"file-tree\",
+     \"args\": {\"relative-dir\": \"src/\"}},
+    {\"id\": \"history\", \"tool\": \"log\"},
     {\"id\": \"done\"}
   ]
 }
@@ -271,11 +286,14 @@ Optional:
 - on_failure: step id to run if this step fails
 - condition: object with field, regex, match, no_match for regex branching
 
+If a step has both condition and on_success/on_failure, condition takes
+precedence — prefer using only one of the two per step.
+
 A step with no :tool field is a terminal marker — the workflow ends."
   (let ((spec (if (stringp steps-spec)
                   (json-parse-string steps-spec
                                      :object-type 'plist
-                                     :array-type 'vector
+                                     :array-type 'array
                                      :null-object nil
                                      :false-object nil)
                 steps-spec)))
@@ -303,6 +321,8 @@ IMPORTANT CONSTRAINTS:
   with a warning.  Call confirmed tools directly as standalone tool
   calls instead.  This is a security measure — it prevents sensitive
   tools from being hidden inside a large JSON pipeline.
+- Asynchronous tools cannot be composed in a workflow either; call them
+  directly.
 
 STEP SPECIFICATION (JSON string):
 {
@@ -327,20 +347,26 @@ STEP SPECIFICATION (JSON string):
 BRANCHING RULES:
 - If both on_success and on_failure are set, branch on success/failure.
 - If condition is set, evaluate the regex against the specified field.
-- on_success/on_failure and condition are mutually exclusive per step.
+- If a step has both condition and on_success/on_failure, condition
+  takes precedence — prefer using only one of the two per step.
 - A step with no branching fields ends the workflow.
 - A step with no \"tool\" field is a terminal marker.
 
-EXAMPLE — search for TODOs, if found list files, otherwise show git log:
+EXAMPLE — check git status; if it succeeds show the diff and list the
+files changed most recently, otherwise just show the commit log.
+(status, git-diff, file-tree and log are workflow-eligible; grep is
+NOT — it requires individual confirmation, call it directly):
 {
   \"steps\": [
-    {\"id\": \"search\", \"tool\": \"grep\",
-     \"args\": {\"pattern\": \"TODO\"},
-     \"on_success\": \"list\", \"on_failure\": \"log\"},
-    {\"id\": \"list\", \"tool\": \"file-tree\",
-     \"args\": {\"dir\": \"src/\"}},
-    {\"id\": \"log\", \"tool\": \"git-log\",
-     \"args\": {}}
+    {\"id\": \"changes\", \"tool\": \"status\",
+     \"on_success\": \"diff\", \"on_failure\": \"history\"},
+    {\"id\": \"diff\", \"tool\": \"git-diff\",
+     \"condition\": {\"field\": \"output\", \"regex\": \"[0-9]+\",
+                    \"match\": \"tree\", \"no_match\": \"history\"}},
+    {\"id\": \"tree\", \"tool\": \"file-tree\",
+     \"args\": {\"relative-dir\": \"src/\"}},
+    {\"id\": \"history\", \"tool\": \"log\"},
+    {\"id\": \"done\"}
   ]
 }"
  :args (list '(:name "steps_spec"

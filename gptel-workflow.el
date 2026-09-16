@@ -1,0 +1,398 @@
+;;; gptel-workflow.el --- Declarative tool orchestration for gptel  -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2026 Alex Drysdale
+
+;; Author: Alex Drysdale <alexander.drysdale@wales.nhs.uk>
+;; Created: 19 Aug 2026
+;; Version: 0.1
+;; Keywords: ai gptel tools workflow orchestration
+;; X-URL: https://github.com/abdrysdale/emacs
+
+;;; Commentary:
+;;
+;; A `workflow' tool for gptel that lets the LLM specify a pipeline of
+;; tool calls with conditional branching — without writing arbitrary
+;; code.  The model writes a JSON spec; elisp interprets it.
+;;
+;; Security model:
+;;
+;; 1. The workflow can ONLY call tools that are in the buffer-local
+;;    `gptel-tools' (the active tool list).  It resolves tool names the
+;;    same way `gptel--handle-tool-use' does — by searching
+;;    `gptel-tools' with `gptel-tool-name'.  A tool not in the active
+;;    list is rejected.
+;;
+;; 2. Per-tool `:confirm' flags are RESPECTED, not bypassed.  If any
+;;    step references a tool with a non-nil `:confirm' slot, the
+;;    workflow REFUSES to execute that step and returns a warning.
+;;    The model must call confirmed tools directly so the user sees
+;;    each one individually.  This prevents a tool like `web-search'
+;;    (which sends data to the network) from being hidden inside a
+;;    large JSON pipeline that was approved as a single block.
+;;
+;; 3. No `eval', no arbitrary elisp, no shell injection.  The model
+;;    controls only: which active tool to call, what args to pass,
+;;    and which step to branch to next.
+;;
+;; The workflow tool itself is registered via `gptel-make-tool' and
+;; added to `gptel-tools' like any other tool.
+
+;;; Code:
+
+(require 'gptel)
+(require 'cl-lib)
+(require 'json)
+
+;;; --- Internals ---
+
+(defun gptel-workflow--resolve-tool (name)
+  "Look up tool named NAME in the active `gptel-tools' list.
+Returns the `gptel-tool' struct, or nil if not found.
+This mirrors how `gptel--handle-tool-use' resolves tools:
+  (cl-find-if (lambda (ts) (equal (gptel-tool-name ts) name))
+              gptel-tools)"
+  (cl-find-if (lambda (ts) (equal (gptel-tool-name ts) name))
+              gptel-tools))
+
+(defun gptel-workflow--check-confirm (tool-spec)
+  "Check whether TOOL-SPEC requires individual confirmation.
+Returns non-nil if the tool has a non-nil `:confirm' slot.
+This means the workflow CANNOT execute it — the user must approve
+it as a standalone tool call, not buried inside a workflow JSON."
+  (gptel-tool-confirm tool-spec))
+
+(defun gptel-workflow--run-step (step)
+  "Execute a single workflow STEP.
+STEP is a plist: (:id \"step_id\" :tool \"tool_name\" :args (:key val ...))
+Returns a plist: (:successp BOOLEAN :output STRING :step-id STRING)"
+  (let* ((step-id (plist-get step :id))
+         (tool-name (plist-get step :tool))
+         (args (plist-get step :args))
+         (tool-spec (gptel-workflow--resolve-tool tool-name)))
+    (cond
+     ;; Tool not in active list — reject
+     ((null tool-spec)
+      (list :successp nil
+            :output (format "Error: Tool '%s' is not available in the active tool set. Active tools: %s"
+                            tool-name
+                            (mapconcat #'gptel-tool-name gptel-tools ", "))
+            :step-id step-id))
+     ;; Tool requires individual confirmation — refuse
+     ((gptel-workflow--check-confirm tool-spec)
+      (list :successp nil
+            :output (format "WARNING: Tool '%s' requires individual user confirmation (:confirm is set). It cannot be executed inside a workflow — call '%s' directly as a standalone tool call so the user can review it."
+                            tool-name tool-name)
+            :step-id step-id))
+     ;; Asynchronous tools cannot be composed in a workflow — gptel runs
+     ;; them by prepending a callback argument, which a synchronous
+     ;; (apply ...) cannot supply.  Refuse like :confirm tools.
+     ((gptel-tool-async tool-spec)
+      (list :successp nil
+            :output (format "WARNING: Tool '%s' is asynchronous and cannot be executed inside a workflow. Call '%s' directly as a standalone tool call instead."
+                            tool-name tool-name)
+            :step-id step-id))
+     ;; Tool found and not confirmed — execute
+     (t
+      (let ((arg-values
+             ;; Map keyword args to positional args (same as gptel does)
+             ;; gptel--map-tool-args is in gptel-request.el
+             (condition-case nil
+                 (progn (require 'gptel-request)
+                        (gptel--map-tool-args tool-spec args))
+               ;; Fallback: if gptel--map-tool-args isn't available,
+               ;; extract values in arg declaration order
+               (error
+                (let ((arg-specs (gptel-tool-args tool-spec))
+                      (vals '()))
+                  (dolist (spec arg-specs (nreverse vals))
+                    (let ((arg-name (plist-get spec :name)))
+                      (push (plist-get args (intern (concat ":" arg-name))) vals))))))))
+        ;; Execute the tool function, catching errors
+        (condition-case errdata
+            (let ((result (apply (gptel-tool-function tool-spec) arg-values)))
+              (list :successp t
+                    :output (if (stringp result) result (prin1-to-string result))
+                    :step-id step-id))
+          (error
+           (list :successp nil
+                 :output (format "Error running tool '%s': %s"
+                                 tool-name
+                                 (error-message-string errdata))
+                 :step-id step-id))))))))
+
+(defun gptel-workflow--eval-condition (condition result)
+  "Evaluate CONDITION against the RESULT of a step.
+CONDITION is a plist:
+  (:on_success \"step_id\" :on_failure \"step_id\")
+or:
+  (:field \"output\" :regex \"pattern\" :match \"step_id\" :no_match \"step_id\")
+RESULT is a plist: (:successp BOOLEAN :output STRING :step-id STRING)
+Returns the next step ID, or nil if the workflow should end."
+  (cond
+   ;; Branch on success/failure
+   ((and (plist-get condition :on_success)
+         (plist-get condition :on_failure))
+    (if (plist-get result :successp)
+        (plist-get condition :on_success)
+      (plist-get condition :on_failure)))
+   ;; Regex match on output field
+   ((and (plist-get condition :regex)
+         (plist-get condition :field))
+    (let* ((field-val (pcase (plist-get condition :field)
+                        ("output" (or (plist-get result :output) ""))
+                        ("success" (if (plist-get result :successp) "true" "false"))
+                        (_ (or (plist-get result :output) ""))))
+           (pattern (plist-get condition :regex))
+           (matched (condition-case nil
+                       (string-match-p pattern field-val)
+                     (invalid-regexp nil))))
+      (if matched
+          (plist-get condition :match)
+        (plist-get condition :no_match))))
+   ;; Single-branch conditions (only on_success or only on_failure)
+   ((plist-get condition :on_success)
+    (when (plist-get result :successp)
+      (plist-get condition :on_success)))
+   ((plist-get condition :on_failure)
+    (when (not (plist-get result :successp))
+      (plist-get condition :on_failure)))
+   ;; No condition — end workflow
+   (t nil)))
+
+(defun gptel-workflow--execute (spec)
+  "Execute a workflow SPEC (parsed JSON as a plist).
+SPEC structure:
+  (:steps [(:id \"s1\" :tool \"grep\" :args (:pattern \"TODO\")
+            :on_success \"s2\" :on_failure \"s3\")
+           (:id \"s2\" :tool \"shell\" :args (:command \"wc -l\")
+            :condition (:field \"output\" :regex \"[0-9]+\" :match \"done\" :no_match \"s3\"))
+           (:id \"s3\" :tool \"file-tree\" :args (:dir \"src/\"))
+           (:id \"done\")])
+Returns a summary string of all step results."
+  (let* ((steps-raw (append (plist-get spec :steps) nil))  ; vector -> list
+         (steps (mapcar (lambda (s) (append s nil)) steps-raw))  ; normalize plists
+         (dup-ids (cl-remove-duplicates
+                   (cl-loop for (id . _) in (cl-loop for s in steps
+                                                    collect (cons (plist-get s :id) s))
+                           ;; collect each id whose total count exceeds 1
+                           when (and id (> (cl-count id steps :test #'equal :key (lambda (x) (plist-get x :id))) 1))
+                           collect id)
+                   :test #'equal))
+         (step-map (mapcar (lambda (s) (cons (plist-get s :id) s)) steps))
+         (results nil)
+         (current-id (and steps (plist-get (car steps) :id)))
+         (max-steps (length steps))  ; safety: prevent infinite loops
+         (warnings nil))
+    ;; Pre-scan: check for any tools with :confirm and collect warnings
+    (dolist (step steps)
+      (let* ((tool-name (plist-get step :tool))
+             (tool-spec (when tool-name (gptel-workflow--resolve-tool tool-name))))
+        (cond
+         ((and tool-spec (gptel-workflow--check-confirm tool-spec))
+          (push (format "WARNING: Step '%s' uses tool '%s' which requires individual user confirmation. These steps will FAIL when reached — call '%s' directly as a standalone tool call instead."
+                        (or (plist-get step :id) "?") tool-name tool-name)
+                warnings))
+         ((and tool-spec (gptel-tool-async tool-spec))
+          (push (format "WARNING: Step '%s' uses tool '%s' which is asynchronous. These steps will FAIL when reached — call '%s' directly as a standalone tool call instead."
+                        (or (plist-get step :id) "?") tool-name tool-name)
+                warnings)))))
+    ;; Duplicate step IDs would silently shadow each other in the step
+    ;; map — reject the workflow upfront instead.
+    (if dup-ids
+        (mapconcat #'identity
+                   (list (format "ERROR: duplicate step IDs: %s — each step id must be unique so every step is addressable."
+                                 (mapconcat (lambda (id) (format "'%s'" id)) dup-ids ", ")))
+                   "\n")
+      (progn
+    (when warnings
+      (push (mapconcat #'identity (nreverse warnings) "\n")
+            results))
+    ;; Execute steps
+    (cl-loop repeat (+ max-steps 1)  ; allow one extra for terminal step
+             while current-id
+             for step = (alist-get current-id step-map nil nil #'equal)
+             do
+             (if (null step)
+                 ;; Step references a non-existent ID — end
+                 (progn
+                   (push (format "Step '%s': not found -- workflow ended" current-id)
+                         results)
+                   (setq current-id nil))
+               ;; Check if this is a terminal step (no :tool field)
+               (if (null (plist-get step :tool))
+                   (progn
+                     (push (format "Step '%s': terminal -- workflow complete" current-id)
+                           results)
+                     (setq current-id nil))
+                 ;; Execute the step
+                 (let* ((result (gptel-workflow--run-step step))
+                        (step-id (plist-get result :step-id))
+                        (successp (plist-get result :successp))
+                        (output (plist-get result :output))
+                        (truncated (truncate-string-to-width output 500 0 nil t)))
+                   ;; Log result
+                   (push (format "Step '%s' (%s): %s\n  Output: %s"
+                                 step-id (plist-get step :tool)
+                                 (if successp "SUCCESS" "FAILED")
+                                 truncated)
+                         results)
+                   ;; Determine next step
+                   (let ((condition (plist-get step :condition))
+                         (on-success (plist-get step :on_success))
+                         (on-failure (plist-get step :on_failure)))
+                     (setq current-id
+                           (cond
+                            ;; Explicit condition (regex matching)
+                            ((and condition (plist-get condition :regex))
+                             (gptel-workflow--eval-condition condition result))
+                            ;; Simple on_success/on_failure branching
+                            ((or on-success on-failure)
+                             (gptel-workflow--eval-condition
+                              `(:on_success ,on-success :on_failure ,on-failure)
+                              result))
+                            ;; No branching — end workflow
+                            (t nil))))))))
+    ;; If the step budget ran out mid-workflow, say so (loop guard hit)
+    (when current-id
+      (push (format "Step budget exhausted — workflow stopped before step '%s'. This usually means the step IDs form a cycle."
+                     current-id)
+            results))
+    ;; Return results as a string (oldest first)
+    (mapconcat #'identity (nreverse results) "\n")))))
+
+;;; --- The gptel tool ---
+
+(defun gptel-workflow-run (steps-spec)
+  "Run a declarative workflow of tool calls with conditional branching.
+
+STEPS-SPEC is a JSON string (or already-parsed plist) describing the
+pipeline.  Each step can reference any tool in the active `gptel-tools'
+list — tools not in the active list are rejected.
+
+IMPORTANT: Tools with individual `:confirm' flags (like web-search,
+shell, python) CANNOT be executed inside a workflow.  If a step
+references such a tool, the step will fail with a warning.  Call
+confirmed tools directly as standalone tool calls instead.  Asynchronous
+tools cannot be composed either.
+
+Example JSON (tools that exist and are workflow-eligible in the
+default tool set):
+{
+  \"steps\": [
+    {\"id\": \"changes\", \"tool\": \"status\",
+     \"on_success\": \"diff\", \"on_failure\": \"history\"},
+    {\"id\": \"diff\", \"tool\": \"git-diff\",
+     \"condition\": {\"field\": \"output\", \"regex\": \"[0-9]+\",
+                    \"match\": \"tree\", \"no_match\": \"history\"}},
+    {\"id\": \"tree\", \"tool\": \"file-tree\",
+     \"args\": {\"relative-dir\": \"src/\"}},
+    {\"id\": \"history\", \"tool\": \"log\"},
+    {\"id\": \"done\"}
+  ]
+}
+
+Each step must have:
+- id: unique string identifier
+- tool: name of a gptel tool in the active tool set
+
+Optional:
+- args: object mapping argument names to values
+- on_success: step id to run if this step succeeds
+- on_failure: step id to run if this step fails
+- condition: object with field, regex, match, no_match for regex branching
+
+If a step has both condition and on_success/on_failure, condition takes
+precedence — prefer using only one of the two per step.
+
+A step with no :tool field is a terminal marker — the workflow ends."
+  (let ((spec (if (stringp steps-spec)
+                  (json-parse-string steps-spec
+                                     :object-type 'plist
+                                     :array-type 'array
+                                     :null-object nil
+                                     :false-object nil)
+                steps-spec)))
+    (gptel-workflow--execute spec)))
+
+;;; --- Registration ---
+
+(gptel-make-tool
+ :name "workflow"
+ :function #'gptel-workflow-run
+ :description
+ "Run a multi-step workflow of tool calls with conditional branching.
+
+Use this when you need to chain multiple tool calls where later calls
+depend on the success or output of earlier ones.  This avoids multiple
+round-trips — all steps execute in one call.
+
+IMPORTANT CONSTRAINTS:
+- The workflow can ONLY call tools that are currently active in your
+  gptel session.  If a tool is not in the active tool list, the step
+  will fail.
+- Tools with individual confirmation (those that would prompt the user
+  when called directly, e.g. shell, python, web-search) CANNOT be used
+  inside a workflow.  If a step references such a tool, it will FAIL
+  with a warning.  Call confirmed tools directly as standalone tool
+  calls instead.  This is a security measure — it prevents sensitive
+  tools from being hidden inside a large JSON pipeline.
+- Asynchronous tools cannot be composed in a workflow either; call them
+  directly.
+
+STEP SPECIFICATION (JSON string):
+{
+  \"steps\": [
+    {
+      \"id\": \"unique_step_id\",
+      \"tool\": \"tool_name\",
+      \"args\": {\"arg_name\": value},
+      \"on_success\": \"next_step_id\",
+      \"on_failure\": \"next_step_id\",
+      \"condition\": {
+        \"field\": \"output\",
+        \"regex\": \"pattern\",
+        \"match\": \"step_id\",
+        \"no_match\": \"step_id\"
+      }
+    },
+    ...
+  ]
+}
+
+BRANCHING RULES:
+- If both on_success and on_failure are set, branch on success/failure.
+- If condition is set, evaluate the regex against the specified field.
+- If a step has both condition and on_success/on_failure, condition
+  takes precedence — prefer using only one of the two per step.
+- A step with no branching fields ends the workflow.
+- A step with no \"tool\" field is a terminal marker.
+
+EXAMPLE — check git status; if it succeeds show the diff and list the
+files changed most recently, otherwise just show the commit log.
+(status, git-diff, file-tree and log are workflow-eligible; grep is
+NOT — it requires individual confirmation, call it directly):
+{
+  \"steps\": [
+    {\"id\": \"changes\", \"tool\": \"status\",
+     \"on_success\": \"diff\", \"on_failure\": \"history\"},
+    {\"id\": \"diff\", \"tool\": \"git-diff\",
+     \"condition\": {\"field\": \"output\", \"regex\": \"[0-9]+\",
+                    \"match\": \"tree\", \"no_match\": \"history\"}},
+    {\"id\": \"tree\", \"tool\": \"file-tree\",
+     \"args\": {\"relative-dir\": \"src/\"}},
+    {\"id\": \"history\", \"tool\": \"log\"},
+    {\"id\": \"done\"}
+  ]
+}"
+ :args (list '(:name "steps_spec"
+               :type string
+               :description "JSON string describing the workflow steps. See the tool description for the format specification."))
+ :confirm t   ; always confirm the workflow itself — the model is orchestrating multiple tools
+              ; ALSO load-bearing for recursion safety: because this tool requires
+              ; individual confirmation, a step referencing "workflow" is refused by
+              ; gptel-workflow--run-step's confirm guard, which prevents an unbounded
+              ; self-recursion loop. Do NOT remove :confirm.
+ :category "orchestration")
+
+(provide 'gptel-workflow)
+;;; gptel-workflow.el ends here

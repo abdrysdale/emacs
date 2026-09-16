@@ -1484,7 +1484,8 @@ Return non-nil if the buffer was actually modified."
         gptel-track-media t
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))
-  (load (concat user-emacs-directory "gptel-tools.el")))
+  (load (concat user-emacs-directory "gptel-tools.el"))
+  (load (concat user-emacs-directory "gptel-workflow.el")))
 
 (use-package gptel-fn-complete)
 

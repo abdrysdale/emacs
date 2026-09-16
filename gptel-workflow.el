@@ -40,6 +40,7 @@
 ;;; Code:
 
 (require 'gptel)
+(require 'cl-lib)
 (require 'json)
 
 ;;; --- Internals ---
@@ -170,6 +171,13 @@ SPEC structure:
 Returns a summary string of all step results."
   (let* ((steps-raw (append (plist-get spec :steps) nil))  ; vector -> list
          (steps (mapcar (lambda (s) (append s nil)) steps-raw))  ; normalize plists
+         (dup-ids (cl-remove-duplicates
+                   (cl-loop for (id . _) in (cl-loop for s in steps
+                                                    collect (cons (plist-get s :id) s))
+                           ;; collect each id whose total count exceeds 1
+                           when (and id (> (cl-count id steps :test #'equal :key (lambda (x) (plist-get x :id))) 1))
+                           collect id)
+                   :test #'equal))
          (step-map (mapcar (lambda (s) (cons (plist-get s :id) s)) steps))
          (results nil)
          (current-id (and steps (plist-get (car steps) :id)))
@@ -188,6 +196,14 @@ Returns a summary string of all step results."
           (push (format "WARNING: Step '%s' uses tool '%s' which is asynchronous. These steps will FAIL when reached — call '%s' directly as a standalone tool call instead."
                         (or (plist-get step :id) "?") tool-name tool-name)
                 warnings)))))
+    ;; Duplicate step IDs would silently shadow each other in the step
+    ;; map — reject the workflow upfront instead.
+    (if dup-ids
+        (mapconcat #'identity
+                   (list (format "ERROR: duplicate step IDs: %s — each step id must be unique so every step is addressable."
+                                 (mapconcat (lambda (id) (format "'%s'" id)) dup-ids ", ")))
+                   "\n")
+      (progn
     (when warnings
       (push (mapconcat #'identity (nreverse warnings) "\n")
             results))
@@ -195,7 +211,6 @@ Returns a summary string of all step results."
     (cl-loop repeat (+ max-steps 1)  ; allow one extra for terminal step
              while current-id
              for step = (alist-get current-id step-map nil nil #'equal)
-             for iter from 1
              do
              (if (null step)
                  ;; Step references a non-existent ID — end
@@ -243,7 +258,7 @@ Returns a summary string of all step results."
                      current-id)
             results))
     ;; Return results as a string (oldest first)
-    (mapconcat #'identity (nreverse results) "\n")))
+    (mapconcat #'identity (nreverse results) "\n")))))
 
 ;;; --- The gptel tool ---
 
@@ -373,6 +388,10 @@ NOT — it requires individual confirmation, call it directly):
                :type string
                :description "JSON string describing the workflow steps. See the tool description for the format specification."))
  :confirm t   ; always confirm the workflow itself — the model is orchestrating multiple tools
+              ; ALSO load-bearing for recursion safety: because this tool requires
+              ; individual confirmation, a step referencing "workflow" is refused by
+              ; gptel-workflow--run-step's confirm guard, which prevents an unbounded
+              ; self-recursion loop. Do NOT remove :confirm.
  :category "orchestration")
 
 (provide 'gptel-workflow)

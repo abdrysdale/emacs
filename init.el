@@ -2996,6 +2996,66 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
     (message "Stopped PG monitor.")))
 
 
+(defun my/count-top-level-python-commas (beg end)
+  "Count top-level commas between BEG and END, skipping nested sexps."
+  (save-excursion
+    (goto-char beg)
+    (let ((commas 0))
+      (while (< (point) end)
+        (let ((ch (char-after)))
+          (cond
+           ((eq ch ?\,)
+            (setq commas (1+ commas))
+            (forward-char 1))
+           ((memq ch '(?\( ?\[ ?\{ ?\" ?\'))
+            (condition-case nil
+                (forward-sexp 1)
+              (error (forward-char 1))))
+           (t
+            (forward-char 1)))))
+      commas)))
+
+(defun my/python-add-trailing-comma-to-args (&optional start end)
+  "Ensure a trailing comma exists after the last parameter in Python 'def' signatures.
+Prompts with y-or-n before making changes and skips single-argument functions."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
+  (let ((start (or start (point-min)))
+        (end (or end (point-max)))
+        (count 0))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region start end)
+        (goto-char (point-min))
+        (while (re-search-forward "^[ \t]*def\\s-+\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" nil t)
+          (let ((fn-name (match-string 1))
+                (arg-start (point)))
+            (save-excursion
+              (backward-char 1) ; move to '('
+              (condition-case nil
+                  (progn
+                    (forward-sexp 1) ; move past matching ')'
+                    (let* ((paren-end (1- (point)))
+                           (commas (my/count-top-level-python-commas arg-start paren-end)))
+                      ;; Only process functions with 2+ arguments (1+ top-level commas)
+                      (when (> commas 0)
+                        (goto-char paren-end)
+                        (skip-chars-backward " \t\n\r")
+                        (let ((last-char (char-before))
+                              (insert-pos (point)))
+                          ;; Skip if signature already ends with a comma
+                          (when (and last-char (not (eq last-char ?\,)))
+                            (goto-char insert-pos)
+                            (recenter)
+                            (when (y-or-n-p (format "Add trailing comma to '%s'? " fn-name))
+                              (insert ",")
+                              (setq count (1+ count))))))))
+                (error nil)))))))
+    (message "Added trailing commas to %d function signature(s)." count)))
+
+
 ;;  ***********
 ;;; * STARTUP *
 ;;  ***********

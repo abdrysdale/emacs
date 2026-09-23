@@ -1485,6 +1485,7 @@ Return non-nil if the buffer was actually modified."
         gptel-include-reasoning t)
   (load (concat user-emacs-directory "gptel-papers.el"))
   (load (concat user-emacs-directory "gptel-tools.el"))
+  (load (concat user-emacs-directory "gptel-project.el"))
   (load (concat user-emacs-directory "gptel-workflow.el")))
 
 (use-package gptel-fn-complete)
@@ -3150,6 +3151,7 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
                                      ("u" . my/git-update-main)
                                      ("z" . zgrep)))
 
+(define-key gptel-mode-map (kbd "C-c C-x p") #'gptel-show-project)
 (global-set-keys-to-prefix "C-c l" '(("a" . gptel-add)
                                      ("c" . gptel-fn-complete)
                                      ;; Sometimes just a dictionary is required
@@ -3162,6 +3164,7 @@ If called interactively, prompts for the URI and QUERY also INTERVAL if called w
                                      ("r" . gptel-rewrite)
                                      ("s" . gptel-send)
                                      ("p" . gptel-toggle-codebase-prompt)
+                                     ("P" . gptel-set-project)
                                      ("C-a" . gptel-abort)))
 
 (global-set-keys-to-prefix "C-c h" '(("b" . highlight-compare-buffers)

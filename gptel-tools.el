@@ -14,12 +14,30 @@
 
 (require 'gptel)
 
+;; Optional dependency: gptel-project.el provides per-buffer project
+;; pins (M-x gptel-set-project / auto-capture at chat-buffer creation).
+;; When it is loaded, tool project resolution goes through the pin;
+;; otherwise fall back to plain project-current detection.
+(declare-function gptel-project--root "gptel-project")
+
 (defun gptel-tool-utils--get-project-root ()
-  "Get the root for the currently active project."
-  (let ((project (project-current)))
-    (unless project
-      (error "Not in a project.  Cannot list directory contents"))
-    (file-name-as-directory (expand-file-name (project-root project)))))
+  "Get the root for the currently active project.
+If gptel-project.el is loaded and this buffer has a project pin
+(set by M-x gptel-set-project or captured at chat-buffer
+creation), return it.  Otherwise fall back to `project-current'
+with a `default-directory' fallback, so tools still work when
+gptel-project.el is not loaded (e.g. plain code-buffer use)."
+  (if (fboundp 'gptel-project--root)
+      (gptel-project--root)
+    (or (when-let* ((project (project-current)))
+          (file-name-as-directory (expand-file-name (project-root project))))
+        (when-let* ((dir (file-name-as-directory
+                          (expand-file-name default-directory)))
+                    ((file-directory-p dir))
+                    (project (ignore-errors
+                               (project--find-in-directory dir))))
+          (file-name-as-directory (expand-file-name (project-root project))))
+        (error "Not in a project.  Cannot list directory contents"))))
 
 ;; Emacs ;;
 (gptel-make-tool

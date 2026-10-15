@@ -1593,39 +1593,53 @@ Rules:
 
 (setq gptel-commit-model 'gemma4:latest)
 
+(defun gptel-commit--diff ()
+  "Return the diff to describe: marked files in vc-dir, else the whole tree.
+Computed synchronously, since `vc-diff' is asynchronous."
+  (let* ((files (when (eq major-mode 'vc-dir-mode)
+                  (vc-dir-marked-files)))
+         (default-directory (or (vc-root-dir) default-directory)))
+    (with-temp-buffer
+      (apply #'process-file "git" nil t nil "diff" "HEAD" "--"
+             (mapcar (lambda (f) (file-relative-name f default-directory))
+                     files))
+      (buffer-string))))
+
 (defun gptel-commit ()
   "Write a commit message for the current diff."
   (interactive)
   (unless (or (eq major-mode 'vc-dir-mode)
               (eq major-mode 'diff-mode))
     (error "gptel-commit must be used in a vc-dir or diff buffer"))
-  (unless (eq major-mode 'diff-mode)
-    (vc-diff))
-  (let ((diff (buffer-string))
-        (gptel-include-reasoning nil)
-        (gptel-model gptel-commit-model)
-        ;; Ask Ollama not to think: gemma4 is a thinking model, and
-        ;; thinking is on by default for thinking-capable models.
-        (gptel--request-params (list :think :json-false)))
+  (let ((diff (if (eq major-mode 'diff-mode)
+                  (buffer-string)
+                (gptel-commit--diff))))
+    (when (string-empty-p (string-trim diff))
+      (user-error "No changes to describe"))
     (vc-next-action nil)
-    (message (format "Writing commit for ~%.1f tokens" (/ (length diff) 3)))
-    (gptel-request
-     (format gptel-commit--prompt diff)
-     :system nil
-     :stream nil
-     :callback
-     (lambda (response info)
-       (pcase response
-         ;; Thinking models pass reasoning first as (reasoning . TEXT);
-         ;; discard it and only insert the commit message itself.
-         ((or `(reasoning . ,_) `(reasoning . t)))
-         ((pred stringp)
-          (with-current-buffer (plist-get info :buffer)
-            (goto-char (plist-get info :position))
-            ;; Strip leading whitespace/newlines and insert exactly at point
-            (insert (string-trim-left response))))
-         ;; abort / tool-call / nil: ignore
-         (_ nil))))))
+    ;; vc-next-action leaves us in the log-edit buffer.
+    (let ((buf (current-buffer))
+          (pos (point-marker))
+          (gptel-backend gptel-ollama-backend)
+          (gptel-model gptel-commit-model)
+          (gptel-include-reasoning nil)
+          (gptel-use-context nil)
+          (gptel-use-tools nil))
+      (message "Writing commit for ~%.1f tokens" (/ (length diff) 3))
+      (gptel-request
+          (format gptel-commit--prompt diff)
+        :buffer buf
+        :position pos
+        :system nil
+        :stream nil
+        :callback
+        (lambda (response info)
+          (if (stringp response)
+              (with-current-buffer buf
+                (save-excursion
+                  (goto-char pos)
+                  (insert (string-trim response))))
+            (message "gptel-commit failed: %s" (plist-get info :status))))))))
 
 (add-hook 'vc-dir-mode-hook
           (lambda () (local-set-key (kbd "c") #'gptel-commit)))

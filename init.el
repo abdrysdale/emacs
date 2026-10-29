@@ -3142,8 +3142,7 @@ where KEY is optional.")
 Runs once, from `window-setup-hook'."
   (interactive)
   (when (display-graphic-p)
-    (let ((services (my/services-refresh))
-          (notes (my/notes-buffer)))
+    (let ((services (my/services-refresh)))
       (display-buffer services
                       '((display-buffer-in-side-window)
                         (side . left)

@@ -2124,6 +2124,7 @@ IF INPUT-TASK then just display that task."
   ;;    - Restarting emacs.
   ;;    - Deleting and reinstalling ebib.
   :after org
+  :defer t
   :config
   (require 'org-ebib)
   (setq ebib-save-xrefs-first nil
@@ -2155,6 +2156,28 @@ IF INPUT-TASK then just display that task."
                  markdown-mode
                   (("ref" "[^@%K]")
                    ("cite" "[^@%K]\n[^@%K]:"))))
+
+  ;; The reading list template needs the custom ?k specifier, and that
+  ;; has to be added after ebib has defined the defaults: `add-to-list'
+  ;; on the unbound variable would create a list holding only this
+  ;; entry, dropping ?K, ?T, ?M, ?L, ?F, ?D and ?U.
+  (add-to-list 'ebib-reading-list-template-specifiers '(?k . ebib-create-key))
+  (setq ebib-notes-directory local/paper-notes-dir
+        ebib-reading-list-file local/reading-list
+        ebib-reading-list-template (concat
+                                    "* %M [[ebib:%k][%T]] [/]\n"
+                                    ":PROPERTIES:\n"
+                                    "%K\n"
+                                    ":FILE: %F\n"
+                                    ":DOI: %D\n"
+                                    ":URL: %U\n"
+                                    ":END:\n"
+                                    "** TODO Read Abstract\n"
+                                    "** TODO Read Conclusion\n"
+                                    "** TODO Thorough Read\n"
+                                    "** TODO Critique\n")
+        ebib-preload-bib-files `(,local/bib-file)
+        ebib-file-search-dirs `(,local/paper-dir))
 
   :bind (:map ebib-index-mode-map ("v" . #'ebib-dependent-add-entry-and-next))
   :bind (:map ebib-entry-mode-map ("C-x b" . nil)))
@@ -2206,24 +2229,6 @@ IF INPUT-TASK then just display that task."
 (defun ebib-create-key (key _db)
   "Return the KEY in DB."
   (format "%s" key))
-
-(add-to-list 'ebib-reading-list-template-specifiers '(?k . ebib-create-key))
-(setq ebib-notes-directory local/paper-notes-dir
-      ebib-reading-list-file local/reading-list
-      ebib-reading-list-template (concat
-                                  "* %M [[ebib:%k][%T]] [/]\n"
-                                  ":PROPERTIES:\n"
-                                  "%K\n"
-                                  ":FILE: %F\n"
-                                  ":DOI: %D\n"
-                                  ":URL: %U\n"
-                                  ":END:\n"
-                                  "** TODO Read Abstract\n"
-                                  "** TODO Read Conclusion\n"
-                                  "** TODO Thorough Read\n"
-                                  "** TODO Critique\n")
-      ebib-preload-bib-files `(,local/bib-file)
-      ebib-file-search-dirs `(,local/paper-dir))
 
 (setq ebib-reading-list-new-item-hook
           (lambda ()
@@ -3228,6 +3233,10 @@ agenda file does not abort startup."
                                      ("v" . view-file)
                                      ("w" . copy-filename-to-kill)))
 
+;; Emacs 31: `e' in a *grep*, *occur* or *xref* buffer switches to an
+;; edit mode for the results, and `C-c C-c' saves the changes back to
+;; the originating buffers and leaves.  Nothing to configure, just the
+;; habit.
 (global-set-keys-to-prefix "C-c g" '(("a" . gptel-proofread-apply)
                                      ("b" . gptel-proofread-buffer)
                                      ("c" . langtool-check)

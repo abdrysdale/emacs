@@ -161,8 +161,13 @@
 ;; Manually update org-mode to the latest version
 ;; Sometimes this fails but it's usually because org hasn't be installed yet
 ;; and so will be the latest version upon installation.
-(with-demoted-errors
-  (package-upgrade 'org))
+(defvar my/upgrade-org-on-startup nil
+  "Upgrade Org from ELPA at startup when non-nil.")
+
+(when my/upgrade-org-on-startup
+  (with-demoted-errors "org upgrade failed: %S"
+    (package-upgrade 'org)))
+
 
 ;; use-package
 (unless (package-installed-p 'use-package)

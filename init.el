@@ -538,8 +538,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Modeline
 (setq mode-line-compact t   ; Compresses repeating spaces to a single space
-      display-time-24hr-format t
-      display-battery-mode t)
+      display-time-24hr-format t)
 (setq-default header-line-format nil)
 (display-time-mode 1)       ; Displays the time.
 (display-battery-mode 1)    ; Displays the battery.
@@ -563,7 +562,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq display-raw-bytes-as-hex t)
 
 ;; Line numbers
-(column-number-mode)
 (setq display-line-numbers-type 'relative)
 (setq-default display-line-numbers-width 4) ;; # lines > 9999 => rethink life.
 (global-display-line-numbers-mode t)

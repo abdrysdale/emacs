@@ -1262,16 +1262,20 @@ Return non-nil if the buffer was actually modified."
 (global-set-key (kbd "C-x k") #'kill-this-buffer-reliably)
 
 ;; Scratch buffer
+(defun my/notes-buffer ()
+  "Return the *notes* buffer, creating it if necessary."
+  (let ((buffer (get-buffer "*notes*")))
+    (unless buffer
+      (setq buffer (get-buffer-create "*notes*"))
+      (with-current-buffer buffer
+        (org-mode)
+        (insert "#+title: Notes\n")))
+    buffer))
+
 (defun note-buffer ()
   "Create a scratch buffer for 'org-mode' notes."
   (interactive)
-  (let* ((buffer-notes-name "*notes*")
-         (buffer-notes-scratch (get-buffer buffer-notes-name)))
-    (unless buffer-notes-scratch
-      (switch-to-buffer (get-buffer-create buffer-notes-name))
-      (org-mode)
-      (insert "#+title: Notes\n"))
-    (switch-to-buffer buffer-notes-name)))
+  (switch-to-buffer (my/notes-buffer)))
 
 (defun markdown-buffer ()
   "Create a scratch buffer for 'markdown-mode' notes."
@@ -3027,6 +3031,140 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                 (error nil)))))))
     (message "Added trailing commas to %d function signature(s)." count)))
 
+
+;;  ***********
+;;; * Dashboard *
+;;  ***********
+
+(defun my/agenda-day ()
+  "Show the daily agenda."
+  (interactive)
+  (org-agenda nil "d"))
+
+;; Half the battle is remembering what Emacs can do, so the dashboard carries
+;; a menu of it.  Each entry is (LABEL COMMAND KEY); RET runs the command.
+(defvar my/services
+  '(("Planning"
+     ("Agenda (day)" my/agenda-day "C-c m A d")
+     ("Todo list" org-todo-list "C-c m t")
+     ("Capture" org-capture "C-c m c")
+     ("Calendar" calendar)
+     ("Clock in" org-clock-in "C-c c i")
+     ("Clock out" org-clock-out "C-c c f")
+     ("Code Red" code-red "C-x C-r"))
+    ("Reading"
+     ("Notmuch" notmuch "C-c m m")
+     ("Newsticker" newsticker-show-news "C-c m n")
+     ("EWW" eww "C-c u u")
+     ("Wikipedia" eww-search-wiki "C-c u w")
+     ("Scholar" eww-search-scholar "C-c u s")
+     ("PyPI" eww-search-pypi "C-c u p")
+     ("Ebib" ebib "C-c m b")
+     ("Papers" my/open-paper))
+    ("Work"
+     ("Magit" magit-status "C-x g")
+     ("VC dir" vc-dir)
+     ("Grep" rgrep "C-c g r")
+     ("Proced" proced)
+     ("Dired" dired "C-c d ,")
+     ("Recent files" recentf-open-files "C-c f r")
+     ("IBuffer" ibuffer "C-x C-b"))
+    ("AI"
+     ("gptel" gptel "C-c l g")
+     ("gptel menu" gptel-menu "C-c l m")
+     ("Summarise paper" gptel-papers-summarise "C-c l o")
+     ("Complete at point" gptel-fn-complete "C-c l c"))
+    ("Comms and media"
+     ("IRC" irc "C-c m i")
+     ("Radio" emms-play-from-radio-addr "C-c m r r")
+     ("Transmission" transmission)
+     ("Starling" starling))
+    ("Shell and misc"
+     ("Eshell" eshell "C-c e")
+     ("Shell" shell "C-c s")
+     ("Vterm" vterm)
+     ("Calculator" calc-or-quick-calc "C-x c")
+     ("Processes" list-processes)))
+  "Services listed in the *Services* buffer.
+
+Each group is (NAME SERVICE...), and each service is (LABEL COMMAND KEY),
+where KEY is optional.")
+
+(defun my/open-paper ()
+  "Prompt for a paper in `local/paper-dir' and visit it."
+  (interactive)
+  (find-file (read-file-name "Paper: " local/paper-dir)))
+
+(defun my/services-refresh (&rest _)
+  "Rebuild the *Services* buffer and return it."
+  (interactive)
+  (let ((buffer (get-buffer-create "*Services*")))
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (unless (derived-mode-p 'my/services-mode)
+          (my/services-mode))
+        (insert (propertize "Emacs services" 'face 'bold))
+        (insert (format "  %s\n" (format-time-string "%A %d %B %Y")))
+        (insert (propertize "RET runs   g refreshes   q buries\n\n" 'face 'shadow))
+        (dolist (group my/services)
+          (insert (propertize (car group) 'face 'bold) "\n")
+          (dolist (service (cdr group))
+            (insert "  ")
+            (insert-text-button
+             (nth 0 service)
+             'command (nth 1 service)
+             'follow-link t
+             'action (lambda (button)
+                       (call-interactively (button-get button 'command))))
+            (when (nth 2 service)
+              (insert (make-string (max 1 (- 24 (current-column))) ?\s))
+              (insert (propertize (nth 2 service) 'face 'shadow)))
+            (insert "\n"))
+          (insert "\n")))
+      (goto-char (point-min)))
+    buffer))
+
+(define-derived-mode my/services-mode special-mode "Services"
+  "Major mode for the *Services* buffer."
+  (setq-local truncate-lines t)
+  (setq-local revert-buffer-function #'my/services-refresh))
+
+(defun my/dashboard ()
+  "Arrange the initial frame: services on the left, notes on the right.
+
+Runs once, from `window-setup-hook'."
+  (interactive)
+  (when (display-graphic-p)
+    (let ((services (my/services-refresh))
+          (notes (my/notes-buffer)))
+      (display-buffer services
+                      '((display-buffer-in-side-window)
+                        (side . left)
+                        (slot . 0)
+                        (window-width . 36)
+                        (window-parameters . ((no-other-window . t)))))
+      (display-buffer notes
+                      '((display-buffer-in-side-window)
+                        (side . right)
+                        (slot . 0)
+                        (window-width . 0.28))))))
+
+(defun my/startup-buffer ()
+  "Return the buffer the initial frame should show.
+
+Fall back to *scratch* if the agenda cannot be built, so a missing
+agenda file does not abort startup."
+  (condition-case err
+      (progn
+        (my/agenda-day)
+        (or (get-buffer "*Org Agenda*") (get-buffer-create "*scratch*")))
+    (error (message "Dashboard: %s" (error-message-string err))
+           (get-buffer-create "*scratch*"))))
+
+(setq initial-buffer-choice #'my/startup-buffer)
+
+(add-hook 'window-setup-hook #'my/dashboard)
 
 ;;  **********************
 ;;; * Global Keybindings *

@@ -524,11 +524,16 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (defun-surely save-buffers-kill-terminal)
 (global-set-key (kbd "C-x C-c") #'save-buffers-kill-terminal-surely)
 
-(scroll-bar-mode -1)                ; Disable visible scrollbar
-(tool-bar-mode -1)                  ; Disable the toolbar
-(tooltip-mode -1)                   ; Disable tooltips
-(set-fringe-mode 0)                 ; Removes fringes
-(menu-bar-mode -1)                  ; Disable the menu bar
+;; Window chrome only exists in a graphical session; `emacs -nw' and batch
+;; runs do not define these commands at all.  `display-graphic-p' is not
+;; usable here because init.el runs before the first frame is created, so
+;; test the window system the session was started with instead.
+(when initial-window-system
+  (scroll-bar-mode -1)              ; Disable visible scrollbar
+  (tool-bar-mode -1)                ; Disable the toolbar
+  (tooltip-mode -1)                 ; Disable tooltips
+  (set-fringe-mode 0)               ; Removes fringes
+  (menu-bar-mode -1))               ; Disable the menu bar
 (global-visual-line-mode t)         ; Enables visual lines
 (blink-cursor-mode t)               ; Blinks the cursor
 (global-hl-line-mode t)             ; Hightlights current line

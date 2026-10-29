@@ -2043,7 +2043,9 @@ IF INPUT-TASK then just display that task."
                    (lambda () (interactive)
                      (message "It's best you just do this task.")))
     (local-set-key (kbd "a")
-                   #'sh/code-red-again)))
+                   #'sh/code-red-again))
+  (local-set-key (kbd "q")
+                 #'sh/code-red-exit))
 (global-set-key (kbd "C-x C-r") #'sh/code-red)
 
 (defun sh/code-red-again ()
@@ -3060,9 +3062,7 @@ Prompts with y-or-n before making changes and skips single-argument functions."
      ("Todo list" org-todo-list "C-c m t")
      ("Capture" org-capture "C-c m c")
      ("Calendar" calendar)
-     ("Clock in" org-clock-in "C-c c i")
-     ("Clock out" org-clock-out "C-c c f")
-     ("Code Red" code-red "C-x C-r"))
+     ("Code Red" sh/code-red "C-x C-r"))
     ("Reading"
      ("Notmuch" notmuch "C-c m m")
      ("Newsticker" newsticker-show-news "C-c m n")
@@ -3142,7 +3142,7 @@ where KEY is optional.")
   (setq-local revert-buffer-function #'my/services-refresh))
 
 (defun my/dashboard ()
-  "Arrange the initial frame: services on the left, notes on the right.
+  "Arrange the initial frame: services on the left, agenda on the right.
 
 Runs once, from `window-setup-hook'."
   (interactive)
@@ -3153,12 +3153,7 @@ Runs once, from `window-setup-hook'."
                         (side . left)
                         (slot . 0)
                         (window-width . 36)
-                        (window-parameters . ((no-other-window . t)))))
-      (display-buffer notes
-                      '((display-buffer-in-side-window)
-                        (side . right)
-                        (slot . 0)
-                        (window-width . 0.28))))))
+                        (window-parameters . ((no-other-window . t))))))))
 
 (defun my/startup-buffer ()
   "Return the buffer the initial frame should show.
@@ -3184,6 +3179,7 @@ agenda file does not abort startup."
                                      ("N" . note-buffer)
                                      ("M" . markdown-buffer)
                                      ("a" . append-to-buffer)
+                                     ("b" . my/dashboard)
                                      ("c" . count-words)
                                      ("d" . desktop-read)
                                      ("g" . (lambda () (interactive)

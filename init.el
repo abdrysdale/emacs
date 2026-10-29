@@ -2110,12 +2110,18 @@ IF INPUT-TASK then just display that task."
   (shr-render-buffer (current-buffer)))
 
 ;; Sending Mail ;;
-(setq mail-user-agent 'message-user-agent)
-
-(setq message-send-mail-function 'smtpmail-send-it
-      smtpmail-smtp-server "127.0.0.1"
-      smtpmail-smtp-service 1025
-      message-kill-buffer-on-exit t)
+;; smtpmail is built in and only needed when a message is actually sent,
+;; so defer it.  The settings live in :init so they are in place before
+;; the first send.
+(use-package smtpmail
+  :ensure nil
+  :defer t
+  :init
+  (setq mail-user-agent 'message-user-agent
+        message-send-mail-function 'smtpmail-send-it
+        smtpmail-smtp-server "127.0.0.1"
+        smtpmail-smtp-service 1025
+        message-kill-buffer-on-exit t))
 
 
 ;;  ********

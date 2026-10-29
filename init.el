@@ -1101,10 +1101,12 @@ Return non-nil if the buffer was actually modified."
 
 ;; Hide-show
 ;; Mainly used programming based files.
-(define-key hs-minor-mode-map (kbd "C-c o")
-            (lookup-key hs-minor-mode-map (kbd "C-c @")))
-(setq hs-isearch-open t)    ;; Unhides comments and code when using isearch
+(with-eval-after-load 'hideshow
+  (define-key hs-minor-mode-map (kbd "C-c o")
+              (lookup-key hs-minor-mode-map (kbd "C-c @")))
+  (setq hs-isearch-open t)) ;; Unhides comments and code when using isearch
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+
 
 
 ;; eTags

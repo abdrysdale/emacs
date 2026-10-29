@@ -758,6 +758,20 @@ Setting the NAME and DOC."
 (global-set-key (kbd "C-x i") #'titlecase-region)
 (global-set-key (kbd "C-x w r") #'write-region)
 
+;; Multiple cursors (retired) ;;
+;; I used multiple-cursors, but in the spirit of preferring what Emacs
+;; already provides I replaced it with the built in equivalents:
+;;
+;; M-%        :: Replace across occurrences (query-replace).
+;; C-M-%      :: Same, with a regexp; \, computes the replacement and \#
+;;               is a running counter.
+;; C-x C-k r  :: Apply a keyboard macro to every line in the region.
+;; C-x SPC    :: Rectangle-mark-mode, for column aligned edits.
+;; C-x r t    :: Insert a string down a rectangle.
+;; C-x r N    :: Number the lines of a rectangle.
+;;
+;; The only thing given up is seeing every edit site at once while typing.
+
 ;; Expand region
 (use-package expand-region
   :bind ("C-=" . er/expand-region))

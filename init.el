@@ -52,14 +52,6 @@
      (when (yes-or-no-p "Surely you can't be serious? ")
        (,func))))
 
-(defun add-to-list-multiple (list to-add)
-  "Add TO-ADD to LIST.
-Allows for adding a sequence of items to the same list, rather
-than having to call `add-to-list' multiple times."
-  (interactive)
-  (dolist (item to-add)
-    (add-to-list list item)))
-
 (defvar local/home-dir "~" "Home directory.")
 
 ;; Important files that need to be present.
@@ -538,8 +530,7 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; Modeline
 (setq mode-line-compact t   ; Compresses repeating spaces to a single space
-      display-time-24hr-format t
-      display-battery-mode t)
+      display-time-24hr-format t)
 (setq-default header-line-format nil)
 (display-time-mode 1)       ; Displays the time.
 (display-battery-mode 1)    ; Displays the battery.
@@ -563,7 +554,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 (setq display-raw-bytes-as-hex t)
 
 ;; Line numbers
-(column-number-mode)
 (setq display-line-numbers-type 'relative)
 (setq-default display-line-numbers-width 4) ;; # lines > 9999 => rethink life.
 (global-display-line-numbers-mode t)
@@ -730,7 +720,7 @@ Setting the NAME and DOC."
                              current-shorthand-list
                            '())))
     (message "Added shorthand: %s -> %s" shorthand longhand)
-    (add-to-list 'shorthand-list (cons shorthand longhand))
+    (push (cons shorthand longhand) shorthand-list)
     (add-file-local-variable 'read-symbol-shorthands shorthand-list)
     (setq-local read-symbol-shorthands shorthand-list)))
 
@@ -1317,19 +1307,6 @@ Return non-nil if the buffer was actually modified."
       dired-dwim-target #'dired-dwim-target-recent
       dired-kill-when-opening-new-dired-buffer t)
 
-(defun dired-sort-criteria (criteria)
-  "Sort-dired by different CRITERIA by Robert Gloeckner."
-  (interactive
-   (list
-    (or (completing-read "criteria [name]: "
-             '("size(S)" "extension(X)" "creation-time(ct)"
-               "access-time(ut)" "time(t)" "name()"))
-    "")))
-  (string-match ".*(\\(.*\\))" criteria)
-  (dired-sort-other
-   (concat dired-listing-switches
-       (match-string 1 criteria))))
-
 ;; global-auto-revert-non-file-buffers disabled — was polling dired/process
 ;; buffers every 5s, causing latency on slow filesystems. Dired refreshes
 ;; manually with `g'.
@@ -1691,23 +1668,23 @@ SELF-MONITORING
 (global-set-key (kbd "C-x c") 'calc-or-quick-calc)
 
 ;; Farenheit to Celcius calculator
-(defun farenheit-to-celcius (temp)
-  "Convert TEMP from Farenheit to Celcius."
+(defun fahrenheit-to-celsius (temp)
+  "Convert TEMP from Fahrenheit to Celsius."
   (/ (- temp 32) 1.8))
 
-(defun farenheit-to-celcius-at-point ()
-  "Get the Farenheit temperature at point as Celcius."
+(defun fahrenheit-to-celsius-at-point ()
+  "Replace the Fahrenheit temperature at point with its Celsius value."
   (interactive)
-  (let* ((temp-F (number-at-point))
-         (temp-C (farenheit-to-celcius temp-F))
-         (bounds (bounds-of-thing-at-point 'number)))
-    (when bounds
-      (message (format "%fF = %fC" temp-F temp-C))
-      (if buffer-read-only
-          (kill-new (format "%f" temp-C))
-        (progn
-          (delete-region (car bounds) (cdr bounds))
-          (insert (format "%f" temp-C)))))))
+  (let ((temp-f (number-at-point)))
+    (unless temp-f
+      (user-error "No number at point"))
+    (let* ((temp-c (fahrenheit-to-celsius temp-f))
+           (bounds (bounds-of-thing-at-point 'number)))
+      (message "%gF = %gC" temp-f temp-c)
+      (if (or buffer-read-only (null bounds))
+          (kill-new (format "%g" temp-c))
+        (delete-region (car bounds) (cdr bounds))
+        (insert (format "%g" temp-c))))))
 
 ;; Starling.el
 (use-package plz
@@ -2085,13 +2062,13 @@ IF INPUT-TASK then just display that task."
 
 ;; Dice Rolls
 (defun roll-dice (&optional sides)
-  "Roll an number between [1, SIDES]."
+  "Roll a number between [1, SIDES]."
   (interactive "nNumber of sides: ")
   (unless sides
-    (error "roll-die: Sides argument is required in non-interactive calls"))
-  (when (< sides 1)    ;; This also checks if the number is an integer!
-    (error "roll-die: Sides argument must be a natural number"))
-  (message (format "d%i rolled: %i" sides (1+ (random sides)))))
+    (error "roll-dice: Sides argument is required in non-interactive calls"))
+  (unless (and (integerp sides) (>= sides 1))
+    (error "roll-dice: Sides must be a positive integer"))
+  (message "d%i rolled: %i" sides (1+ (random sides))))
 
 
 ;;  ********
@@ -2867,7 +2844,7 @@ The `local-abbrev-table' will be replaced by a copy with the new abbrevs added,
 so that it is not the same as the abbrev table used in other buffers with the
 same `major-mode'."
   (let* ((bufname (buffer-name))
-         (prefix (substring (md5 bufname) 0 (length bufname)))
+         (prefix (substring (md5 bufname) 0 8))
          (tblsym (intern (concat prefix "-abbrev-table"))))
     (set tblsym (copy-abbrev-table local-abbrev-table))
     (dolist (abbrev abbrevs)
@@ -2913,7 +2890,7 @@ same `major-mode'."
   (when (file-exists-p nt-k8s-dashboard-file)
     (load nt-k8s-dashboard-file)))
 
-(defun my/helm-template-diff (chart release namespace values-file)
+(defun my/helm-template-diff (release chart namespace values-file)
   "Render a Helm chart locally and compare it with the live cluster.
 Prompt for RELEASE, CHART, NAMESPACE, and VALUES-FILE, then run:
   helm template RELEASE CHART -n NAMESPACE -f VALUES-FILE | kubectl diff -f -
@@ -3291,6 +3268,8 @@ agenda file does not abort startup."
                                      ("p" . highlight-changes-previous-change)
                                      ("r" . highlight-changes-rotate-faces)
                                      ("v" . highlight-changes-visible-mode)))
+
+(global-set-keys-to-prefix "C-c k" '(("h" . my/helm-template-diff)))
 
 (global-set-keys-to-prefix "C-c m" '(("A" . org-agenda)
                                      ("a" . org-agenda-list)

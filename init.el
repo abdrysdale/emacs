@@ -2793,10 +2793,10 @@ Schedule has an explicit yes/no gate before opening the date picker."
          (file+headline ,(in-home-dir "Documents/notes/agenda.org") "Inbox")
          ,(concat
            "* TODO [[file:"
-           ebib-reading-list-file
+           local/reading-list
            "::#reading_%c][%(nth 2 kill-ring) (%(nth 1 kill-ring))]]\n"
            "- [[file:"
-           (file-name-as-directory ebib-notes-directory)
+           (file-name-as-directory local/paper-notes-dir)
            "%c.org][Notes]]")
          :immediate-finish t
          :jump-to-captured nil

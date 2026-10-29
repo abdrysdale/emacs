@@ -3165,23 +3165,6 @@ Emacs does."
         (lisp-interaction-mode))
       (current-buffer))))
 
-(defun my/processes-buffer ()
-  "Return the *Proced* buffer, refreshed.
-
-Fall back to the Emacs process list where Proced does not run."
-  (condition-case err
-      (progn
-        (require 'proced)
-        (with-current-buffer (get-buffer-create "*Proced*")
-          (unless (derived-mode-p 'proced-mode)
-            (proced-mode))
-          (proced-update t)
-          (current-buffer)))
-    (error
-     (message "Dashboard: %s" (error-message-string err))
-     (list-processes)
-     (get-buffer "*Process List*"))))
-
 (defun my/main-window ()
   "Return a live window of the selected frame that is not a side window."
   (or (seq-find (lambda (window)
@@ -3190,7 +3173,7 @@ Fall back to the Emacs process list where Proced does not run."
       (selected-window)))
 
 (defun my/dashboard ()
-  "Arrange the frame: processes on the left, agenda and scratch on the right.
+  "Arrange the frame: services on the left, agenda and scratch on the right.
 
 The agenda sits above scratch.  Run it from `C-c b b' to rebuild the
 layout after moving windows around."
@@ -3202,7 +3185,7 @@ layout after moving windows around."
     (split-window-below)
     (with-selected-window (next-window)
       (switch-to-buffer (my/scratch-buffer)))
-    (display-buffer (my/processes-buffer)
+    (display-buffer (my/services-refresh)
                     '((display-buffer-in-side-window)
                       (side . left)
                       (slot . 0)

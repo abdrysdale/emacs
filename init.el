@@ -156,8 +156,10 @@ than having to call `add-to-list' multiple times."
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; Ensure that Emacs can verify SSL/TLS certificates
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;; `gnutls-algorithm-priority' stays at its default.  "NORMAL:-VERS-TLS1.3"
+;; was the workaround for Emacs 26.1 not connecting to the package archives
+;; over TLS 1.3 (bug#34341, bug#36725), fixed in 26.3; the pin caps every
+;; connection at TLS 1.2.
 
 ;; Package archives
 (require 'package)
@@ -2578,13 +2580,27 @@ do that at the moment."
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c l c") #'me/org-link-copy))
 
+;; Saving an Org file tangles it, but only under `my/tangle-roots': a
+;; `:tangle' header can name any path, so a file from anywhere else
+;; would otherwise be able to write wherever it liked on save.
+(defvar my/tangle-roots
+  (when local/agenda-file
+    (list (file-name-directory local/agenda-file)))
+  "Directories whose Org files tangle automatically when saved.")
+
+(defun my/org-tangle-on-save ()
+  "Tangle the current Org file when it lives under `my/tangle-roots'."
+  (when (and (derived-mode-p 'org-mode)
+             buffer-file-name
+             (not (file-remote-p buffer-file-name))
+             (seq-some (lambda (root)
+                         (file-in-directory-p buffer-file-name root))
+                       my/tangle-roots))
+    (org-babel-tangle)))
+
 (add-hook 'org-mode-hook
           (lambda ()
-            (add-hook 'after-save-hook
-                      (lambda ()
-                        (when (eq major-mode 'org-mode)
-                          (org-babel-tangle)))
-                      nil t)))
+            (add-hook 'after-save-hook #'my/org-tangle-on-save nil t)))
 
 ;; Browser in external browser
 (defun browser-url-at-point-with-external-browser (&optional ARG)

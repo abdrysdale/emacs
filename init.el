@@ -1355,10 +1355,11 @@ Return non-nil if the buffer was actually modified."
 
 (add-hook 'python-mode-hook #'my/python-flymake-setup)
 
-(define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
-(define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
-(define-key flymake-mode-map (kbd "C-c l b") 'flymake-show-buffer-diagnostics)
-(define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics)
+(with-eval-after-load 'flymake
+  (define-key flymake-mode-map (kbd "M-n") 'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-p") 'flymake-goto-prev-error)
+  (define-key flymake-mode-map (kbd "C-c l b") 'flymake-show-buffer-diagnostics)
+  (define-key flymake-mode-map (kbd "C-c l p") 'flymake-show-project-diagnostics))
 
 
 ;;  *********

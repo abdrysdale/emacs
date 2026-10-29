@@ -21,9 +21,9 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
-;; Emacs 30 bundles old copies of compat and transient as built-in packages,
-;; so `package-install' leaves them alone by default.  Upgrade them from the
-;; archives, as a machine that has installed any modern package would.
+;; Emacs bundles its own compat and transient, and `package-install' leaves
+;; built-in packages alone by default.  Upgrade them from the archives, as a
+;; machine that has installed any modern package would.
 (setq package-install-upgrade-built-in t)
 
 (package-initialize)

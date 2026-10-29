@@ -2877,7 +2877,10 @@ same `major-mode'."
 ;;; * Niche Functions *
 ;;  *******************
 
-(load (concat user-emacs-directory "nt-k8s-dashboard.el"))
+(let ((nt-k8s-dashboard-file
+       (concat user-emacs-directory "nt-k8s-dashboard.el")))
+  (when (file-exists-p nt-k8s-dashboard-file)
+    (load nt-k8s-dashboard-file)))
 
 (defun my/helm-template-diff (chart release namespace values-file)
   "Render a Helm chart locally and compare it with the live cluster.
@@ -3014,56 +3017,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
     (message "Added trailing commas to %d function signature(s)." count)))
 
 
-;;  ***********
-;;; * STARTUP *
-;;  ***********
-
-(defun init-workers ()
-  "Initialise workers."
-    (interactive)
-    (unless init-script-initial-clients
-      ;; IRC and newsticker removed from startup — connect manually
-      ;; with M-x irc and M-x newsticker-start when needed.
-      ))
-(add-hook 'emacs-startup-hook #'init-workers)
-
-(defun startup ()
-    "Startup process."
-    (interactive)
-    (let ((buffer-notes "*notes*")
-           (buffer-calendar "*Calendar*")
-           (buffer-agenda "*Org Agenda*")
-           (buffer-scratch "*scratch*"))
-
-      ;; Loads buffers
-      (org-agenda nil "d")
-      (calendar)
-      (scratch-buffer)
-      (note-buffer)
-
-      ;; Calendar
-      (switch-to-buffer buffer-calendar)
-      (delete-other-windows)
-      (split-window-horizontally)
-
-      ;; Scratch
-      (other-window 1)
-      (split-window-vertically)
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer buffer-scratch)
-
-      ;; Notes
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-notes))
-      (org-cycle-agenda-files)
-
-      ;; Agenda
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-agenda))
-      (org-agenda-redo-all)))
-
 ;;  **********************
 ;;; * Global Keybindings *
 ;;  **********************
@@ -3072,7 +3025,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                                      ("N" . note-buffer)
                                      ("M" . markdown-buffer)
                                      ("a" . append-to-buffer)
-                                     ("b" . startup)
                                      ("c" . count-words)
                                      ("d" . desktop-read)
                                      ("g" . (lambda () (interactive)
@@ -3209,23 +3161,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)
                                      ("C-m" . master-mode)))
-
-
-;;  *********************
-;;; * AFTER FIRST FRAME *
-;;  *********************
-
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-            ;; Only run startup if this is a genuine user-facing graphical or terminal frame
-            (with-selected-frame frame
-              (when (and (display-graphic-p frame)
-                         ;; Prevent temporary utility frames from triggering it
-                         (not (window-parameter nil 'window-side)))
-                (startup)))))
-(when (<= (length (frame-list)) 1)
-  (desktop-clear)
-  (startup))
 
 
 ;;  ***************

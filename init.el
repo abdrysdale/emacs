@@ -758,15 +758,6 @@ Setting the NAME and DOC."
 (global-set-key (kbd "C-x i") #'titlecase-region)
 (global-set-key (kbd "C-x w r") #'write-region)
 
-;; Multiple cursors ;;
-(use-package multiple-cursors
-  :config
-  (global-set-key (kbd "C->") #'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-x M-.") #'mark-pop)
-  (global-set-key (kbd "C-x C-.") #'mc/edit-lines)
-  (define-key mc/keymap (kbd "<return>") nil))
-
 ;; Expand region
 (use-package expand-region
   :bind ("C-=" . er/expand-region))

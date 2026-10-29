@@ -61,10 +61,6 @@ than having to call `add-to-list' multiple times."
     (add-to-list list item)))
 
 (defvar local/home-dir "~" "Home directory.")
-(defvar wakatime-cli-path-rel nil "Relative path to wakatime-cli executable.")
-
-(defvar local/habitica-uid nil "Habitica UID.")
-(defvar local/habitica-token nil "Habitica Token.")
 
 ;; Important files that need to be present.
 (defvar local/agenda-file nil "Local agenda file.")
@@ -242,23 +238,6 @@ The timer can be canceled with `my-cancel-gc-timer'.")
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
 
-;; WakaTime
-;; Requires wakatime-cli (https://wakatime.com/emacs)
-;; The wakatime login file sets the wakatime-api-key variable to the api key.
-;; wakatime-cli must be specified in the users' path.
-(let ((waka-login-file (concat user-emacs-directory ".waka.el")))
-  (if (file-exists-p waka-login-file)
-      (use-package wakatime-mode
-        :init
-        (setq wakatime-cli-path (in-home-dir wakatime-cli-path-rel))
-        (load waka-login-file)
-        :config
-        (global-wakatime-mode))
-    (message
-     (concat "WakaTime not loaded as credentials not found in "
-             waka-login-file))))
-
-
 ;;  ***************
 ;;; * File System *
 ;;  ***************
@@ -416,16 +395,18 @@ The timer can be canceled with `my-cancel-gc-timer'.")
 
 ;; File modes ;;
 ;; No config needed - just needed for the file types.
-(use-package csv-mode)
-(use-package yaml-mode)
-(use-package toml-mode)
+(use-package csv-mode
+  :defer t)
+(use-package yaml-mode
+  :defer t)
+(use-package toml-mode
+  :defer t)
 (use-package js-json
   :ensure nil
   :mode ("\\.json\\'" . js-json-mode))
 (use-package markdown-mode)
-(use-package dotenv-mode)
-(when (eq system-type 'windows-nt)
-  (use-package matlab-mode))
+(use-package dotenv-mode
+  :defer t)
 
 (use-package envrc)
 (envrc-global-mode)
@@ -496,11 +477,10 @@ The timer can be canceled with `my-cancel-gc-timer'.")
       tooltip-short-delay 0
       use-system-tooltips nil)
 
-;; Fireplace - a mission critical package;;
-(use-package fireplace)
 
 ;; Which-Key ;;
 (use-package which-key
+  :ensure nil
   :init (which-key-mode)
   :diminish which-key-mode
   :config
@@ -778,14 +758,19 @@ Setting the NAME and DOC."
 (global-set-key (kbd "C-x i") #'titlecase-region)
 (global-set-key (kbd "C-x w r") #'write-region)
 
-;; Multiple cursors ;;
-(use-package multiple-cursors
-  :config
-  (global-set-key (kbd "C->") #'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-x M-.") #'mark-pop)
-  (global-set-key (kbd "C-x C-.") #'mc/edit-lines)
-  (define-key mc/keymap (kbd "<return>") nil))
+;; Multiple cursors (retired) ;;
+;; I used multiple-cursors, but in the spirit of preferring what Emacs
+;; already provides I replaced it with the built in equivalents:
+;;
+;; M-%        :: Replace across occurrences (query-replace).
+;; C-M-%      :: Same, with a regexp; \, computes the replacement and \#
+;;               is a running counter.
+;; C-x C-k r  :: Apply a keyboard macro to every line in the region.
+;; C-x SPC    :: Rectangle-mark-mode, for column aligned edits.
+;; C-x r t    :: Insert a string down a rectangle.
+;; C-x r N    :: Number the lines of a rectangle.
+;;
+;; The only thing given up is seeing every edit site at once while typing.
 
 ;; Expand region
 (use-package expand-region
@@ -934,14 +919,11 @@ Return non-nil if the buffer was actually modified."
 ;; Help on idle after 1s
 (setq cperl-lazy-help-time 1)
 
-;;;; Powershel
-(use-package powershell)
 
 ;;;; Nix
-(use-package nix-mode)
+(use-package nix-mode
+  :defer t)
 
-;;;; Julia
-(use-package julia-mode)
 
 ;;;; Latex
 (setq tectonic-compile-command "tectonic -X compile -f plain %T"
@@ -1002,6 +984,7 @@ Return non-nil if the buffer was actually modified."
 (use-package latex
   ;; In general I prefer the AUCTeX modes over their builtin counter parts
   ;; That is, LaTeX-mode over latex-mode etc.
+  :defer t
   :ensure auctex
   :ensure reftex
   :config
@@ -1029,6 +1012,11 @@ Return non-nil if the buffer was actually modified."
         TeX-check-TeX nil
         TeX-process-asynchronous t
         TeX-engine 'default)
+  ;; TeX-command-list needs to be modified not pass extra metadata and options
+  (let ((tex-list (assoc "TeX" TeX-command-list))
+        (latex-list (assoc "LaTeX" TeX-command-list)))
+    (setf (cadr tex-list) "%(tex)"
+          (cadr latex-list) "%l"))
   (setq-default TeX-master nil)
   :bind (:map reftex-mode-map ("C-c [" . nil))
   :bind (:map LaTeX-mode-map ("C-c [" . #'ebib-latex-quick-cite))
@@ -1039,12 +1027,6 @@ Return non-nil if the buffer was actually modified."
 ;; https://mail.gnu.org/archive/html/help-emacs-windows/2017-04/msg00017.html
 (when (eq system-type 'windows-nt)
   (add-hook 'LaTeX-mode-hook (lambda () (flyspell-mode -1))))
-
-;; TeX-command-list needs to be modified not pass extra metadata and options
-(let ((tex-list (assoc "TeX" TeX-command-list))
-      (latex-list (assoc "LaTeX" TeX-command-list)))
-  (setf (cadr tex-list) "%(tex)"
-        (cadr latex-list) "%l"))
 
 ;; Live PDF preview in tectonic projects
 (add-hook 'after-change-major-mode-hook
@@ -1094,27 +1076,19 @@ Return non-nil if the buffer was actually modified."
 ;; chooseCRANmirror(graphics = FALSE)
 ;; to avoid install.packages hanging.
 (use-package ess
+  :defer t
   :config (require 'ess-r-mode))
 ;; well also Python but that's not important right now
 (setq ess-ask-for-ess-directory t) ;; I actually like this feature!
 (setq ess-local-process-name "R")
 (setq ess-eval-visibly-p 'nowait) ;; No waiting whilst ESS is evaluating
 
-(define-key ess-r-mode-map (kbd "M-?") nil) ;; unbinds M-?
+(with-eval-after-load 'ess-r-mode
+  (define-key ess-r-mode-map (kbd "M-?") nil)) ;; unbinds M-?
 
 ;;;; Rust
-(use-package rust-mode)
-
-;;;; F-sharp
-(use-package fsharp-mode)
-
-;;;; Clojure
-(use-package cider)
-(use-package paredit)
-
-;;;; gleam
-(use-package gleam-ts-mode
-  :mode (rx ".gleam" eos))
+(use-package rust-mode
+  :defer t)
 
 
 ;;  **************
@@ -1135,8 +1109,6 @@ Return non-nil if the buffer was actually modified."
 (setq hs-isearch-open t)    ;; Unhides comments and code when using isearch
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 
-;; hs-minor-mode not supported by gleam-ts-mode
-(remove-hook 'gleam-ts-mode-hook #'hs-minor-mode)
 
 ;; eTags
 
@@ -1363,7 +1335,6 @@ Return non-nil if the buffer was actually modified."
 (dired-async-mode t)
 
 (use-package dired-rsync
-  :demand t
   :after dired
   :bind (:map dired-mode-map ("r" . dired-rsync))
   :config
@@ -1403,28 +1374,6 @@ Return non-nil if the buffer was actually modified."
 ;;  *********
 ;;; * Tools *
 ;;  *********
-
-;; Habitica
-(use-package habitica
-  :config
-  (setq habitica-show-streak t)
-  (setq habitica-uid local/habitica-uid)
-  (setq habitica-token local/habitica-token))
-(defvar habitica-task-id-clock-in/out "bf35cb8a-93b2-4254-bdff-076f055c35fd"
-  "ID for the habit to track clocking in and out.")
-
-(defun org-clock-in-score-habitica-up ()
-  "Clock in on the current task and score the habitica clock habit up."
-  (interactive)
-  (if (eq major-mode 'org-agenda-mode)
-      (org-agenda-clock-in)
-    (org-clock-in))
-  (habitica-api-score-task habitica-task-id-clock-in/out "up"))
-
-(defun org-clock-in-score-habitica-down ()
-  "Score the habitica clock habit down."
-  (interactive)
-  (habitica-api-score-task habitica-task-id-clock-in/out "down"))
 
 ;; Terminals
 (use-package vterm)
@@ -1758,6 +1707,8 @@ SELF-MONITORING
 (use-package plz
   :straight t)
 (use-package starling
+  :defer t
+  :commands (starling-spaces starling-insights)
   :straight `(starling :type git :host github :repo "abdrysdale/starling-el"))
 
 (defun starling ()
@@ -1929,6 +1880,7 @@ SELF-MONITORING
 (defun irc () "Connect to default IRC client." (interactive) (erc))
 
 (use-package transmission
+  :defer t
   :config (setq transmission-timer 5))
 
 ;; Music
@@ -2158,13 +2110,18 @@ IF INPUT-TASK then just display that task."
   (shr-render-buffer (current-buffer)))
 
 ;; Sending Mail ;;
-(use-package smtpmail)
-(setq mail-user-agent 'message-user-agent)
-
-(setq message-send-mail-function 'smtpmail-send-it
-      smtpmail-smtp-server "127.0.0.1"
-      smtpmail-smtp-service 1025
-      message-kill-buffer-on-exit t)
+;; smtpmail is built in and only needed when a message is actually sent,
+;; so defer it.  The settings live in :init so they are in place before
+;; the first send.
+(use-package smtpmail
+  :ensure nil
+  :defer t
+  :init
+  (setq mail-user-agent 'message-user-agent
+        message-send-mail-function 'smtpmail-send-it
+        smtpmail-smtp-server "127.0.0.1"
+        smtpmail-smtp-service 1025
+        message-kill-buffer-on-exit t))
 
 
 ;;  ********
@@ -2519,7 +2476,9 @@ with some rough idea of what the papers were about."
          "TODO(t!)" "STARTED(s!)" "WAITING(w@/!)"
          "|" "DONE(d!)" "CANCELLED(c@)")))
 
-(use-package ox-reveal)
+(use-package ox-reveal
+  :defer t
+  :after ox)
 (require 'ox-md)
 (require 'ox-beamer)
 (setq org-beamer-frame-level 2)
@@ -2527,7 +2486,8 @@ with some rough idea of what the papers were about."
 ;; Publishing
 (require 'ox-publish)
 (use-package simple-httpd
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; Babel
 (setq org-babel-load-languages '((emacs-lisp . t)
@@ -2542,16 +2502,10 @@ with some rough idea of what the papers were about."
                                  (sql . t)
                                  (sqlite . t)))
 
-(if (eq system-type 'windows-nt)
-    (use-package ob-powershell
-      :config
-      ;; I would never have powershell or matlab installed on a linux system
-      (add-to-list 'org-babel-load-languages '(powershell . t))
-      (add-to-list 'org-babel-load-languages '(matlab . t)))
-  (use-package ob-nix
-    :config
-    ;; Currently nix is only supported for unix systems
-    (add-to-list 'org-babel-load-languages '(nix . t))))
+(use-package ob-nix
+  :config
+  ;; Currently nix is only supported for unix systems
+  (add-to-list 'org-babel-load-languages '(nix . t)))
 (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
 
 ;; Stops asking for confirmation for every source block execution
@@ -2870,7 +2824,8 @@ Schedule has an explicit yes/no gate before opening the date picker."
       org-outline-path-complete-in-steps nil)
 
 ;; HTML syntax highlighting
-(use-package htmlize)
+(use-package htmlize
+  :defer t)
 
 
 ;;  ****************
@@ -2933,7 +2888,10 @@ same `major-mode'."
 ;;; * Niche Functions *
 ;;  *******************
 
-(load (concat user-emacs-directory "nt-k8s-dashboard.el"))
+(let ((nt-k8s-dashboard-file
+       (concat user-emacs-directory "nt-k8s-dashboard.el")))
+  (when (file-exists-p nt-k8s-dashboard-file)
+    (load nt-k8s-dashboard-file)))
 
 (defun my/helm-template-diff (chart release namespace values-file)
   "Render a Helm chart locally and compare it with the live cluster.
@@ -3070,76 +3028,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
     (message "Added trailing commas to %d function signature(s)." count)))
 
 
-;;  ***********
-;;; * STARTUP *
-;;  ***********
-
-(defun init-workers ()
-  "Initialise workers."
-    (interactive)
-    (unless init-script-initial-clients
-      ;; IRC and newsticker removed from startup — connect manually
-      ;; with M-x irc and M-x newsticker-start when needed.
-      ))
-(add-hook 'emacs-startup-hook #'init-workers)
-
-(defun startup ()
-    "Startup process."
-    (interactive)
-    (let ((buffer-notes "*notes*")
-           (buffer-calendar "*Calendar*")
-           (buffer-agenda "*Org Agenda*")
-           (buffer-fireplace "*fireplace*")
-           (buffer-scratch "*scratch*")
-           (buffer-habitica "*habitica*")
-           (habitica-width 87)
-           (habitica-height 32))
-
-      ;; Loads buffers
-      (org-agenda nil "d")
-      (calendar)
-      (scratch-buffer)
-      (note-buffer)
-      (habitica-tasks)
-      (if (get-buffer buffer-fireplace)
-          (kill-buffer buffer-fireplace))
-
-      ;; Calendar
-      (switch-to-buffer buffer-calendar)
-      (delete-other-windows)
-      (split-window-horizontally)
-
-      ;; Scratch
-      (other-window 1)
-      (split-window-vertically)
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer buffer-scratch)
-
-      ;; Habitica
-      (other-window 1)
-      (split-window-horizontally)
-      (switch-to-buffer buffer-habitica)
-      (window-resize nil (- habitica-width (window-total-width nil)) t)
-      (window-resize nil (- habitica-height (window-total-height nil)))
-
-      ;; Fireplace
-      (other-window 1)
-      (fireplace)
-      (switch-to-buffer (get-buffer buffer-fireplace))
-      (display-line-numbers-mode -1)
-
-      ;; Notes
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-notes))
-      (org-cycle-agenda-files)
-
-      ;; Agenda
-      (split-window-vertically)
-      (other-window 1)
-      (switch-to-buffer (get-buffer buffer-agenda))
-      (org-agenda-redo-all)))
-
 ;;  **********************
 ;;; * Global Keybindings *
 ;;  **********************
@@ -3148,7 +3036,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                                      ("N" . note-buffer)
                                      ("M" . markdown-buffer)
                                      ("a" . append-to-buffer)
-                                     ("b" . startup)
                                      ("c" . count-words)
                                      ("d" . desktop-read)
                                      ("g" . (lambda () (interactive)
@@ -3171,11 +3058,11 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                                      ("d" .(lambda () (interactive)
                                              (insert
                                               (format-time-string "%Y-%m-%d"))))
-                                     ("i" . org-clock-in-score-habitica-up)
+                                     ("i" . org-clock-in)
                                      ("n" .  (lambda () (interactive)
                                                (insert
                                                 (format-time-string "%H:%M"))))
-                                     ("f" . org-clock-in-score-habitica-down)
+                                     ("f" . org-clock-out)
                                      ("p" . org-timer-pause-or-continue)
                                      ("s" . org-timer-stop)
                                      ("t" . org-timer-set-timer)))
@@ -3285,23 +3172,6 @@ Prompts with y-or-n before making changes and skips single-argument functions."
                                      ("s" . window-swap-states)
                                      ("t" . window-toggle-side-windows)
                                      ("C-m" . master-mode)))
-
-
-;;  *********************
-;;; * AFTER FIRST FRAME *
-;;  *********************
-
-(add-hook 'after-make-frame-functions
-          (lambda (frame)
-            ;; Only run startup if this is a genuine user-facing graphical or terminal frame
-            (with-selected-frame frame
-              (when (and (display-graphic-p frame)
-                         ;; Prevent temporary utility frames from triggering it
-                         (not (window-parameter nil 'window-side)))
-                (startup)))))
-(when (<= (length (frame-list)) 1)
-  (desktop-clear)
-  (startup))
 
 
 ;;  ***************
